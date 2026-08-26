@@ -42,10 +42,28 @@
       </section>
 
       <section class="work-grid">
+        <article class="panel task-panel span-12">
+          <header class="panel-head">
+            <div><span class="badge local">◆ LOCAL + LIVE RUN</span><h2>내 작업 목록</h2></div>
+            <div class="task-metrics"><span><strong id="work-count">—</strong> total</span><span><strong id="active-work-count">—</strong> active</span></div>
+          </header>
+          <p class="panel-intro">작업 자체는 이 브라우저에 저장되고, Run ID가 연결된 항목의 상태만 Mediator에서 LIVE로 읽습니다.</p>
+          <form id="task-form" class="task-form">
+            <label><span>작업 이름</span><input id="task-title" required placeholder="예: crash-142 램덤프 분석"></label>
+            <label><span>기능</span><select id="task-type">
+              <option>램덤프 분석</option><option>빌드</option><option>퓨징</option><option>테스트 수행</option><option>결과 확인</option><option>Gerrit 패치 push</option>
+            </select></label>
+            <label><span>Run ID · 선택</span><input id="task-run-id" placeholder="미연결 가능"></label>
+            <button class="button primary" type="submit">작업 추가</button>
+          </form>
+          <div class="local-note">처음 보이는 항목은 기능 구성을 설명하는 LOCAL SAMPLE입니다. 이름·Run ID를 바꾸거나 삭제할 수 있습니다.</div>
+          <div id="task-list" class="task-list" aria-live="polite"></div>
+        </article>
+
         <article class="panel stage-panel span-12">
           <header class="panel-head">
             <div><span class="badge live">● LIVE + INFERENCE</span><h2>DLC 맥락 태그</h2></div>
-            <span class="metric" id="me-run-state">NO RUN</span>
+            <span class="metric"><span id="selected-work">직접 조회</span> · <span id="me-run-state">NO RUN</span></span>
           </header>
           <div class="tag-layout">
             <div>

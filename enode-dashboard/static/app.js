@@ -101,6 +101,33 @@ async function loadCapabilities() {
   }
 }
 
+async function loadEnodes() {
+  const target = $("#enode-list");
+  const catalogTarget = $("#function-catalog");
+  if (!target || !catalogTarget) return;
+  try {
+    const data = await api("/api/enodes");
+    const instances = data.instances || [];
+    const catalog = data.catalog || [];
+    const labels = Object.fromEntries(catalog.map((item) => [item.id, item.label]));
+    $("#enode-count").textContent = `${data.running || 0} running`;
+    target.innerHTML = instances.length ? instances.map((item) => {
+      const functions = (item.functions || []).map((id) => labels[id] || id);
+      return `<div class="enode-row ${escapeHtml(String(item.status).toLowerCase())}">
+        <span class="enode-status-dot"></span>
+        <span class="enode-identity"><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.detail || item.source)}</small></span>
+        <span class="enode-functions">${functions.length ? functions.map((name) => `<span>${escapeHtml(name)}</span>`).join("") : '<em>기능 미확인</em>'}</span>
+        <span class="state-pill ${escapeHtml(String(item.status).toLowerCase())}">${escapeHtml(item.status)}</span>
+      </div>`;
+    }).join("") : '<div class="empty-state enode-empty"><strong>실행 중인 enode가 없습니다.</strong><span>enode.exe를 시작하거나 config.json의 enode_instances에 점검할 엔드포인트를 추가하세요.</span></div>';
+    catalogTarget.innerHTML = catalog.map((item) => `<div class="function-item"><span class="function-code">${escapeHtml(item.id)}</span><strong>${escapeHtml(item.label)}</strong><small>${escapeHtml(item.description)}</small></div>`).join("");
+  } catch (error) {
+    $("#enode-count").textContent = "CHECK FAILED";
+    renderError(target, error, "enode 프로세스 점검 실패");
+    catalogTarget.innerHTML = '<div class="empty-state">기능 카탈로그를 읽지 못했습니다.</div>';
+  }
+}
+
 function normalizeAsks(data) {
   const list = listFrom(data, ["asks", "items", "data"]);
   if (list.length) return list;
@@ -232,6 +259,135 @@ function renderDlc(run) {
   $("#stage-note").textContent = inferred.note;
 }
 
+const TASK_STORAGE_KEY = "enode.myTasks.v1";
+const DEFAULT_TASKS = [
+  { id: "sample-dump", title: "새 크래시 덤프 분석", type: "램덤프 분석", runId: "", sample: true },
+  { id: "sample-build", title: "feature 브랜치 빌드", type: "빌드", runId: "", sample: true },
+  { id: "sample-fuzz", title: "입력 corpus 퓨징", type: "퓨징", runId: "", sample: true },
+  { id: "sample-test", title: "회귀 테스트 및 결과 확인", type: "테스트 수행", runId: "", sample: true },
+  { id: "sample-gerrit", title: "리뷰용 패치 전송", type: "Gerrit 패치 push", runId: "", sample: true },
+];
+let workTasks = [];
+const taskRuntime = new Map();
+
+function saveTasks() {
+  localStorage.setItem(TASK_STORAGE_KEY, JSON.stringify(workTasks));
+}
+
+function readTasks() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(TASK_STORAGE_KEY));
+    workTasks = Array.isArray(saved) ? saved : DEFAULT_TASKS.map((item) => ({ ...item }));
+  } catch {
+    workTasks = DEFAULT_TASKS.map((item) => ({ ...item }));
+  }
+  if (!localStorage.getItem(TASK_STORAGE_KEY)) saveTasks();
+}
+
+function taskStateFromRun(run) {
+  const state = String(run.state || "UNKNOWN").toUpperCase();
+  if (run.reject) return { label: "BLOCKED", className: "blocked", note: summarizeReason(run.reject) };
+  if (["PENDING", "WAITING", "MATCHING", "QUEUED"].includes(state)) return { label: state, className: "waiting", note: "실행 대기 또는 매칭 중" };
+  if (["RUNNING", "EXECUTING", "ACTIVE"].includes(state)) return { label: "RUNNING", className: "running", note: "enode가 작업 수행 중" };
+  if (["SUCCEEDED", "SUCCESS"].includes(state)) return { label: "SUCCEEDED", className: "succeeded", note: "계약 판정 성공" };
+  if (state === "DONE") return { label: "DONE", className: "done", note: "실행 완료 · 판정 확인 필요" };
+  if (state === "FAILED") return { label: "FAILED", className: "failed", note: "실행 또는 판정 실패" };
+  if (["CANCELLED", "CANCELED"].includes(state)) return { label: "CANCELED", className: "canceled", note: "작업 중단" };
+  return { label: state, className: "unknown", note: "Mediator가 반환한 상태" };
+}
+
+function renderTaskList() {
+  const target = $("#task-list");
+  if (!target) return;
+  $("#work-count").textContent = workTasks.length;
+  const active = [...taskRuntime.values()].filter((item) => ["running", "waiting"].includes(item.className)).length;
+  $("#active-work-count").textContent = active;
+  target.innerHTML = workTasks.length ? workTasks.map((task) => {
+    const runtime = taskRuntime.get(task.id) || (task.runId
+      ? { label: "CHECKING", className: "checking", note: "Run 상태 확인 중" }
+      : { label: "NOT LINKED", className: "local", note: "Run ID 미연결" });
+    return `<div class="task-row" data-task-id="${escapeHtml(task.id)}">
+      <span class="task-kind">${escapeHtml(task.type)}</span>
+      <label class="task-title-field"><span class="sr-only">작업 이름</span><input class="task-title-editor" value="${escapeHtml(task.title)}"></label>
+      <label class="task-run-field"><span>RUN ID</span><input class="task-run-editor" value="${escapeHtml(task.runId || "")}" placeholder="미연결"></label>
+      <span class="task-state"><span class="state-pill ${escapeHtml(runtime.className)}">${escapeHtml(runtime.label)}</span><small>${escapeHtml(runtime.note)}</small></span>
+      <span class="task-source badge ${task.sample ? "mock" : (task.runId ? "live" : "local")}">${task.sample ? "LOCAL SAMPLE" : (task.runId ? "LIVE RUN" : "LOCAL")}</span>
+      <span class="task-actions"><button class="button small" data-action="inspect" type="button">상세</button><button class="icon-button" data-action="delete" type="button" aria-label="${escapeHtml(task.title)} 삭제">×</button></span>
+    </div>`;
+  }).join("") : '<div class="empty-state"><strong>등록된 작업이 없습니다.</strong><span>위 입력란에서 첫 작업을 추가하세요.</span></div>';
+}
+
+async function refreshTaskStatuses() {
+  renderTaskList();
+  await Promise.all(workTasks.filter((task) => task.runId).map(async (task) => {
+    try {
+      const run = await api(`/api/run/${encodeURIComponent(task.runId)}`);
+      taskRuntime.set(task.id, taskStateFromRun(run));
+    } catch (error) {
+      taskRuntime.set(task.id, { label: "OFFLINE", className: "offline", note: error.message });
+    }
+  }));
+  renderTaskList();
+}
+
+function initTasks() {
+  readTasks();
+  refreshTaskStatuses();
+  $("#task-form").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const title = $("#task-title").value.trim();
+    if (!title) return;
+    workTasks.unshift({
+      id: `task-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      title,
+      type: $("#task-type").value,
+      runId: $("#task-run-id").value.trim(),
+      sample: false,
+    });
+    saveTasks();
+    event.target.reset();
+    refreshTaskStatuses();
+  });
+  $("#task-list").addEventListener("change", (event) => {
+    const row = event.target.closest("[data-task-id]");
+    if (!row) return;
+    const task = workTasks.find((item) => item.id === row.dataset.taskId);
+    if (!task) return;
+    if (event.target.classList.contains("task-title-editor")) task.title = event.target.value.trim() || task.title;
+    if (event.target.classList.contains("task-run-editor")) {
+      task.runId = event.target.value.trim();
+      taskRuntime.delete(task.id);
+    }
+    task.sample = false;
+    saveTasks();
+    refreshTaskStatuses();
+  });
+  $("#task-list").addEventListener("click", async (event) => {
+    const button = event.target.closest("button[data-action]");
+    const row = event.target.closest("[data-task-id]");
+    if (!button || !row) return;
+    const index = workTasks.findIndex((item) => item.id === row.dataset.taskId);
+    if (index < 0) return;
+    const task = workTasks[index];
+    if (button.dataset.action === "delete") {
+      workTasks.splice(index, 1);
+      taskRuntime.delete(task.id);
+      saveTasks();
+      renderTaskList();
+      return;
+    }
+    if (!task.runId) {
+      row.querySelector(".task-run-editor").focus();
+      return;
+    }
+    $("#me-run-id").value = task.runId;
+    $("#selected-work").textContent = task.title;
+    const run = await loadRun(task.runId, $("#me-run-result"), $("#me-run-state"));
+    renderDlc(run);
+    $(".stage-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+}
+
 async function loadProfile() {
   try {
     const profile = await api("/api/profile");
@@ -242,7 +398,7 @@ async function loadProfile() {
 async function refreshOps() {
   const button = $("#refresh-all");
   if (button) button.disabled = true;
-  await Promise.allSettled([loadSetup(), loadCapabilities(), loadAsks(), checkConnection()]);
+  await Promise.allSettled([loadSetup(), loadCapabilities(), loadEnodes(), loadAsks(), checkConnection()]);
   if ($("#last-refresh")) $("#last-refresh").textContent = `갱신 ${new Date().toLocaleTimeString("ko-KR")}`;
   if (button) button.disabled = false;
 }
@@ -260,11 +416,13 @@ function initOps() {
 function initMe() {
   checkConnection();
   loadProfile();
+  initTasks();
   const label = $("#project-label");
   label.value = localStorage.getItem("enode.projectLabel") || "";
   label.addEventListener("input", () => localStorage.setItem("enode.projectLabel", label.value));
   $("#me-run-form").addEventListener("submit", async (event) => {
     event.preventDefault();
+    $("#selected-work").textContent = "직접 조회";
     const run = await loadRun($("#me-run-id").value, $("#me-run-result"), $("#me-run-state"));
     renderDlc(run);
   });

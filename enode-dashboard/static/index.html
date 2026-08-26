@@ -36,6 +36,7 @@
 
       <section class="trust-strip" aria-label="데이터 범례">
         <div><span class="badge live">● LIVE</span><span>이 PC 또는 Mediator의 현재 응답</span></div>
+        <div><span class="badge config">◆ CONFIG</span><span>운영자가 선언한 기능·엔드포인트</span></div>
         <div><span class="badge mock">□ MOCK</span><span>API 부재를 숨기지 않는 자리표시</span></div>
       </section>
 
@@ -58,17 +59,22 @@
           <div id="capabilities" class="capability-list" aria-live="polite"><div class="skeleton tall"></div></div>
         </article>
 
-        <article class="panel span-5">
+        <article class="panel span-12 enode-panel">
           <header class="panel-head">
-            <div><span class="badge mock">□ MOCK</span><h2>노드 지도</h2></div>
-            <span class="metric">4 nodes</span>
+            <div><span class="badge live">● LIVE</span><h2>Running enodes</h2></div>
+            <span class="metric" id="enode-count">— running</span>
           </header>
-          <div class="mock-reason">Mediator에 노드 목록 조회 API가 없어 고정 샘플을 표시합니다.</div>
-          <div class="node-map" aria-label="샘플 노드 상태">
-            <div class="node online"><span class="node-dot"></span><strong>selene</strong><small>Seoul · reason</small></div>
-            <div class="node online"><span class="node-dot"></span><strong>atlas</strong><small>Tokyo · code</small></div>
-            <div class="node idle"><span class="node-dot"></span><strong>morrow</strong><small>Singapore · review</small></div>
-            <div class="node offline"><span class="node-dot"></span><strong>vesper</strong><small>Offline · 18m</small></div>
+          <p class="panel-intro">현재 PC의 <code>enode.exe</code> 프로세스와 설정된 엔드포인트를 직접 점검합니다.</p>
+          <div class="enode-layout">
+            <div>
+              <p class="section-kicker">ACTIVE INSTANCES</p>
+              <div id="enode-list" class="enode-list" aria-live="polite"><div class="skeleton tall"></div></div>
+            </div>
+            <div class="function-catalog">
+              <div class="catalog-head"><p class="section-kicker">DEVELOPMENT FUNCTIONS</p><span class="badge config">◆ CONFIG</span></div>
+              <p class="catalog-note">enode에 배치할 수 있는 개발 이슈 처리 범주입니다. 인스턴스별 실제 기능은 설정에서 확인된 것만 표시합니다.</p>
+              <div id="function-catalog" class="function-grid"><div class="skeleton tall"></div></div>
+            </div>
           </div>
         </article>
 
