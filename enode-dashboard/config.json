@@ -1,0 +1,18 @@
+{
+  "host": "127.0.0.1",
+  "port": 8765,
+  "mediator_url": "http://127.0.0.1:8080",
+  "mediator_token": "dev-dashboard-token",
+  "principal": "dashboard@localhost",
+  "database_host": "127.0.0.1",
+  "database_port": 5432,
+  "enode_bin_dir": "../enode-bin",
+  "go_paths": [
+    "%USERPROFILE%\\sdk\\go\\bin\\go.exe",
+    "C:\\Program Files\\Go\\bin\\go.exe"
+  ],
+  "enode_config_paths": [
+    "%USERPROFILE%\\.config\\enode\\config.json",
+    "%USERPROFILE%\\.enode\\config.json"
+  ]
+}
