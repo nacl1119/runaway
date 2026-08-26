@@ -9,6 +9,7 @@ disabled for those calls because Mediator normally listens on loopback.
 from __future__ import annotations
 
 import io
+import csv
 import json
 import mimetypes
 import os
@@ -61,6 +62,7 @@ def load_config() -> dict[str, Any]:
     )
     config.setdefault("enode_config_paths", [])
     config.setdefault("go_paths", [])
+    config.setdefault("enode_instances", [])
     if os.environ.get("ENODE_GO_PATHS"):
         config["go_paths"] = os.environ["ENODE_GO_PATHS"].split(os.pathsep)
     if os.environ.get("ENODE_NODE_CONFIG_PATHS"):
@@ -176,6 +178,94 @@ def setup_checks() -> dict[str, Any]:
     checks.append({"id": "mediator", "label": "Mediator 포트", "ok": med_ok, "detail": med_detail})
 
     return {"ok": True, "source": "live", "checked_at": utc_ms(), "checks": checks}
+
+
+FEATURE_CATALOG = [
+    {"id": "dump.analyze", "label": "램덤프 분석", "description": "크래시 덤프·스택·메모리 상태 분석"},
+    {"id": "build", "label": "빌드", "description": "소스 빌드와 정적 검증"},
+    {"id": "fuzz", "label": "퓨징", "description": "입력 corpus 기반 결함 탐색"},
+    {"id": "test.run", "label": "테스트 수행", "description": "테스트 실행과 산출물 수집"},
+    {"id": "test.inspect", "label": "결과 확인", "description": "판정·로그·record 검토"},
+    {"id": "gerrit.push", "label": "Gerrit 패치 push", "description": "리뷰용 refs/for 패치 전송"},
+]
+
+
+def local_enode_processes() -> list[dict[str, Any]]:
+    """Return only processes the OS currently reports as enode."""
+    instances: list[dict[str, Any]] = []
+    if os.name == "nt":
+        try:
+            result = subprocess.run(
+                ["tasklist", "/FI", "IMAGENAME eq enode.exe", "/FO", "CSV", "/NH"],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=3,
+                check=False,
+                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+            )
+            for row in csv.reader(result.stdout.splitlines()):
+                if len(row) < 5 or row[0].lower() != "enode.exe":
+                    continue
+                instances.append({
+                    "id": f"local-{row[1]}",
+                    "name": f"local enode · PID {row[1]}",
+                    "status": "RUNNING",
+                    "source": "local-process",
+                    "pid": int(row[1]),
+                    "detail": f"{row[2]} · memory {row[4]}",
+                    "functions": [],
+                })
+        except (OSError, subprocess.TimeoutExpired, ValueError):
+            pass
+    else:
+        try:
+            result = subprocess.run(
+                ["ps", "-eo", "pid=,comm=,args="], capture_output=True, text=True,
+                encoding="utf-8", errors="replace", timeout=3, check=False,
+            )
+            for line in result.stdout.splitlines():
+                parts = line.strip().split(None, 2)
+                if len(parts) < 2 or parts[1] != "enode":
+                    continue
+                instances.append({
+                    "id": f"local-{parts[0]}", "name": f"local enode · PID {parts[0]}",
+                    "status": "RUNNING", "source": "local-process", "pid": int(parts[0]),
+                    "detail": parts[2] if len(parts) > 2 else "enode", "functions": [],
+                })
+        except (OSError, subprocess.TimeoutExpired, ValueError):
+            pass
+    return instances
+
+
+def running_enodes() -> dict[str, Any]:
+    instances = local_enode_processes()
+    for index, configured in enumerate(CONFIG.get("enode_instances", [])):
+        if not isinstance(configured, dict) or configured.get("enabled", True) is False:
+            continue
+        host = str(configured.get("host", "127.0.0.1"))
+        port = configured.get("port")
+        if not port:
+            continue
+        ok, detail = tcp_open(host, int(port))
+        instances.append({
+            "id": str(configured.get("id", f"configured-{index + 1}")),
+            "name": str(configured.get("name", f"enode {host}:{port}")),
+            "status": "RUNNING" if ok else "OFFLINE",
+            "source": "configured-tcp-probe",
+            "detail": detail,
+            "functions": configured.get("functions", []),
+        })
+    return {
+        "ok": True,
+        "source": "live",
+        "checked_at": utc_ms(),
+        "instances": instances,
+        "running": sum(1 for item in instances if item["status"] == "RUNNING"),
+        "catalog": FEATURE_CATALOG,
+        "note": "로컬 enode.exe 프로세스와 config.json의 enode_instances TCP 엔드포인트만 점검",
+    }
 
 
 def mediator_request(path: str, *, accept: str = "application/json") -> tuple[bytes, str, int]:
@@ -331,6 +421,8 @@ class DashboardHandler(BaseHTTPRequestHandler):
                 self.send_json(HTTPStatus.OK, setup_checks())
             elif path == "/api/profile":
                 self.send_json(HTTPStatus.OK, git_email())
+            elif path == "/api/enodes":
+                self.send_json(HTTPStatus.OK, running_enodes())
             elif path == "/api/capabilities":
                 self.send_json(HTTPStatus.OK, {"ok": True, "source": "live", **proxy_json("/v1/capabilities")})
             elif path == "/api/asks":
