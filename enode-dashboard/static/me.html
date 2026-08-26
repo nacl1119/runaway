@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>내 작업 · enode</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body data-page="me">
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="enode 운영 홈"><span class="brand-mark">e/</span><span><strong>enode</strong><small>fleet console</small></span></a>
+      <nav aria-label="주요 메뉴"><a class="nav-link" href="/">운영</a><a class="nav-link active" href="/me">내 작업</a></nav>
+      <div class="connection" id="global-connection"><span class="pulse"></span><span>상태 확인 중</span></div>
+    </header>
+
+    <main>
+      <section class="me-hero">
+        <div>
+          <p class="eyebrow">PERSONAL WORKSPACE · LOCAL</p>
+          <h1>내 작업의 <span>현재 맥락</span></h1>
+          <p>Run의 사실을 읽되, 정식 워크플로 상태인 것처럼 과장하지 않습니다.</p>
+        </div>
+        <div class="identity-card">
+          <span class="badge live">● LIVE</span>
+          <small>git user.email</small>
+          <strong id="profile-email">확인 중…</strong>
+        </div>
+      </section>
+
+      <section class="context-bar">
+        <label>프로젝트 라벨 <span class="badge mock">□ MOCK</span>
+          <input id="project-label" placeholder="예: enode 대시보드">
+          <small>검증 없는 브라우저 로컬 저장값</small>
+        </label>
+        <form id="me-run-form">
+          <label for="me-run-id">Run ID <span class="badge live">● LIVE</span></label>
+          <div class="input-action"><input id="me-run-id" value="dashboard-demo-1" autocomplete="off"><button class="button primary" type="submit">적용</button></div>
+          <small>Mediator의 현재 Run을 읽어 태그를 추정</small>
+        </form>
+      </section>
+
+      <section class="work-grid">
+        <article class="panel stage-panel span-12">
+          <header class="panel-head">
+            <div><span class="badge live">● LIVE + INFERENCE</span><h2>DLC 맥락 태그</h2></div>
+            <span class="metric" id="me-run-state">NO RUN</span>
+          </header>
+          <div class="tag-layout">
+            <div>
+              <p class="tag-label">MAIN · 중심 단계 1개</p>
+              <div id="main-tag" class="dlc-tag main">구현 <small>샘플</small></div>
+            </div>
+            <div>
+              <p class="tag-label">RELATED · 같이 검토</p>
+              <div id="related-tags" class="tag-row"><span class="muted-copy">현재 없음</span></div>
+            </div>
+            <div>
+              <p class="tag-label">범위 밖 · 참고용</p>
+              <div class="tag-row"><span class="dlc-tag out">요구사항</span><span class="dlc-tag out">설계</span><span class="dlc-tag out">배포</span></div>
+            </div>
+          </div>
+          <div id="stage-note" class="stage-note">Run을 적용하면 현재 상태와 거절·판정 정보를 바탕으로 태그를 추정합니다.</div>
+          <p class="inference-note">※ 이 태그는 enode의 정식 DLC 단계 필드가 아닙니다. 현재 제공되는 Run 상태를 바탕으로 한 화면상의 추정이며 순서나 진행률을 뜻하지 않습니다.</p>
+        </article>
+
+        <article class="panel span-12">
+          <header class="panel-head">
+            <div><span class="badge live">● LIVE</span><h2>Run 상세</h2></div>
+            <span class="metric">timeline · verdict · harness</span>
+          </header>
+          <div id="me-run-result" class="run-result empty" aria-live="polite">위 Run ID를 적용하면 단계 타임라인, 판정, AI 실행 상세를 표시합니다.</div>
+        </article>
+      </section>
+    </main>
+    <footer><span>enode local workspace</span><span>태그는 동시 맥락 · 진행률이 아님</span></footer>
+  </div>
+  <script src="/static/app.js" defer></script>
+</body>
+</html>
