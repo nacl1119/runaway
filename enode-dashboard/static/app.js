@@ -107,24 +107,37 @@ async function loadEnodes() {
   if (!target || !catalogTarget) return;
   try {
     const data = await api("/api/enodes");
-    const instances = data.instances || [];
-    const catalog = data.catalog || [];
-    const labels = Object.fromEntries(catalog.map((item) => [item.id, item.label]));
-    $("#enode-count").textContent = `${data.running || 0} running`;
-    target.innerHTML = instances.length ? instances.map((item) => {
-      const functions = (item.functions || []).map((id) => labels[id] || id);
-      return `<div class="enode-row ${escapeHtml(String(item.status).toLowerCase())}">
+    const nodes = data.nodes || [];
+    const templates = data.templates || [];
+    const localProcesses = data.local_processes || [];
+    $("#enode-count").textContent = `${nodes.length} advertised`;
+    target.innerHTML = nodes.length ? nodes.map((node) => {
+      const capabilities = (node.capabilities || []).flatMap((capability) => {
+        const name = capability.name || capability.capability || "agent.reason";
+        const attrs = capability.attrs || capability.attributes || {};
+        const attrLabels = Object.entries(attrs).map(([key, value]) => `${key}=${value}`);
+        return [name, ...attrLabels];
+      });
+      const leased = Boolean(node.lease);
+      const detail = leased
+        ? `run ${node.lease.run_id || "—"} · lease until ${node.lease.not_after || "—"}`
+        : `seen ${node.seen_at || "—"} · expires ${node.expires_at || "—"}`;
+      return `<div class="enode-row ${leased ? "leased" : "observed"}">
         <span class="enode-status-dot"></span>
-        <span class="enode-identity"><strong>${escapeHtml(item.name)}</strong><small>${escapeHtml(item.detail || item.source)}</small></span>
-        <span class="enode-functions">${functions.length ? functions.map((name) => `<span>${escapeHtml(name)}</span>`).join("") : '<em>기능 미확인</em>'}</span>
-        <span class="state-pill ${escapeHtml(String(item.status).toLowerCase())}">${escapeHtml(item.status)}</span>
+        <span class="enode-identity"><strong>${escapeHtml(node.label || node.node_id || "unnamed node")}</strong><small>${escapeHtml(node.node_id || "—")} · ${escapeHtml(detail)}</small></span>
+        <span class="enode-functions">${capabilities.length ? capabilities.map((name) => `<span>${escapeHtml(name)}</span>`).join("") : '<em>capability 미광고</em>'}</span>
+        <span class="state-pill ${leased ? "running" : "observed"}">${leased ? "LEASE OBSERVED" : "NO LEASE OBSERVED"}</span>
       </div>`;
-    }).join("") : '<div class="empty-state enode-empty"><strong>실행 중인 enode가 없습니다.</strong><span>enode.exe를 시작하거나 config.json의 enode_instances에 점검할 엔드포인트를 추가하세요.</span></div>';
-    catalogTarget.innerHTML = catalog.map((item) => `<div class="function-item"><span class="function-code">${escapeHtml(item.id)}</span><strong>${escapeHtml(item.label)}</strong><small>${escapeHtml(item.description)}</small></div>`).join("");
+    }).join("") : `<div class="empty-state enode-empty"><strong>유효한 노드 광고가 없습니다.</strong><span>${escapeHtml(data.warning || "Mediator가 관측한 만료 전 advertisement가 없습니다.")}</span></div>`;
+    const localNote = $("#local-process-note");
+    if (localNote) {
+      localNote.textContent = `로컬 진단: enode 프로세스 ${localProcesses.length}개 · Mediator 관측과 별도${data.warning ? ` · 관측 실패: ${data.warning}` : ""}`;
+    }
+    catalogTarget.innerHTML = templates.map((item) => `<div class="function-item"><span class="function-code">${escapeHtml(item.id)}</span><strong>${escapeHtml(item.label)}</strong><small>${escapeHtml(item.description)}</small></div>`).join("");
   } catch (error) {
     $("#enode-count").textContent = "CHECK FAILED";
-    renderError(target, error, "enode 프로세스 점검 실패");
-    catalogTarget.innerHTML = '<div class="empty-state">기능 카탈로그를 읽지 못했습니다.</div>';
+    renderError(target, error, "노드 관측 실패");
+    catalogTarget.innerHTML = '<div class="empty-state">작업 템플릿을 읽지 못했습니다.</div>';
   }
 }
 
@@ -238,13 +251,12 @@ function inferDlc(run) {
   if (!run) return { mainNote: "샘플", related: [], note: "Run 없음 · 구현을 기본 맥락으로 표시합니다." };
   const state = String(run.state || "UNKNOWN").toUpperCase();
   if (run.reject) return { mainNote: "배정 실패", related: [], note: `매칭 거절 · ${summarizeReason(run.reject)}` };
-  if (["CANCELLED", "CANCELED"].includes(state)) return { mainNote: "중단", related: [], note: "Run이 취소되어 구현 맥락이 중단된 상태로 추정됩니다." };
-  if (["PENDING", "WAITING", "MATCHING", "QUEUED", "RUNNING", "EXECUTING", "ACTIVE"].includes(state)) return { mainNote: "실행 중", related: [], note: `${state} · 구현 실행 또는 대기 중으로 추정됩니다.` };
-  if (["FAILED", "DONE"].includes(state)) {
-    const failure = run.verdict?.success === false || run.verdict?.passed === false || run.judgment?.success === false || state === "FAILED";
-    if (failure) return { mainNote: "완료", related: [{ name: "테스트", note: "판정 실패" }], note: "실행은 끝났지만 판정 실패로 테스트 맥락을 함께 검토합니다." };
-  }
-  if (["SUCCEEDED", "SUCCESS"].includes(state) || run.succeeded === true) {
+  if (state === "RESOLVING") return { mainNote: "해결 중", related: [], note: "RESOLVING · 실행 계약과 입력을 확정하는 중입니다." };
+  if (state === "ALLOCATING") return { mainNote: "배정 중", related: [], note: "ALLOCATING · 광고된 capability와 attrs를 기준으로 노드를 배정하는 중입니다." };
+  if (state === "RUNNING") return { mainNote: "실행 중", related: [], note: "RUNNING · 배정된 enode가 작업을 수행 중입니다." };
+  if (state === "VERIFYING") return { mainNote: "검증 중", related: [{ name: "테스트", note: "판정 확인" }], note: "VERIFYING · 실행 결과를 계약에 따라 검증하는 중입니다." };
+  if (state === "FAILED") return { mainNote: "완료", related: [{ name: "테스트", note: "판정 실패" }], note: "FAILED · 실행 또는 최종 판정 근거를 함께 검토합니다." };
+  if (state === "SUCCEEDED") {
     return hasTestLikeStep(run)
       ? { mainNote: "완료", related: [{ name: "테스트", note: "통과 참고" }], note: "성공했으며 테스트성 단계가 보여 관련 태그를 참고용으로 붙였습니다." }
       : { mainNote: "완료", related: [], note: "성공했으며 확인 가능한 테스트성 단계는 없습니다." };
@@ -286,13 +298,13 @@ function readTasks() {
 
 function taskStateFromRun(run) {
   const state = String(run.state || "UNKNOWN").toUpperCase();
-  if (run.reject) return { label: "BLOCKED", className: "blocked", note: summarizeReason(run.reject) };
-  if (["PENDING", "WAITING", "MATCHING", "QUEUED"].includes(state)) return { label: state, className: "waiting", note: "실행 대기 또는 매칭 중" };
-  if (["RUNNING", "EXECUTING", "ACTIVE"].includes(state)) return { label: "RUNNING", className: "running", note: "enode가 작업 수행 중" };
-  if (["SUCCEEDED", "SUCCESS"].includes(state)) return { label: "SUCCEEDED", className: "succeeded", note: "계약 판정 성공" };
-  if (state === "DONE") return { label: "DONE", className: "done", note: "실행 완료 · 판정 확인 필요" };
+  if (run.reject) return { label: "FAILED", className: "failed", note: `배정 거절 · ${summarizeReason(run.reject)}` };
+  if (state === "RESOLVING") return { label: "RESOLVING", className: "waiting", note: "실행 계약과 입력 해결 중" };
+  if (state === "ALLOCATING") return { label: "ALLOCATING", className: "waiting", note: "노드 배정 중" };
+  if (state === "RUNNING") return { label: "RUNNING", className: "running", note: "enode가 작업 수행 중" };
+  if (state === "VERIFYING") return { label: "VERIFYING", className: "verifying", note: "실행 결과 판정 중" };
+  if (state === "SUCCEEDED") return { label: "SUCCEEDED", className: "succeeded", note: "계약 판정 성공" };
   if (state === "FAILED") return { label: "FAILED", className: "failed", note: "실행 또는 판정 실패" };
-  if (["CANCELLED", "CANCELED"].includes(state)) return { label: "CANCELED", className: "canceled", note: "작업 중단" };
   return { label: state, className: "unknown", note: "Mediator가 반환한 상태" };
 }
 

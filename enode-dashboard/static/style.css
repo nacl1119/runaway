@@ -94,7 +94,8 @@ h2 { margin: 0; font-size: 16px; letter-spacing: -.015em; }
 .enode-list { display: grid; gap: 8px; }
 .enode-row { display: grid; grid-template-columns: 10px minmax(160px, 1.15fr) minmax(170px, 1fr) auto; gap: 12px; align-items: center; padding: 13px; border: 1px solid var(--line); border-radius: 11px; background: #0c1117; }
 .enode-status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
-.enode-row.running .enode-status-dot { background: var(--lime); box-shadow: 0 0 10px var(--lime); }
+.enode-row.leased .enode-status-dot { background: var(--lime); box-shadow: 0 0 10px var(--lime); }
+.enode-row.observed .enode-status-dot { background: var(--cyan); box-shadow: 0 0 10px rgba(102,229,255,.45); }
 .enode-row.offline .enode-status-dot { background: var(--red); }
 .enode-identity strong, .enode-identity small { display: block; }
 .enode-identity strong { font: 12px var(--mono); }
@@ -182,10 +183,10 @@ input:focus, select:focus { border-color: var(--lime); box-shadow: 0 0 0 3px rgb
 .task-state small { display: block; max-width: 180px; margin-top: 5px; overflow: hidden; color: var(--muted); font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
 .state-pill { display: inline-flex; width: max-content; padding: 5px 7px; border: 1px solid var(--line-bright); border-radius: 6px; color: var(--muted); background: #141a22; font: 9px var(--mono); }
 .state-pill.running, .state-pill.succeeded { color: var(--lime); border-color: rgba(200,255,61,.3); background: var(--lime-dim); }
+.state-pill.observed, .state-pill.verifying { color: var(--cyan); border-color: rgba(102,229,255,.3); background: rgba(102,229,255,.07); }
 .state-pill.waiting, .state-pill.checking { color: var(--amber); border-color: rgba(255,191,75,.3); background: rgba(255,191,75,.07); }
 .state-pill.blocked, .state-pill.failed, .state-pill.offline { color: var(--red); border-color: rgba(255,107,107,.3); background: rgba(255,107,107,.07); }
-.state-pill.done { color: var(--cyan); border-color: rgba(102,229,255,.3); background: rgba(102,229,255,.07); }
-.state-pill.canceled, .state-pill.local { color: var(--muted); }
+.state-pill.local { color: var(--muted); }
 .task-actions { display: flex; gap: 6px; }
 .button.small { padding: 7px 9px; font-size: 10px; }
 .icon-button { display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid var(--line); border-radius: 8px; background: transparent; color: var(--muted); cursor: pointer; }
