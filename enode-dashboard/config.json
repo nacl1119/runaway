@@ -14,6 +14,5 @@
   "enode_config_paths": [
     "%USERPROFILE%\\.config\\enode\\config.json",
     "%USERPROFILE%\\.enode\\config.json"
-  ],
-  "enode_instances": []
+  ]
 }

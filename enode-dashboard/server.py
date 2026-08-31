@@ -30,7 +30,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parent
 STATIC_ROOT = ROOT / "static"
-TERMINAL_STATES = {"DONE", "FAILED", "SUCCEEDED", "CANCELLED", "CANCELED"}
+TERMINAL_STATES = {"FAILED", "SUCCEEDED"}
 
 
 def load_config() -> dict[str, Any]:
@@ -62,7 +62,6 @@ def load_config() -> dict[str, Any]:
     )
     config.setdefault("enode_config_paths", [])
     config.setdefault("go_paths", [])
-    config.setdefault("enode_instances", [])
     if os.environ.get("ENODE_GO_PATHS"):
         config["go_paths"] = os.environ["ENODE_GO_PATHS"].split(os.pathsep)
     if os.environ.get("ENODE_NODE_CONFIG_PATHS"):
@@ -180,7 +179,7 @@ def setup_checks() -> dict[str, Any]:
     return {"ok": True, "source": "live", "checked_at": utc_ms(), "checks": checks}
 
 
-FEATURE_CATALOG = [
+WORK_TEMPLATES = [
     {"id": "dump.analyze", "label": "램덤프 분석", "description": "크래시 덤프·스택·메모리 상태 분석"},
     {"id": "build", "label": "빌드", "description": "소스 빌드와 정적 검증"},
     {"id": "fuzz", "label": "퓨징", "description": "입력 corpus 기반 결함 탐색"},
@@ -239,32 +238,32 @@ def local_enode_processes() -> list[dict[str, Any]]:
     return instances
 
 
-def running_enodes() -> dict[str, Any]:
-    instances = local_enode_processes()
-    for index, configured in enumerate(CONFIG.get("enode_instances", [])):
-        if not isinstance(configured, dict) or configured.get("enabled", True) is False:
-            continue
-        host = str(configured.get("host", "127.0.0.1"))
-        port = configured.get("port")
-        if not port:
-            continue
-        ok, detail = tcp_open(host, int(port))
-        instances.append({
-            "id": str(configured.get("id", f"configured-{index + 1}")),
-            "name": str(configured.get("name", f"enode {host}:{port}")),
-            "status": "RUNNING" if ok else "OFFLINE",
-            "source": "configured-tcp-probe",
-            "detail": detail,
-            "functions": configured.get("functions", []),
-        })
+def observed_enodes() -> dict[str, Any]:
+    """Return the Mediator observation and keep local processes diagnostic-only."""
+    local_processes = local_enode_processes()
+    try:
+        snapshot = proxy_json("/v1/nodes")
+    except RuntimeError as exc:
+        return {
+            "ok": True,
+            "source": "live-observation",
+            "mediator_ok": False,
+            "checked_at": utc_ms(),
+            "nodes": [],
+            "local_processes": local_processes,
+            "templates": WORK_TEMPLATES,
+            "warning": str(exc),
+        }
     return {
         "ok": True,
-        "source": "live",
+        "source": "live-observation",
+        "mediator_ok": True,
         "checked_at": utc_ms(),
-        "instances": instances,
-        "running": sum(1 for item in instances if item["status"] == "RUNNING"),
-        "catalog": FEATURE_CATALOG,
-        "note": "로컬 enode.exe 프로세스와 config.json의 enode_instances TCP 엔드포인트만 점검",
+        "observed_at": snapshot.get("observed_at"),
+        "nodes": snapshot.get("nodes", []),
+        "local_processes": local_processes,
+        "templates": WORK_TEMPLATES,
+        "note": "GET /v1/nodes는 만료되지 않은 광고와 응답 시점의 임대를 보여주며 배정 가능성을 약속하지 않음",
     }
 
 
@@ -422,7 +421,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
             elif path == "/api/profile":
                 self.send_json(HTTPStatus.OK, git_email())
             elif path == "/api/enodes":
-                self.send_json(HTTPStatus.OK, running_enodes())
+                self.send_json(HTTPStatus.OK, observed_enodes())
             elif path == "/api/capabilities":
                 self.send_json(HTTPStatus.OK, {"ok": True, "source": "live", **proxy_json("/v1/capabilities")})
             elif path == "/api/asks":
