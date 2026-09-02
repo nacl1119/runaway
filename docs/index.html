@@ -760,6 +760,29 @@
   }
   .tag.tag-doc:hover { background: var(--accent); color: var(--accent-ink); }
   .tag.tag-doc::after { content: " ↗"; opacity: 0.7; }
+
+  .tag.tag-doc.tag-unused {
+    background: var(--surface-2);
+    color: var(--ink-faint);
+    border: 1px dashed var(--line);
+    font-weight: 400;
+  }
+  .tag.tag-doc.tag-unused:hover { background: var(--surface); color: var(--ink-soft); border-color: var(--ink-faint); }
+  .tag.tag-doc.tag-unused::after { content: " ↗"; opacity: 0.5; }
+
+  .doc-legend {
+    display: flex; align-items: center; gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--ink-faint);
+  }
+  .doc-legend .lg-item { display: inline-flex; align-items: center; gap: 6px; }
+  .doc-legend .lg-swatch {
+    display: inline-block; width: 11px; height: 11px; border-radius: 3px;
+    background: var(--accent-soft); border: 1px solid var(--accent);
+  }
+  .doc-legend .lg-swatch.unused { background: var(--surface-2); border: 1px dashed var(--line); }
 </style>
 
 <header class="masthead" id="top">
@@ -872,6 +895,11 @@
         코드는 한 줄도 쓰지 않았다.
       </p>
 
+      <div class="doc-legend">
+        <span class="lg-item"><span class="lg-swatch"></span> 실제로 판단 근거로 쓴 문서</span>
+        <span class="lg-item"><span class="lg-swatch unused"></span> 읽었지만 이번 판단엔 안 쓴 문서 — 클릭하면 왜 안 썼는지 나온다</span>
+      </div>
+
       <div class="timeline">
 
         <div class="tstep done">
@@ -897,12 +925,12 @@
               <button class="tag tag-doc" data-term="re-architecture" type="button">architecture.md</button>
               <button class="tag tag-doc" data-term="re-component-inventory" type="button">component-inventory.md</button>
               <button class="tag tag-doc" data-term="re-technology-stack" type="button">technology-stack.md</button>
-              <button class="tag tag-doc" data-term="re-business-overview" type="button">business-overview.md</button>
-              <button class="tag tag-doc" data-term="re-code-structure" type="button">code-structure.md</button>
-              <button class="tag tag-doc" data-term="re-code-quality" type="button">code-quality-assessment.md</button>
-              <button class="tag tag-doc" data-term="re-dependencies" type="button">dependencies.md</button>
-              <button class="tag tag-doc" data-term="re-api-documentation" type="button">api-documentation.md</button>
               <button class="tag tag-doc" data-term="re-timestamp" type="button">reverse-engineering-timestamp.md</button>
+              <button class="tag tag-doc tag-unused" data-term="re-business-overview" type="button">business-overview.md</button>
+              <button class="tag tag-doc tag-unused" data-term="re-code-structure" type="button">code-structure.md</button>
+              <button class="tag tag-doc tag-unused" data-term="re-code-quality" type="button">code-quality-assessment.md</button>
+              <button class="tag tag-doc tag-unused" data-term="re-dependencies" type="button">dependencies.md</button>
+              <button class="tag tag-doc tag-unused" data-term="re-api-documentation" type="button">api-documentation.md</button>
             </div>
           </div>
         </div>
