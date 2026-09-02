@@ -40,6 +40,27 @@ LIVE로 관측한다.
 두 화면이 각각 어떤 enode 개념과 맞물리는지는 위 primer의 "대시보드 화면"
 절에서 하나씩 설명한다.
 
+### 직접 띄워보려면
+
+Python 표준 라이브러리만으로 돌아간다. 이 저장소를 클론한 뒤:
+
+```bash
+cd enode-dashboard
+ENODE_MEDIATOR_TOKEN=dev-dashboard-token python server.py
+```
+
+(PowerShell이면 `$env:ENODE_MEDIATOR_TOKEN = "dev-dashboard-token"`을 먼저
+실행한다.)
+
+- 운영 화면 — <http://127.0.0.1:8765/>
+- 내 작업 화면 — <http://127.0.0.1:8765/me>
+
+**Mediator·Postgres가 안 떠 있어도 화면은 그대로 뜬다** — LIVE 패널만
+연결 실패로 표시될 뿐이다. `dev-dashboard-token`은 로컬 데모용
+placeholder일 뿐, 실제 Mediator에 붙일 때만 그쪽 토큰과 맞추면 된다.
+설정 항목(포트·Mediator 주소 등)과 검증 상태는
+[enode-dashboard/README.md](enode-dashboard/README.md)를 본다.
+
 ## 구성
 
 - [docs/](docs/) — GitHub Pages로 배포되는 primer 원본(`index.html`)
