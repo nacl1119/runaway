@@ -2,6 +2,14 @@
 
 Python 표준 라이브러리만 사용하는 운영·사용자 대시보드입니다. 브라우저는 이 서버만 호출하고, 서버가 Bearer 토큰을 보관한 채 Mediator를 대신 호출합니다.
 
+## GitHub에서 바로 보기
+
+[샘플 화면 페이지 열기](SAMPLE.md)에서 운영 화면과 사용자 화면을 실행 없이 바로 확인할 수 있습니다.
+
+[![운영 화면 바로 보기](screenshots/operations-running-enodes-detail.png)](SAMPLE.md#운영-화면)
+
+[![사용자 화면 바로 보기](screenshots/my-work-list-detail.png)](SAMPLE.md#사용자-화면)
+
 ## 설계에 맞춘 운영 기능
 
 - 운영 화면의 `Fleet nodes`: Mediator의 `GET /v1/nodes`에서 만료 전 advertisement와 응답 시점의 lease를 LIVE로 관측
