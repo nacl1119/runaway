@@ -69,6 +69,12 @@
     font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     font-size: 16px;
     line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  p, li, dd, dt, td, th, .decision-what, .decision-why, code, .tag {
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
 
   a { color: var(--accent); text-decoration-thickness: 1.5px; text-underline-offset: 2px; }
@@ -685,7 +691,9 @@
       이 문서는 <code>enode-fixup-workshop</code> 저장소에서 AWS AI-DLC v1 절차를
       따라 Requirements Analysis부터 Units Generation까지 실행한 과정을 처음 보는
       사람 기준으로 풀어 쓴 것이다. 진행 순서 → enode 개념 사전 → 유닛을 왜 이렇게
-      나눴는지 → 실제로 이미 만들어진 대시보드 화면 순서로 읽으면 된다.
+      나눴는지 → 실제로 이미 만들어진 대시보드 화면 → 팀원들의 다른 결과를 이해하는
+      법 순서로 읽으면 된다. 산출물 태그를 클릭하면 원본이 아니라, 왜 그 문서를
+      검토했고 어떤 결정을 왜 골랐는지 재가공한 설명이 열린다.
     </p>
     <div class="meta-row">
       <span>저장소 <b>taeels/enode-fixup-workshop</b></span>
@@ -725,6 +733,11 @@
     <span class="mtext"><h3>대시보드 화면</h3><p>스크린샷 7장, 화면별 개념 매칭</p></span>
     <span class="mchev">&#8250;</span>
   </a>
+  <a class="mhome-card" href="#synthesis">
+    <span class="mnum">05</span>
+    <span class="mtext"><h3>팀 종합 준비</h3><p>사실 vs 판단 구분, 팀원 결과 비교 체크리스트</p></span>
+    <span class="mchev">&#8250;</span>
+  </a>
 </div>
 
 <div class="shell">
@@ -761,6 +774,9 @@
     </details>
     <details open>
       <summary><a href="#dashboard">04 · 대시보드 화면</a></summary>
+    </details>
+    <details open>
+      <summary><a href="#synthesis">05 · 팀 종합 준비</a></summary>
     </details>
   </nav>
 
@@ -1275,6 +1291,89 @@
           같다.</p>
         </div>
       </div>
+    </section>
+
+    <section id="synthesis" class="wide">
+      <div class="eyebrow">Part 5 · 팀 종합 준비</div>
+      <h2>이 페이지로 팀원 넷의 결과를 이해하는 법</h2>
+      <p class="dek">
+        이 페이지는 <b>이번 실행(v1-run-02) 하나가 밟은 길</b>이다. 같은
+        <code>START.md</code>를 받아도 팀원 넷은 각자 다른 질문에 다르게
+        답했을 수 있고, 유닛을 다르게 나눴을 수 있다. <b>다른 게 틀린 게
+        아니다</b> — 어디가 진짜로 갈릴 수 있는 지점이고, 어디는 갈리면 안 되는
+        지점인지 구분하는 것이 팀 종합 회의를 준비하는 일이다.
+      </p>
+
+      <h3>사실 vs 판단 — 다르면 안 되는 것, 달라도 되는 것</h3>
+      <p>
+        Part 1~4의 하이라이트 박스들(<code>채택</code>/<code>스스로 찾음</code>)을
+        다시 보면 둘로 갈린다.
+      </p>
+      <div class="decision">
+        <div class="decision-label">달라지면 안 되는 것 — 코드·정본에 있는 사실</div>
+        <p class="decision-what">internal/api/api.go가 단일 830줄 파일이라는 것, 노드가 절대 먼저 안 듣는다는 것, ADR-065가 GET /v1/nodes를 이미 결정했다는 것, constraints.md §4가 중앙 소유권 판정을 뺀 것</p>
+        <p class="decision-why"><b>왜 안 갈리나:</b> 팀원 넷이 전부 같은 코드베이스와 같은 정본(enode-design)을 읽는다. 여기서 다른 결론이 나왔다면 갈린 게 아니라 <b>누군가 잘못 읽었거나 놓친 것</b>이다 — 종합 회의에서 가장 먼저 맞춰야 할 것이 이 층이다.</p>
+      </div>
+      <div class="decision warm">
+        <div class="decision-label">달라도 되는 것 — 이번 실행이 내린 판단</div>
+        <p class="decision-what">미정 25개 중 무엇을 물었나, Q1·Q2 답 방향, User Stories 실행 여부, drain 엔드포인트 설계, 유닛을 몇 개로 나눴나, 겹침을 어떻게 처리했나</p>
+        <p class="decision-why"><b>왜 갈려도 되나:</b> 전부 "정답이 하나가 아닌" 판단 지점이다 — 이 페이지의 하이라이트 박스마다 적어 둔 "왜 이걸 골랐나"가 그 판단의 근거다. 팀원 결과가 다르면 <b>어느 쪽이 맞나</b>가 아니라 <b>그 사람의 근거가 뭐였나</b>를 물어야 한다.</p>
+      </div>
+
+      <h3>비교 체크리스트 — 팀원의 unit-of-work.md를 나란히 놓고 볼 때</h3>
+      <div class="table-scroll">
+        <table class="overlap-table">
+          <thead>
+            <tr><th>단계</th><th>이 실행이 고른 것</th><th>팀원 결과에서 확인할 것</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>RA 질문</td>
+              <td>미정 25개 중 <b>2개</b>만 질문(서버 위치·drain 범위)</td>
+              <td>몇 개를 물었나? 유닛 경계에 안 걸리는 것까지 물었다면 왜 그렇게 판단했는지</td>
+            </tr>
+            <tr>
+              <td>RA 답변</td>
+              <td>enodectl 별도 서버 · drain 호스트 제어판 전용</td>
+              <td>같은 질문에 다르게 답했다면, 그 답이 유닛 개수·경계를 실제로 바꾸는지부터 확인</td>
+            </tr>
+            <tr>
+              <td>WP</td>
+              <td>User Stories 건너뜀 · Application Design 강제 실행</td>
+              <td>User Stories를 실행한 사람이 있다면, 그 스토리가 유닛 매핑에 실제로 쓰였는지(안 쓰였으면 낭비)</td>
+            </tr>
+            <tr>
+              <td>AD 설계</td>
+              <td>drain 전용 엔드포인트 신설 · 새 IPC 없이 기존 표면 조합</td>
+              <td>다른 설계를 골랐다면 이 페이지의 "왜 이걸 골랐나"와 정면으로 상충하는지, 아니면 둘 다 말이 되는 대안인지</td>
+            </tr>
+            <tr>
+              <td>UG 유닛 개수</td>
+              <td><b>넷</b> — 요구사항 절과 1:1</td>
+              <td>몇 개로 나눴나? 더 잘게 쪼갰거나 합쳤다면 "반나절 크기" 기준(START.md §5-④)으로 왜 그게 나은지</td>
+            </tr>
+            <tr>
+              <td>UG 파일 겹침</td>
+              <td>api.go·internal/store 겹침을 <b>스스로 찾음</b> → 병합 순서 권고</td>
+              <td>겹침을 찾았나? 못 찾았다면 Application Design에서 컴포넌트 의존을 실제로 분석했는지 되짚어볼 것. 찾았다면 처리 방식(합침 vs 순서 권고 vs 기록만)을 비교</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>종합 회의에서 바로 쓸 질문</h3>
+      <div class="callout warm">
+        <b>유닛 개수가 다르면</b> — "왜 그렇게 나눴어? 요구사항 절 기준이야, 아니면 다른 기준이야?"<br>
+        <b>파일 겹침을 못 찾은 사람이 있으면</b> — "Application Design에서 internal/api·internal/store를 실제로 열어봤어, 아니면 건너뛰었어?"<br>
+        <b>겹침 처리 방식이 다르면</b> — "유닛을 합쳤어, 순서만 권고했어, 아니면 언급을 안 했어? 이 페이지의 '반나절 크기' 근거로 따지면 뭐가 맞아?"<br>
+        <b>drain·대기열처럼 동작으로만 얽힌 것을 발견했으면</b> — "그것도 코드 의존은 아니지만 통합 테스트에서 같이 봐야 하는 것 맞지?"
+      </div>
+
+      <p>
+        넷의 결과를 맞춰본 뒤 실제로 유닛을 나눠 맡을 때는, <a href="#units">Part 3</a>의
+        파일 겹침 표와 병합 순서 권고를 팀 전체의 기준선으로 삼고, 팀원마다 다르게
+        낸 부분은 위 체크리스트로 하나씩 좁혀가면 된다.
+      </p>
     </section>
 
     </div>
