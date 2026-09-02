@@ -1408,84 +1408,230 @@
 
     <section id="synthesis" class="wide">
       <div class="eyebrow">Part 5 · 팀 종합 준비</div>
-      <h2>이 페이지로 팀원 넷의 결과를 이해하는 법</h2>
+      <h2>왜 유닛이 갈렸나 — 실행 셋을 나란히 놓고 본다</h2>
       <p class="dek">
-        이 페이지는 <b>이번 실행(v1-run-02) 하나가 밟은 길</b>이다. 같은
-        <code>START.md</code>를 받아도 팀원 넷은 각자 다른 질문에 다르게
-        답했을 수 있고, 유닛을 다르게 나눴을 수 있다. <b>다른 게 틀린 게
-        아니다</b> — 어디가 진짜로 갈릴 수 있는 지점이고, 어디는 갈리면 안 되는
-        지점인지 구분하는 것이 팀 종합 회의를 준비하는 일이다.
+        이 저장소에는 <code>v1-run-02</code>(이 페이지) 말고
+        <code>v1-run-01</code>과 <code>shin-son-development</code> 두 실행이 더
+        있다. 셋 다 같은 입력을 받았다 — <code>prep/GOALS.md</code> ·
+        <code>requirements/enode-features.md</code> ·
+        <code>requirements/constraints.md</code> 세 파일이 세 브랜치에서
+        md5 해시까지 동일하다. <b>그런데 유닛 개수는 4개 · 10개 · 7개로
+        갈렸다.</b> 아래는 그 갈림이 AI-DLC의 어느 단계에서, 어떤 판단
+        때문에 생겼는지를 실제 문서 발췌로 추적한 것이다.
       </p>
 
-      <h3>사실 vs 판단 — 다르면 안 되는 것, 달라도 되는 것</h3>
-      <p>
-        Part 1~4의 하이라이트 박스들(<code>채택</code>/<code>스스로 찾음</code>)을
-        다시 보면 둘로 갈린다.
-      </p>
       <div class="decision">
-        <div class="decision-label">달라지면 안 되는 것 — 코드·정본에 있는 사실</div>
-        <p class="decision-what">internal/api/api.go가 단일 830줄 파일이라는 것, 노드가 절대 먼저 안 듣는다는 것, ADR-065가 GET /v1/nodes를 이미 결정했다는 것, constraints.md §4가 중앙 소유권 판정을 뺀 것</p>
-        <p class="decision-why"><b>왜 안 갈리나:</b> 팀원 넷이 전부 같은 코드베이스와 같은 정본(enode-design)을 읽는다. 여기서 다른 결론이 나왔다면 갈린 게 아니라 <b>누군가 잘못 읽었거나 놓친 것</b>이다 — 종합 회의에서 가장 먼저 맞춰야 할 것이 이 층이다.</p>
-      </div>
-      <div class="decision warm">
-        <div class="decision-label">달라도 되는 것 — 이번 실행이 내린 판단</div>
-        <p class="decision-what">미정 25개 중 무엇을 물었나, Q1·Q2 답 방향, User Stories 실행 여부, drain 엔드포인트 설계, 유닛을 몇 개로 나눴나, 겹침을 어떻게 처리했나</p>
-        <p class="decision-why"><b>왜 갈려도 되나:</b> 전부 "정답이 하나가 아닌" 판단 지점이다 — 이 페이지의 하이라이트 박스마다 적어 둔 "왜 이걸 골랐나"가 그 판단의 근거다. 팀원 결과가 다르면 <b>어느 쪽이 맞나</b>가 아니라 <b>그 사람의 근거가 뭐였나</b>를 물어야 한다.</p>
+        <div class="decision-label">먼저 짚을 비대칭 — v1-run-01은 출발선이 다르다</div>
+        <p class="decision-what"><code>git merge-base</code>로 확인하면
+        v1-run-01은 <a href="https://github.com/taeels/enode-fixup-workshop/commit/17b74c645423def64131988b418a0be2666e23c3" target="_blank" rel="noopener">17b74c6</a>에서
+        갈라졌다 — <code>START.md</code>가 저장소에 생기기(다음 커밋
+        <code>6b49118</code>) <b>전</b>이다. 그래서 v1-run-01 브랜치에는 지금도
+        <code>START.md</code>가 없다. START.md 자신도 §7에서 이 브랜치를 "미리
+        볼 수 있는 선행 실행"으로 규정해 둔다.</p>
+        <p class="decision-why"><b>왜 중요한가:</b> START.md는 "미정 25개 중
+        유닛 경계에 실제로 걸리는 것만 물어라", "확장은 전부 꺼도 된다" 같은
+        이번 라운드 전용 지시를 담고 있다. v1-run-01은 이 지시 없이 진행했다 —
+        그래서 아래 차이 중 상당수는 "같은 조건에서 다르게 판단했다"가 아니라
+        "조건 자체가 달랐다"에 가깝다. shin-son-development는 v1-run-02와 같은
+        START.md를 받았으므로 그 둘의 비교가 더 순수한 대조다.</p>
       </div>
 
-      <h3>비교 체크리스트 — 팀원의 unit-of-work.md를 나란히 놓고 볼 때</h3>
+      <h3>한눈에 — 세 실행이 각 단계에서 고른 것</h3>
       <div class="table-scroll">
         <table class="overlap-table">
           <thead>
-            <tr><th>단계</th><th>이 실행이 고른 것</th><th>팀원 결과에서 확인할 것</th></tr>
+            <tr><th>단계 · 항목</th><th>v1-run-02(이 페이지)</th><th>v1-run-01</th><th>shin-son-development</th></tr>
           </thead>
           <tbody>
-            <tr>
-              <td>RA 질문</td>
-              <td>미정 25개 중 <b>2개</b>만 질문(서버 위치·drain 범위)</td>
-              <td>몇 개를 물었나? 유닛 경계에 안 걸리는 것까지 물었다면 왜 그렇게 판단했는지</td>
-            </tr>
-            <tr>
-              <td>RA 답변</td>
-              <td>enodectl 별도 서버 · drain 호스트 제어판 전용</td>
-              <td>같은 질문에 다르게 답했다면, 그 답이 유닛 개수·경계를 실제로 바꾸는지부터 확인</td>
-            </tr>
-            <tr>
-              <td>WP</td>
-              <td>User Stories 건너뜀 · Application Design 강제 실행</td>
-              <td>User Stories를 실행한 사람이 있다면, 그 스토리가 유닛 매핑에 실제로 쓰였는지(안 쓰였으면 낭비)</td>
-            </tr>
-            <tr>
-              <td>AD 설계</td>
-              <td>drain 전용 엔드포인트 신설 · 새 IPC 없이 기존 표면 조합</td>
-              <td>다른 설계를 골랐다면 이 페이지의 "왜 이걸 골랐나"와 정면으로 상충하는지, 아니면 둘 다 말이 되는 대안인지</td>
-            </tr>
-            <tr>
-              <td>UG 유닛 개수</td>
-              <td><b>넷</b> — 요구사항 절과 1:1</td>
-              <td>몇 개로 나눴나? 더 잘게 쪼갰거나 합쳤다면 "반나절 크기" 기준(START.md §5-④)으로 왜 그게 나은지</td>
-            </tr>
-            <tr>
-              <td>UG 파일 겹침</td>
-              <td>api.go·internal/store 겹침을 <b>스스로 찾음</b> → 병합 순서 권고</td>
-              <td>겹침을 찾았나? 못 찾았다면 Application Design에서 컴포넌트 의존을 실제로 분석했는지 되짚어볼 것. 찾았다면 처리 방식(합침 vs 순서 권고 vs 기록만)을 비교</td>
-            </tr>
+            <tr><td>START.md 보유</td><td class="hit on">있음</td><td class="hit off">없음(이전 브랜치)</td><td class="hit on">있음</td></tr>
+            <tr><td>RA 범위</td><td>MVP 필수 넷</td><td>필수+그다음 전부 (FR 8개로 세분)</td><td>MVP 필수 넷</td></tr>
+            <tr><td>RA 확장 opt-in</td><td>셋 다 끔</td><td>Resiliency · PBT 켬, Security 끔</td><td>셋 다 끔</td></tr>
+            <tr><td>RA 질문 라운드</td><td>1라운드(질문 2 + 확장 3)</td><td>3라운드 + 복원력 질문 3</td><td>2라운드(질문 5 + 확장 3)</td></tr>
+            <tr><td>User Stories</td><td>건너뜀</td><td>실행 — 스토리 10 · 페르소나 4</td><td>실행 — 스토리 25 · 페르소나 3</td></tr>
+            <tr><td>AD 컴포넌트 표기</td><td>손댄 것만 5개</td><td>전체 재계수 15→19</td><td>신규 3개(UI를 컴포넌트로 분리)</td></tr>
+            <tr><td>UG 유닛 개수</td><td class="hit on">4</td><td class="hit on">10</td><td class="hit on">7</td></tr>
+            <tr><td>UG 분할 축</td><td>기능 1:1</td><td>기능 + 선행 이동 + 검증 유닛</td><td>바닥 + 기능세로 + 화면 분리</td></tr>
+            <tr><td>겹침 처리</td><td>찾음 → 병합 순서 권고</td><td>찾음 → 유닛 병합 + 되돌림 절차</td><td>찾음 → 실행 순서 지정</td></tr>
           </tbody>
         </table>
       </div>
 
-      <h3>종합 회의에서 바로 쓸 질문</h3>
-      <div class="callout warm">
-        <b>유닛 개수가 다르면</b> — "왜 그렇게 나눴어? 요구사항 절 기준이야, 아니면 다른 기준이야?"<br>
-        <b>파일 겹침을 못 찾은 사람이 있으면</b> — "Application Design에서 internal/api·internal/store를 실제로 열어봤어, 아니면 건너뛰었어?"<br>
-        <b>겹침 처리 방식이 다르면</b> — "유닛을 합쳤어, 순서만 권고했어, 아니면 언급을 안 했어? 이 페이지의 '반나절 크기' 근거로 따지면 뭐가 맞아?"<br>
-        <b>drain·대기열처럼 동작으로만 얽힌 것을 발견했으면</b> — "그것도 코드 의존은 아니지만 통합 테스트에서 같이 봐야 하는 것 맞지?"
+      <h3>1 · Reverse Engineering — 여기는 갈리지 않았다</h3>
+      <p>
+        세 브랜치 모두 <code>aidlc-docs/inception/reverse-engineering/</code> 아홉
+        산출물이 파일 단위로 같다 — v2 워크스페이스에서 이관됐고 스캔 기준선
+        <code>f46e187</code>도 같다. <b>여기가 갈렸다면 그건 판단 차이가 아니라
+        사고다.</b> 실제 갈림은 전부 Requirements Analysis부터 시작된다.
+      </p>
+
+      <h3>2 · Requirements Analysis — 범위와 확장이 여기서 갈린다</h3>
+      <p>공유 입력 <code>requirements/enode-features.md</code> §4는 이미 "필수
+      넷"과 "그다음 셋"을 나눠 두고 있다.</p>
+      <div class="source-block">
+        <div class="source-label"><span class="src-file">requirements/enode-features.md · 셋 다 동일</span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-02/requirements/enode-features.md" target="_blank" rel="noopener">GitHub 원본 ↗</a></div>
+        <blockquote class="source-excerpt">이 넷이 <code>dhseo</code> 시나리오를 한 장면으로 만든다 — 현황판에서 보드가 도는 것을 보고, 소유자가 drain 을 걸고, 단계 경계에서 풀리고, 대기열의 다음이 집는다.</blockquote>
+        <div class="review-comment"><span class="reviewer">비교 코멘트</span>세 실행 모두 이 문장을 읽었다. shin-son-development와 v1-run-02는 이것을 이번 라운드의 경계로 그대로 받아들였고, v1-run-01은 같은 §4를 읽고도 "그다음 셋"까지 범위에 넣었다 — 아래.</div>
       </div>
 
+      <div class="source-block">
+        <div class="source-label"><span class="src-file">requirement-verification-questions.md · shin-son-development</span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/shin-son-development/aidlc-docs/inception/requirements/requirement-verification-questions.md" target="_blank" rel="noopener">GitHub 원본 ↗</a></div>
+        <blockquote class="source-excerpt">이번 실행의 범위를 어디까지 잡나? 요구사항 문서 §4 가 MVP 를 둘로 갈라 두었다. 범위가 유닛 개수를 직접 정하므로 먼저 정해야 한다.<br><br>[Answer]: A — MVP 필수 네개만 (2026-09-01 채팅으로 답변, 확정)</blockquote>
+        <div class="review-comment"><span class="reviewer">비교 코멘트</span>범위를 게이트 질문으로 명시적으로 물었고, 사람이 A(필수 넷)로 확정했다.</div>
+      </div>
+
+      <div class="source-block">
+        <div class="source-label"><span class="src-file">requirement-verification-questions.md · v1-run-02</span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-02/aidlc-docs/inception/requirements/requirement-verification-questions.md" target="_blank" rel="noopener">GitHub 원본 ↗</a></div>
+        <blockquote class="source-excerpt">MVP 범위(중앙 현황판 · 대기열 · drain · 호스트 제어판 넷)는 요구사항 문서 4절이 이미 확정해 두었으므로 다시 묻지 않는다.</blockquote>
+        <div class="review-comment"><span class="reviewer">비교 코멘트</span>이 실행은 범위를 아예 질문으로 만들지도 않았다 — §4의 "필수" 딱지를 그대로 확정으로 읽었다. shin-son-development처럼 사람에게 다시 물었어야 더 안전했을 수 있다(우연히 같은 답에 도달했을 뿐이다).</div>
+      </div>
+
+      <div class="source-block">
+        <div class="source-label"><span class="src-file">requirements.md · v1-run-01</span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-01/aidlc-docs/inception/requirements/requirements.md" target="_blank" rel="noopener">GitHub 원본 ↗</a></div>
+        <blockquote class="source-excerpt">깊이&nbsp;&nbsp;&nbsp;&nbsp;Comprehensive<br><br>여기에 접수 경로 하나(MCP)와 실행 단위 하나(역할)를 더한다.</blockquote>
+        <div class="review-comment warm"><span class="reviewer">비교 코멘트</span>같은 §4를 읽고도 의도 분석 단계에서 깊이를 "Comprehensive"로 스스로 매기고, "그다음 셋"(MCP·트랜스크립트·역할 주입)까지 범위에 넣었다. 범위를 질문으로 만들지도 않았다 — START.md 없이 CLAUDE.md의 기본 판단만 썼기 때문일 가능성이 크다.</div>
+      </div>
+
+      <p>확장(extension) opt-in도 같은 이유로 갈렸다. <code>START.md</code>는 "지금은
+      입도만 재므로 전부 꺼도 된다"고 명시적으로 권한다.</p>
+      <div class="source-block">
+        <div class="source-label"><span class="src-file">requirements-clarification-questions.md · shin-son-development</span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/shin-son-development/aidlc-docs/inception/requirements/requirements-clarification-questions.md" target="_blank" rel="noopener">GitHub 원본 ↗</a></div>
+        <blockquote class="source-excerpt">참고 — START.md 는 이 워크샵의 목적(유닛 입도 측정)상 확장을 전부 꺼도 된다고 안내한다. 개발 체험이 목적이라도 처음 한 바퀴는 가볍게 도는 편을 권한다.<br><br>[Answer]: B — 끈다 (2026-09-02 채팅으로 답변, 확정. aidlc-state.md 에 기록)</blockquote>
+        <div class="review-comment"><span class="reviewer">비교 코멘트</span>START.md의 권고를 질문 파일에 그대로 인용하고 사람이 확정했다. 셋(Security·Resiliency·PBT) 전부 같은 근거로 껐다.</div>
+      </div>
+      <div class="source-block">
+        <div class="source-label"><span class="src-file">requirement-verification-questions.md · v1-run-02</span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-02/aidlc-docs/inception/requirements/requirement-verification-questions.md" target="_blank" rel="noopener">GitHub 원본 ↗</a></div>
+        <blockquote class="source-excerpt">B) No — skip all SECURITY rules ... — this run stops at Units Generation and never reaches Construction, so no code will exist for these rules to check (Recommended for this run)</blockquote>
+        <div class="review-comment"><span class="reviewer">비교 코멘트</span>같은 결론(끈다)이지만 근거가 다르다 — START.md의 권고를 직접 인용한 게 아니라 "이번 라운드는 Construction까지 안 간다"는 자체 추론이었다. 결과는 같아도 <b>추론 경로가 다르면 다음 라운드(Construction까지 가는 실행)에서 같은 결론이 안 나올 수 있다</b>는 뜻이다.</div>
+      </div>
+      <div class="source-block">
+        <div class="source-label"><span class="src-file">requirements.md · v1-run-01</span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-01/aidlc-docs/inception/requirements/requirements.md" target="_blank" rel="noopener">GitHub 원본 ↗</a></div>
+        <blockquote class="source-excerpt">NFR-R5 는 기능 여섯 밖의 범위 확장이다. 켠 확장이 요구해서 들어왔다. Mediator 표면 15개에 헬스 라우트가 0개인 것이 관측 사실이고, 규칙은 모든 서비스에 요구한다.</blockquote>
+        <div class="review-comment warm"><span class="reviewer">비교 코멘트</span>Resiliency를 켠 것이 실제로 새 요구사항(NFR-R5, 헬스 엔드포인트)을 낳았다 — 원래 여섯 기능 어디에도 없던 요구가 확장 opt-in 하나로 생겨난 것이다. <b>확장 opt-in은 "어차피 안 쓸 옵션"이 아니라 요구사항 자체를 바꾸는 지점</b>이라는 걸 보여준다.</div>
+      </div>
+
+      <h3>3 · User Stories — 실행 여부부터 갈린다</h3>
+      <div class="table-scroll">
+        <table class="overlap-table">
+          <thead><tr><th></th><th>v1-run-02</th><th>v1-run-01</th><th>shin-son-development</th></tr></thead>
+          <tbody>
+            <tr><td>실행 여부</td><td class="hit off">건너뜀</td><td class="hit on">실행</td><td class="hit on">실행</td></tr>
+            <tr><td>페르소나</td><td>—</td><td>4</td><td>3</td></tr>
+            <tr><td>스토리</td><td>—</td><td>10</td><td>25</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="source-block">
+        <div class="source-label"><span class="src-file">aidlc-state.md · v1-run-02</span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-02/aidlc-docs/aidlc-state.md" target="_blank" rel="noopener">GitHub 원본 ↗</a></div>
+        <blockquote class="source-excerpt">User Stories | 건너뜀 | 내부 운영 도구, requirements.md 가 이미 목적 · UI/UX · 수용기준을 담음 — 근거는 execution-plan.md</blockquote>
+        <div class="review-comment"><span class="reviewer">비교 코멘트</span>CLAUDE.md의 User Stories 판단 기준(사용자 대면 기능이면 실행 쪽으로 기운다)에 따르면 이 판단은 위험한 쪽이다 — 대시보드 둘 다 사용자 대면이다. requirements.md의 수용 기준으로 대체됐다고 판단했지만, 페르소나별 관점(노드 소유자 대 관찰자)은 스토리 없이는 잘 안 드러난다.</div>
+      </div>
+      <div class="source-block">
+        <div class="source-label"><span class="src-file">aidlc-state.md · shin-son-development</span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/shin-son-development/aidlc-docs/aidlc-state.md" target="_blank" rel="noopener">GitHub 원본 ↗</a></div>
+        <blockquote class="source-excerpt">User Stories | **완료 (2026-09-02 승인)** | 페르소나 3 · 스토리 25. `inception/user-stories/`</blockquote>
+        <div class="review-comment"><span class="reviewer">비교 코멘트</span>스토리 25개는 셋 중 가장 세밀하다 — 나중에 Units Generation에서 "스토리 2~4개 크기"를 유닛 하나로 묶는 기준을 쓸 수 있었던 것도 이 세밀함 덕분이다(§5 참조). 스토리 개수가 그대로 유닛 산정 방식에 재료로 쓰인 사례다.</div>
+      </div>
+
+      <h3>4 · Application Design — 컴포넌트를 세는 방식이 갈린다</h3>
+      <div class="source-block">
+        <div class="source-label"><span class="src-file">aidlc-state.md · v1-run-01</span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-01/aidlc-docs/aidlc-state.md" target="_blank" rel="noopener">GitHub 원본 ↗</a></div>
+        <blockquote class="source-excerpt">산출물 다섯. 컴포넌트 15 -> 19. 판단 다섯이 뒤집히지 않고 채택됐다</blockquote>
+        <div class="review-comment"><span class="reviewer">비교 코멘트</span>기존 15개를 포함해 전체를 다시 세었다 — 실행파일 5→6, 라이브러리 10→13. 가장 완비된 인벤토리지만 문서 분량도 가장 크다.</div>
+      </div>
+      <div class="source-block">
+        <div class="source-label"><span class="src-file">components.md · shin-son-development</span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/shin-son-development/aidlc-docs/inception/application-design/components.md" target="_blank" rel="noopener">GitHub 원본 ↗</a></div>
+        <blockquote class="source-excerpt">3.1 internal/panel — 호스트 제어판 서버 &nbsp;·&nbsp; 3.2 internal/api/ui/ — 중앙 현황판 (정적) &nbsp;·&nbsp; 3.3 internal/panel/ui/ — 호스트 제어판 (정적)</blockquote>
+        <div class="review-comment"><span class="reviewer">비교 코멘트</span>정적 UI(HTML·CSS·JS)를 서버 로직과 <b>별개 컴포넌트</b>로 센다 — 이 축이 그대로 Units Generation에서 "화면은 별도 유닛"(U6·U7)으로 이어진다.</div>
+      </div>
+      <div class="source-block">
+        <div class="source-label"><span class="src-file">components.md · v1-run-02</span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-02/aidlc-docs/inception/application-design/components.md" target="_blank" rel="noopener">GitHub 원본 ↗</a></div>
+        <blockquote class="source-excerpt">이번 라운드에 새로 생기거나 손이 가는 컴포넌트만 적는다. 기존 열다섯 패키지의 전체 책임은 component-inventory.md 를 본다.</blockquote>
+        <div class="review-comment"><span class="reviewer">비교 코멘트</span>기존 컴포넌트를 다시 안 세고 신규·변경분 5개(HostPanelServer · DrainPolicy 둘 · QueueState · DashboardQuery)만 적었다. UI를 별도 컴포넌트로 가르지 않았다 — 그래서 뒤의 유닛도 화면과 서버가 한 유닛 안에 있다.</div>
+      </div>
+
+      <h3>5 · Units Generation — 축과 개수가 갈린다</h3>
+      <div class="table-scroll">
+        <table class="overlap-table">
+          <thead><tr><th>v1-run-02 (4)</th><th>v1-run-01 (10)</th><th>shin-son-development (7)</th></tr></thead>
+          <tbody>
+            <tr><td>U1 중앙 현황판</td><td>UOW-01 프로세스 조작 이동</td><td>U1 바닥(foundation)</td></tr>
+            <tr><td>U2 대기열</td><td>UOW-02 api.go 분할</td><td>U2 현황판 API</td></tr>
+            <tr><td>U3 drain</td><td>UOW-03 클라이언트 이동</td><td>U3 대기열</td></tr>
+            <tr><td>U4 호스트 제어판</td><td>UOW-04 스키마 기반</td><td>U4 drain</td></tr>
+            <tr><td>—</td><td>UOW-05 관측(중앙 현황판)</td><td>U5 제어판 서버</td></tr>
+            <tr><td>—</td><td>UOW-06 대기열</td><td>U6 중앙 화면(UI)</td></tr>
+            <tr><td>—</td><td>UOW-07 제어권(drain)</td><td>U7 호스트 화면(UI)</td></tr>
+            <tr><td>—</td><td>UOW-08 호스트 제어판</td><td>—</td></tr>
+            <tr><td>—</td><td>UOW-09 출력과 역할</td><td>—</td></tr>
+            <tr><td>—</td><td>UOW-10 dhseo 검증</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
       <p>
-        넷의 결과를 맞춰본 뒤 실제로 유닛을 나눠 맡을 때는, <a href="#units">Part 3</a>의
-        파일 겹침 표와 병합 순서 권고를 팀 전체의 기준선으로 삼고, 팀원마다 다르게
-        낸 부분은 위 체크리스트로 하나씩 좁혀가면 된다.
+        세 축이 뚜렷이 다르다. v1-run-02는 <b>요구사항 절과 1:1</b>(기능 넷 =
+        유닛 넷, 가장 단순). v1-run-01은 기능 축 위에 <b>선행 이동/분할
+        유닛(01~04)</b>과 <b>마지막 통합 검증 유닛(10)</b>을 따로 세웠다 —
+        범위가 넓었던 만큼(여섯 기능) 준비·검증 단계가 유닛으로 분리돼 나온
+        것이다. shin-son-development는 <b>바닥 유닛 하나 + 기능마다 서버/화면을
+        가르는 축</b>이다.
+      </p>
+
+      <div class="source-block">
+        <div class="source-label"><span class="src-file">unit-of-work.md · v1-run-01</span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-01/aidlc-docs/inception/application-design/unit-of-work.md" target="_blank" rel="noopener">GitHub 원본 ↗</a></div>
+        <blockquote class="source-excerpt">사라짐&nbsp;&nbsp;mount.go&nbsp;&nbsp;&nbsp;&nbsp;US-4 와 US-6 이 UOW-05 한 유닛<br>사라짐&nbsp;&nbsp;claude.go&nbsp;&nbsp;&nbsp;&nbsp;US-7 과 US-8 이 UOW-09 한 유닛</blockquote>
+        <div class="review-comment warm"><span class="reviewer">비교 코멘트</span>겹침을 찾은 뒤 <b>유닛 자체를 합쳤다</b> — 겹치는 두 기능을 아예 한 유닛으로 만들어 겹침을 구조적으로 없앴다.</div>
+      </div>
+      <div class="source-block">
+        <div class="source-label"><span class="src-file">unit-of-work.md · shin-son-development</span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/shin-son-development/aidlc-docs/inception/application-design/unit-of-work.md" target="_blank" rel="noopener">GitHub 원본 ↗</a></div>
+        <blockquote class="source-excerpt">internal/api/api.go 는 U2 · U3 · U4 · U6 넷이 건드리는 유일한 파일이다 ... U3 를 먼저 끝내고 U4 가 시작하면 겹치지 않는다</blockquote>
+        <div class="review-comment"><span class="reviewer">비교 코멘트</span>유닛은 그대로 넷을 두고 <b>착수 순서를 지정</b>했다 — 병합이 아니라 시퀀싱으로 겹침을 풀었다.</div>
+      </div>
+      <div class="source-block">
+        <div class="source-label"><span class="src-file">unit-of-work-dependency.md · v1-run-02</span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-02/aidlc-docs/inception/application-design/unit-of-work-dependency.md" target="_blank" rel="noopener">GitHub 원본 ↗</a></div>
+        <blockquote class="source-excerpt">internal/api/api.go 를 고치는 세 유닛(U1·U2·U3)은 동시 착수해도 되지만 api.go 에 손대는 순간은 순차로 병합한다 — 한 사람이 라우트를 등록하고 병합한 뒤 다음 사람이 이어받는 식.</blockquote>
+        <div class="review-comment"><span class="reviewer">비교 코멘트</span>shin-son-development와 같은 방식(시퀀싱)이다 — 유닛 경계는 그대로 두고 <b>병합 순서</b>로 겹침을 풀었다. v1-run-01만 유닛을 합치는 쪽을 택했다.</div>
+      </div>
+
+      <h3>요약과 결론</h3>
+      <p>
+        인과 사슬은 한 방향으로 이어진다. <b>입력은 완전히 같았다</b>(md5
+        동일) → <b>Requirements Analysis에서 범위·깊이·확장 판단이 갈렸다</b>
+        (v1-run-01만 START.md 없이 진행, 스스로 "Comprehensive"를 택함) →
+        그 판단이 <b>User Stories 실행 여부와 스토리 개수</b>를 갈랐다(0 · 10 ·
+        25) → 그것이 <b>Application Design의 컴포넌트 표기 범위와 UI 분리
+        여부</b>를 갈랐다 → 최종적으로 <b>Units Generation의 분할 축과
+        개수</b>(4 · 10 · 7)로 나타났다. 유닛 개수 차이는 원인이 아니라
+        결과다 — 진짜 갈림은 훨씬 앞, 첫 게이트 질문에서 이미 났다.
+      </p>
+      <div class="callout warm">
+        <code>prep/GOALS.md</code>와 <code>START.md</code> §5는 이미 이렇게 경고해
+        뒀다 — "v1 에는 협업 지원이 없다 ... 유닛이 겹치면 사람이 그냥
+        부딪힌다." 세 실행의 유닛 개수가 다르다는 것 자체가 그 경고의 실측
+        증거다. <b>넷의 unit-of-work.md를 이어붙여서 그대로 팀원 4명에게
+        나눠줄 수 없다</b> — 세 실행이 이미 서로 다른 축(기능 1:1 · 기능+선행
+        이동 · 바닥+화면분리)으로 세계를 나눴기 때문이다.
+      </div>
+      <p>
+        팀 종합 회의에서 할 일은 "누구 유닛 개수가 맞았나"를 가리는 게
+        아니라, <b>Requirements Analysis 게이트로 다시 돌아가</b> 범위(필수
+        넷인가 여섯인가)와 확장 opt-in을 팀 전체가 하나로 맞추고, 그 다음에야
+        <a href="#units">Part 3</a>의 파일 겹침 표처럼 <b>분할 축 하나</b>를
+        골라 유닛을 다시 긋는 것이다. 축을 먼저 통일하지 않으면 네 사람의
+        "완료"가 서로 다른 경계를 가리키게 된다.
       </p>
     </section>
 
