@@ -567,7 +567,8 @@
     font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase;
     color: var(--accent); margin-top: 26px;
   }
-  #detail-view h2.detail-title { font-size: clamp(1.7rem, 3vw, 2.2rem); margin-top: 10px; }
+  #detail-view h2.detail-title { font-size: clamp(1.5rem, 2.6vw, 1.9rem); margin-top: 10px; font-family: 'IBM Plex Mono', monospace; }
+  #detail-view p.detail-dek { margin-top: 10px; font-size: 1.08rem; color: var(--ink-soft); max-width: 60ch; font-family: 'Fraunces', Georgia, serif; }
   #detail-view .detail-body { margin-top: 18px; max-width: 680px; font-size: 1.02rem; color: var(--ink-soft); }
   #detail-view .detail-body p { max-width: none; color: inherit; }
   #detail-view .detail-body code { background: var(--surface-2); padding: 1px 5px; border-radius: 4px; color: var(--ink); font-size: 0.92em; }
@@ -1466,6 +1467,7 @@
       <a href="#glossary" class="back-link" id="detail-back">← 용어 사전으로 돌아가기</a>
       <div class="detail-eyebrow" id="detail-eyebrow"></div>
       <h2 class="detail-title" id="detail-title"></h2>
+      <p class="detail-dek" id="detail-dek"></p>
       <div class="detail-body" id="detail-body"></div>
     </section>
 
@@ -1773,7 +1775,7 @@
         '<text x="190" y="122" text-anchor="middle" class="lbl-soft" font-size="9">초안이 결정으로 오르면 코드에 반영된다</text>' +
         '</svg><figcaption>같은 저장소 안에서도 ADR마다 성숙도가 다르다.</figcaption></figure>' },
 
-      're-architecture': { mode:'page', back:'process', eyebrow:'02 Reverse Engineering · architecture.md', title:'아키텍처 지도 — 무엇을 근거로 삼았나', body:
+      're-architecture': { mode:'page', back:'process', eyebrow:'02 Reverse Engineering', title:'architecture.md', dek:'아키텍처 지도 — 무엇을 근거로 삼았나', body:
         '<p><b>왜 검토했나</b> — 호스트 제어판이 정말 새 표면인지, 어느 파일이 유닛끼리 겹칠지는 아키텍처 지도 없이는 판단할 수 없다.</p>' +
         src('architecture.md', 'aidlc-docs/inception/reverse-engineering/architecture.md',
           '핵심은 <b>연결의 방향</b>이다. 노드는 서버를 열지 않고 자기가 연결을 건다.<br>' +
@@ -1785,7 +1787,7 @@
           '15개 라우트 전부가 <code>internal/api/api.go:55-69</code> 한 함수에 등록된다.',
           '이 문장 하나가 나중에 <b>Units Generation 단계에서 파일 겹침을 스스로 찾아낸 것</b>의 근거다. 15개 라우트가 파일 하나(한 함수)에 모여 있다는 걸 여기서 미리 읽었기 때문에, 중앙 현황판·대기열·drain 유닛이 새 라우트를 낼 때 셋 다 이 한 파일에 손을 댄다는 걸 뒤에서 계산해낼 수 있었다.', true) },
 
-      're-component-inventory': { mode:'page', back:'process', eyebrow:'02 Reverse Engineering · component-inventory.md', title:'컴포넌트 인벤토리 — 무엇을 근거로 삼았나', body:
+      're-component-inventory': { mode:'page', back:'process', eyebrow:'02 Reverse Engineering', title:'component-inventory.md', dek:'컴포넌트 인벤토리 — 무엇을 근거로 삼았나', body:
         '<p><b>왜 검토했나</b> — architecture.md가 "어느 방향으로 연결되나"를 줬다면, 이 문서는 "패키지 하나하나가 몇 파일로 쪼개져 있나"를 준다. 유닛끼리 겹칠 때 파일 단위로 겹치는지 패키지 단위로만 겹치는지를 가르는 데 필요했다.</p>' +
         src('component-inventory.md', 'aidlc-docs/inception/reverse-engineering/component-inventory.md',
           '<b>파일</b> — <code>api.go</code> 단일 파일 830줄. 테스트는 <code>api_test.go</code> 3,342줄에 78개.',
@@ -1796,14 +1798,14 @@
           '<code>dispatch.go</code> · <code>acquire.go</code> · <code>release.go</code> · <code>rollback.go</code> · <code>seal.go</code> · <code>ask.go</code> · <code>observe.go</code>',
           '<code>internal/api</code>는 파일 하나인데 <code>internal/store</code>는 12개로 이미 나뉘어 있다는 이 대비가, "같은 패키지"라는 겹침과 "같은 파일"이라는 겹침을 구분해야 한다는 관점을 만들었다. component-dependency.md의 겹침 표에서 store를 api.go보다 한 단계 완화해서 적은 이유가 여기서 나온다.') },
 
-      're-technology-stack': { mode:'page', back:'process', eyebrow:'02 Reverse Engineering · technology-stack.md', title:'기술 스택 — 무엇을 근거로 삼았나', body:
+      're-technology-stack': { mode:'page', back:'process', eyebrow:'02 Reverse Engineering', title:'technology-stack.md', dek:'기술 스택 — 무엇을 근거로 삼았나', body:
         '<p><b>왜 검토했나</b> — 새 기능 넷이 새 외부 라이브러리를 요구하는지 확인해야, Application Design에서 "새 저장소·새 의존 없음"이라고 자신 있게 쓸 수 있다.</p>' +
         src('technology-stack.md', 'aidlc-docs/inception/reverse-engineering/technology-stack.md',
           '셋 전부 실사용된다. 미사용 의존 0건.<br><br>' +
           '<code>github.com/jackc/pgx/v5</code> · <code>golang.org/x/sys</code> · <code>gopkg.in/yaml.v3</code>',
           '직접 의존이 이 셋뿐이라는 걸 확인했기 때문에, <code>components.md</code>의 "이번에 새로 생기지 않는 것" 절에 "신규 라이브러리 의존 없음"이라고 단정해서 쓸 수 있었다 — drain·대기열·대시보드·호스트 제어판 전부 기존 pgx/yaml/x-sys 조합만으로 풀린다.') },
 
-      're-business-overview': { mode:'page', back:'process', eyebrow:'02 Reverse Engineering · business-overview.md', title:'비즈니스 개요 — 왜 이번 판단에 직접 안 썼나', body:
+      're-business-overview': { mode:'page', back:'process', eyebrow:'02 Reverse Engineering', title:'business-overview.md', dek:'비즈니스 개요 — 왜 이번 판단에 직접 안 썼나', body:
         '<p>읽었다. 다만 이번 라운드의 설계 결정을 뒷받침하는 근거로 직접 인용하지는 않았다 — 이유는 아래.</p>' +
         src('business-overview.md', 'aidlc-docs/inception/reverse-engineering/business-overview.md',
           '<b>dhseo 가 퇴근했다. 재현 환경이 그 자리에만 있다. candidate patch 를 거기서<br>' +
@@ -1811,7 +1813,7 @@
           'enode 는 <b>부재중인 기능 담당자의 대리인 노릇</b>을 한다.',
           whySkipped('이 "dhseo 시나리오"는 이미 <code>requirements/enode-features.md</code>와 <code>prep/GOALS.md</code>가 같은 문장으로 인용해 두고 있었다 — enode-features.md 자체가 이 문서의 요약본 역할을 하고 있어서, requirements.md를 쓸 때 이 원본까지 다시 열 필요가 없었다. 완전히 안 읽은 게 아니라, <b>더 가까운 요약이 이미 있어서 그쪽을 썼다.</b>')) },
 
-      're-code-structure': { mode:'page', back:'process', eyebrow:'02 Reverse Engineering · code-structure.md', title:'코드 구조 — 왜 이번 판단에 직접 안 썼나', body:
+      're-code-structure': { mode:'page', back:'process', eyebrow:'02 Reverse Engineering', title:'code-structure.md', dek:'코드 구조 — 왜 이번 판단에 직접 안 썼나', body:
         '<p>읽었다. 다만 이번 라운드의 설계 결정을 뒷받침하는 근거로 직접 인용하지는 않았다 — 이유는 아래.</p>' +
         src('code-structure.md', 'aidlc-docs/inception/reverse-engineering/code-structure.md',
           '| Go 파일 | 100 (비테스트 67 · 테스트 33) |<br>' +
@@ -1819,7 +1821,7 @@
           '| 패키지 | 15 (<code>cmd/</code> 5 · <code>internal/</code> 10) |',
           whySkipped('저장소 전체 규모(파일 100개, LOC 27,211)는 흥미롭지만, 이번 넷(현황판·대기열·drain·호스트 제어판)이 실제로 손대는 건 그중 예닐곱 패키지뿐이다. 그 좁은 범위의 파일 배치는 <code>component-inventory.md</code>가 패키지별로 더 자세히 준다 — 저장소 전체 지도까지는 이번 판단에 필요하지 않았다.')) },
 
-      're-code-quality': { mode:'page', back:'process', eyebrow:'02 Reverse Engineering · code-quality-assessment.md', title:'코드 품질 평가 — 왜 이번 판단에 직접 안 썼나', body:
+      're-code-quality': { mode:'page', back:'process', eyebrow:'02 Reverse Engineering', title:'code-quality-assessment.md', dek:'코드 품질 평가 — 왜 이번 판단에 직접 안 썼나', body:
         '<p>읽었다. 이 문서의 첫 절("이번 스캔의 가장 큰 발견")까지 읽었지만, 이번 라운드의 결정에 직접 인용하지는 않았다 — 이유는 아래.</p>' +
         src('code-quality-assessment.md', 'aidlc-docs/inception/reverse-engineering/code-quality-assessment.md',
           '<b>이 문서의 첫 절이 이번 스캔의 가장 큰 발견이다.</b> 워크플로가 들고 있던<br>' +
@@ -1827,7 +1829,7 @@
           '<b>90개 함수 전부가 테스트에 한 번 이상 들어간다.</b>',
           whySkipped('이건 <b>테스트 커버리지</b> 이야기다 — 코드를 실제로 짤 때(Construction) 쓸 정보이지, 어떤 유닛으로 나눌지·어느 파일이 겹칠지에는 영향이 없다. 이번 실행은 START.md 지시대로 Construction에 들어가지 않아서, 커버리지 수치가 결정에 개입할 자리가 아예 없었다. 다음 라운드에서 실제로 테스트를 짤 사람은 이 문서, 특히 "ENODE_TEST_DATABASE_URL 없이 재면 안 된다"는 첫 절을 꼭 먼저 읽어야 한다.')) },
 
-      're-dependencies': { mode:'page', back:'process', eyebrow:'02 Reverse Engineering · dependencies.md', title:'의존 관계 — 왜 이번 판단에 직접 안 썼나', body:
+      're-dependencies': { mode:'page', back:'process', eyebrow:'02 Reverse Engineering', title:'dependencies.md', dek:'의존 관계 — 왜 이번 판단에 직접 안 썼나', body:
         '<p>읽었다. 다만 이번 라운드의 설계 결정을 뒷받침하는 근거로 직접 인용하지는 않았다 — 이유는 아래.</p>' +
         src('dependencies.md', 'aidlc-docs/inception/reverse-engineering/dependencies.md',
           '<b>의존이 셋뿐인 것이 우연이 아니다.</b> 웹 프레임워크 · 테스트 프레임워크 · ORM ·<br>' +
@@ -1835,7 +1837,7 @@
           '라이브러리로 대신했다. <b>미사용 직접 의존 0건.</b>',
           whySkipped('이 문서는 외부 라이브러리의 <b>전이 의존 트리</b>(누가 누구를 끌고 오나)까지 파고든다. 이번 판단에 필요했던 건 "새 의존이 필요한가"라는 훨씬 얕은 질문뿐이었고, 그 답은 옆 파일 <button class="term-more" data-term="re-technology-stack" type="button" style="display:inline">technology-stack.md</button>의 직접 의존 표 한 줄로 충분했다. 전이 의존까지 볼 이유가 없었다.')) },
 
-      're-api-documentation': { mode:'page', back:'process', eyebrow:'02 Reverse Engineering · api-documentation.md', title:'API 표면 — 왜 이번 판단에 직접 안 썼나', body:
+      're-api-documentation': { mode:'page', back:'process', eyebrow:'02 Reverse Engineering', title:'api-documentation.md', dek:'API 표면 — 왜 이번 판단에 직접 안 썼나', body:
         '<p>읽었다. 15개 라우트 전수 표까지 살펴봤지만, 이번 라운드의 결정에 직접 인용하지는 않았다 — 이유는 아래.</p>' +
         src('api-documentation.md', 'aidlc-docs/inception/reverse-engineering/api-documentation.md',
           '<b>표면에서 비멱등인 곳은 <code>claim</code> 하나뿐이다.</b> <code>postClaim</code> →<br>' +
@@ -1843,7 +1845,7 @@
           '<b>별도의 하트비트 표면이 없다.</b> <code>POST /v1/nodes</code> 광고가 곧 하트비트다.',
           whySkipped('이 문서는 기존 라우트 15개를 <b>메서드+경로+핸들러</b> 단위로 전수 정리한다 — 매우 상세하지만, 우리 넷은 기존 라우트를 고치는 게 아니라 새 라우트 셋(<code>GET /v1/runs</code>·<code>GET /v1/nodes</code>·<code>POST /v1/nodes/&#123;id&#125;/drain</code>)을 추가하는 일이다. "라우트가 몇 개고 어디 등록되나"라는 구조적 사실은 architecture.md 한 문장으로 충분했고, 개별 라우트의 상세 동작까지는 이번 판단에 필요 없었다.')) },
 
-      're-timestamp': { mode:'page', back:'process', eyebrow:'02 Reverse Engineering · reverse-engineering-timestamp.md', title:'이관 기록 — 실제로 어떻게 썼나', body:
+      're-timestamp': { mode:'page', back:'process', eyebrow:'02 Reverse Engineering', title:'reverse-engineering-timestamp.md', dek:'이관 기록 — 실제로 어떻게 썼나', body:
         '<p>이 문서는 나머지 다섯과 다르다 — <b>실제로 상태 문서(aidlc-state.md)에 반영했다.</b> 다만 유닛을 나누는 설계 결정에 쓴 건 아니라서 "채택" 하이라이트로는 안 올렸다.</p>' +
         src('reverse-engineering-timestamp.md', 'aidlc-docs/inception/reverse-engineering/reverse-engineering-timestamp.md',
           '<b>신선도 — 코드 드리프트 없음.</b><br><br>' +
@@ -1854,7 +1856,7 @@
           '<code>code-structure.md</code> 가 즉시 낡는다.',
           '이 문장을 그대로 <code>aidlc-state.md</code>의 "Reverse Engineering 산출물" 절에 옮겨 적었다 — 리버스 엔지니어링을 다시 훑지 않기로 한 근거(코드가 스캔 시점과 같다)이자, 나중에 그 커밋 28개가 병합되면 무엇이 낡는지 미리 적어 둔 경고이기도 하다.') },
 
-      'ra-questions': { mode:'page', back:'process', eyebrow:'03 Requirements Analysis · requirement-verification-questions.md', title:'질문 다섯 — 왜 이 둘만 물었고, 왜 이 답을 추천했나', body:
+      'ra-questions': { mode:'page', back:'process', eyebrow:'03 Requirements Analysis', title:'requirement-verification-questions.md', dek:'질문 다섯 — 왜 이 둘만 물었고, 왜 이 답을 추천했나', body:
         '<p><b>왜 검토했나</b> — 요구사항 문서(enode-features.md)에 미정 표시가 25개 있었다. 전부 물으면 게이트가 무거워지고, 이 워크샵의 지시(START.md)는 "유닛을 나누는 데 실제로 걸리는 것만 물어라"였다.</p>' +
         src('requirement-verification-questions.md', 'aidlc-docs/inception/requirements/requirement-verification-questions.md',
           '<b>Question 1</b><br>' +
@@ -1873,7 +1875,7 @@
         '<p><b>확장 opt-in 셋</b> — security-baseline · resiliency-baseline · property-based-testing 전부 skip 답을 추천하고 그대로 채택했다. 이번 실행이 Units Generation에서 멈추고 Construction에 안 들어가서, 세 확장이 검증할 코드 자체가 안 생기기 때문이다.</p>' +
         '<p><b>나머지 23개는 왜 안 물었나</b> — 포트 번호·갱신 주기·drain 기본 모드 같은 값들은 어떤 답이든 "이 기능이 어느 유닛에 속하는가"를 바꾸지 않는다. 유닛 분할에 안 걸리는 결정을 게이트에서 미리 묻는 건 과잉이라고 판단했다.</p>' },
 
-      'ra-requirements': { mode:'page', back:'process', eyebrow:'03 Requirements Analysis · requirements.md', title:'정본을 대조해서 무엇을 바꿨나', body:
+      'ra-requirements': { mode:'page', back:'process', eyebrow:'03 Requirements Analysis', title:'requirements.md', dek:'정본을 대조해서 무엇을 바꿨나', body:
         '<p><b>왜 검토했나</b> — <code>enode-features.md</code> §1.4가 "설계 정본은 enode-design이다. 어긋나면 그쪽이 이긴다"고 명시한다. 게이트 답변을 반영해 초안을 완성한 뒤, 사용자 요청으로 정본 저장소를 실제로 대조했다.</p>' +
         src('requirements.md', 'aidlc-docs/inception/requirements/requirements.md',
           '<b>GET /v1/nodes — 결정된 응답 모양</b> (ADR-065, protocol/mediator-api.md §4)<br><br>' +
@@ -1888,7 +1890,7 @@
           '<b>신규 발견.</b> 정본 대조 과정에서 찾아 새 미정으로 추가했다 — 원래 enode-features.md의 25개 미정에는 없던 항목이다. 두 기능이 코드 의존은 없어도 동작으로 얽혀 있다는 사실이 Units Generation의 의존 분석에 실제로 쓰이므로 기록해야 했다.', true) +
         '<p><b>왜 main과 대시보드 브랜치 둘 다 봤나</b> — 처음엔 대시보드 작업 브랜치(ADR-065)만 반영했는데, 사용자가 "main 브랜치 내용도 반영은 같이 해야해"라고 짚어줬다. 확인해보니 drain(ADR-063)·대기열(ADR-064) 초안은 애초에 main에 먼저 있던 것이었다 — 출처를 브랜치별로 구분해 표로 다시 정리했다.</p>' },
 
-      'wp-plan': { mode:'page', back:'process', eyebrow:'05 Workflow Planning · execution-plan.md', title:'뭘 넣고 뭘 뺐나', body:
+      'wp-plan': { mode:'page', back:'process', eyebrow:'05 Workflow Planning', title:'execution-plan.md', dek:'뭘 넣고 뭘 뺐나', body:
         '<p><b>왜 검토했나</b> — Requirements Analysis 다음에 남은 단계 중 무엇을 실행할지 정하는 것이 이 단계의 일이다.</p>' +
         src('execution-plan.md', 'aidlc-docs/inception/plans/execution-plan.md',
           '- [x] User Stories — <b>SKIP</b><br>' +
@@ -1906,7 +1908,7 @@
           '정하지 않는다.',
           '<b>채택 — 여기서 유닛을 미리 안 나눈다.</b> 겹침을 어떻게 처리할지 이 단계에서 정해버리면, Units Generation이 "시키지 않아도 스스로 그 겹침을 다루는가"를 재는 이 워크샵의 목적 자체가 무의미해진다. 그래서 사실만 적어두고 판단은 다음 단계로 넘겼다.') },
 
-      'ad-components': { mode:'page', back:'process', eyebrow:'06 Application Design · components.md', title:'새로 생기는 컴포넌트 넷', body:
+      'ad-components': { mode:'page', back:'process', eyebrow:'06 Application Design', title:'components.md', dek:'새로 생기는 컴포넌트 넷', body:
         '<p><b>왜 검토했나</b> — 무엇을 새로 만들고 무엇을 기존 것에 얹는지부터 정해야 메서드·의존을 이어서 정할 수 있다.</p>' +
         src('components.md', 'aidlc-docs/inception/application-design/components.md',
           '### HostPanelServer<br>' +
@@ -1915,7 +1917,7 @@
           '새 실행파일 없음. 새 저장소 없음. ... 신규 라이브러리 의존 없음.',
           '게이트 Q1(enodectl이 별도 서버)을 "새 서브패키지"라는 구체적인 소속으로 좁혔다. "새로 생기지 않는 것"까지 같이 적은 건 — technology-stack.md에서 확인한 "새 의존 없음"이 이 컴포넌트 설계에도 그대로 이어진다는 걸 명시하기 위해서다.') },
 
-      'ad-methods': { mode:'page', back:'process', eyebrow:'06 Application Design · component-methods.md', title:'설계 질문 넷을 스스로 답한 이유', body:
+      'ad-methods': { mode:'page', back:'process', eyebrow:'06 Application Design', title:'component-methods.md', dek:'설계 질문 넷을 스스로 답한 이유', body:
         '<p><b>왜 검토했나</b> — 컴포넌트가 정해져도 "정확히 어느 엔드포인트로, 무엇을 조합해서" 만드는지가 없으면 Units Generation이 완료 기준을 못 쓴다. 질문 파일을 만들고 기다리는 대신 자동 모드로 넷을 스스로 답했다.</p>' +
         src('component-methods.md', 'aidlc-docs/inception/application-design/component-methods.md',
           '| POST /api/drain | ... | 로컬에서 POST /v1/nodes/&#123;id&#125;/drain 을<br>' +
@@ -1929,7 +1931,7 @@
           '| WakeQueued(가칭) | ... 설계 질문 Q3, 추천: 기존 RunReaper 확장 | ... |',
           '<b>Q3 · 추천(확정 아님).</b> "주기적으로 DB를 훑는다"는 패턴(RunReaper)이 이미 있어 같은 성격의 일을 새 프리미티브로 다시 만들 이유가 없다. 정확한 주기·트랜잭션 경계는 Functional Design(이번 라운드 밖)의 몫이라 확정은 안 했다.') },
 
-      'ad-dependency': { mode:'page', back:'process', eyebrow:'06 Application Design · component-dependency.md', title:'겹침을 처음 관측한 자리', body:
+      'ad-dependency': { mode:'page', back:'process', eyebrow:'06 Application Design', title:'component-dependency.md', dek:'겹침을 처음 관측한 자리', body:
         '<p><b>왜 검토했나</b> — 새 메서드들이 실제로 어느 방향으로 의존하는지 그려야, 유닛을 나눌 때 무엇이 먼저 서야 하는지 알 수 있다. <b>이 문서가 "파일 겹침"을 이 워크샵에서 처음 표로 만든 자리다</b> — Units Generation은 이 표를 유닛 관점에서 다시 확인했을 뿐이다.</p>' +
         src('component-dependency.md', 'aidlc-docs/inception/application-design/component-dependency.md',
           '| 컴포넌트 | 손대는 기능 |<br>' +
@@ -1937,7 +1939,7 @@
           '| internal/api | 중앙 현황판 · drain — <b>둘</b> |',
           '<b>스스로 찾음 — 지시받은 적 없다.</b> Workflow Planning 단계의 "관련 컴포넌트" 분석에서 이미 낌새가 보였던 걸(execution-plan.md 참조), 여기서 컴포넌트별 의존 매트릭스로 확정했다. 이 표 한 장이 뒤이은 Units Generation의 겹침 표(unit-of-work-dependency.md) 그대로의 뿌리다.', true) },
 
-      'ad-services': { mode:'page', back:'process', eyebrow:'06 Application Design · services.md', title:'새 오케스트레이션 계층을 안 만든 이유', body:
+      'ad-services': { mode:'page', back:'process', eyebrow:'06 Application Design', title:'services.md', dek:'새 오케스트레이션 계층을 안 만든 이유', body:
         '<p><b>왜 검토했나</b> — Application Design의 정석 절차는 서비스 계층(오케스트레이션 경계)을 정하는 것인데, 이 컴포넌트들을 억지로 새 서비스로 묶을지 아니면 기존 경계를 쓸지 판단이 필요했다.</p>' +
         src('services.md', 'aidlc-docs/inception/application-design/services.md',
           'enode 는 이미 <b>경계가 실행파일로 서 있는</b> 시스템이다(Mediator·enode·<br>' +
@@ -1945,7 +1947,7 @@
           '않는다 — <b>기존 실행파일 경계가 곧 서비스 경계다.</b>',
           '<b>채택.</b> 기각한 대안은 새 조정 계층(예: 별도 오케스트레이터 프로세스)을 만드는 것. internal/store가 이미 상태를 소유하는 유일한 컴포넌트라, "조정이 필요한 자리가 새로 생기는" 게 아니라 "이미 있는 조정 지점에 로직이 느는" 것뿐이다 — 새 서비스를 만들 이유가 없었다.') },
 
-      'ad-summary': { mode:'page', back:'process', eyebrow:'06 Application Design · application-design.md', title:'통합본 — 넷을 하나로 묶으면', body:
+      'ad-summary': { mode:'page', back:'process', eyebrow:'06 Application Design', title:'application-design.md', dek:'통합본 — 넷을 하나로 묶으면', body:
         '<p>이 파일은 위 넷(components·component-methods·component-dependency·services)의 요약이다. 새 근거를 담기보다, 완결성을 <b>체크리스트로 검증</b>한 자리라 그 부분을 발췌한다.</p>' +
         src('application-design.md', 'aidlc-docs/inception/application-design/application-design.md',
           '## 완결성 검증<br>' +
@@ -1954,7 +1956,7 @@
           '- [x] 겹침을 유닛으로 미리 나누지 않았다',
           '마지막 체크박스가 제일 중요하다 — Application Design은 겹침을 "관측"까지만 하고 "처리"는 다음 단계로 넘겼다는 걸, 스스로 확인하는 항목으로 남겨 뒀다. Units Generation이 그 판단을 실제로 어떻게 했는지는 <button class="term-more" data-term="ug-dependency" type="button" style="display:inline">unit-of-work-dependency.md</button>에서 이어진다.') },
 
-      'ug-unit-of-work': { mode:'page', back:'process', eyebrow:'07 Units Generation · unit-of-work.md', title:'유닛 넷 — 완료 기준은 무엇으로 삼았나', body:
+      'ug-unit-of-work': { mode:'page', back:'process', eyebrow:'07 Units Generation', title:'unit-of-work.md', dek:'유닛 넷 — 완료 기준은 무엇으로 삼았나', body:
         '<p><b>왜 검토했나</b> — 이 워크샵의 목표 산출물이다. 요구사항 넷을 사람이 나눠 맡을 작업 단위로 쪼개고, 완료 기준·출처 요구사항·의존 관계를 각 유닛에 담아야 한다(START.md §2).</p>' +
         src('unit-of-work.md', 'aidlc-docs/inception/application-design/unit-of-work.md',
           '요구사항 문서(requirements.md)의 MVP 넷과 1:1 대응하는 유닛 넷. 각 유닛에<br>' +
@@ -1965,7 +1967,7 @@
           '진짜로 의존한다(인터페이스 의존). ... 서버 골격 · UI 뼈대는 먼저 만들 수 있다.',
           'U4만 유일하게 "진짜 의존"이 있다고 명시했다. U1(GET /v1/nodes)·U3(POST drain)의 엔드포인트가 실제로 응답해야 U4의 수용 기준을 통과시킬 수 있어서다 — 다만 뼈대까지 막을 이유는 없어서 "완료"와 "착수"를 분리해 적었다.') },
 
-      'ug-dependency': { mode:'page', back:'process', eyebrow:'07 Units Generation · unit-of-work-dependency.md', title:'스스로 찾은 겹침 — 그리고 어떻게 대응했나', body:
+      'ug-dependency': { mode:'page', back:'process', eyebrow:'07 Units Generation', title:'unit-of-work-dependency.md', dek:'스스로 찾은 겹침 — 그리고 어떻게 대응했나', body:
         '<p><b>왜 검토했나</b> — 유닛 넷을 나눈 것과 별개로, 그 유닛들이 실제로 같은 파일을 건드리는지는 따로 확인해야 한다. <b>이 확인을 하라고 프롬프트에 지시한 적이 없다</b> — Application Design의 component-dependency.md에 이미 있던 사실을 유닛 관점에서 다시 확인했을 뿐이다.</p>' +
         src('unit-of-work-dependency.md', 'aidlc-docs/inception/application-design/unit-of-work-dependency.md',
           '<b>이 표는 누가 시켜서 만든 것이 아니다.</b><br><br>' +
@@ -1978,7 +1980,7 @@
           'api.go 에 손대는 순간은 순차로 병합한다</b> ... 개발 자체를 순차로 만들 필요는 없다',
           '<b>채택 — 유닛을 합치지 않고 병합 순서 권고로 대응.</b> 기각한 대안은 겹치는 세 유닛을 하나의 큰 유닛으로 합치는 것 — 합치면 "반나절 크기"(START.md §5-④) 기준을 넘는다. v1에 worktree 격리가 없다는 사실은 "유닛을 줄여라"가 아니라 "겹치면 사람이 조율해야 한다"는 뜻으로 읽어서, 유닛 경계는 그대로 두고 병합 순서만 권고했다.') },
 
-      'ug-story-map': { mode:'page', back:'process', eyebrow:'07 Units Generation · unit-of-work-story-map.md', title:'스토리 대신 요구사항 절을 매핑한 이유', body:
+      'ug-story-map': { mode:'page', back:'process', eyebrow:'07 Units Generation', title:'unit-of-work-story-map.md', dek:'스토리 대신 요구사항 절을 매핑한 이유', body:
         '<p><b>왜 검토했나</b> — units-generation.md는 "스토리 → 유닛" 매핑을 필수 산출물로 요구한다. User Stories를 건너뛰었으니 이 문서가 그 자리를 대신 채워야 했다.</p>' +
         src('unit-of-work-story-map.md', 'aidlc-docs/inception/application-design/unit-of-work-story-map.md',
           'User Stories 단계를 건너뛰었으므로, 스토리 대신 requirements.md 의 요구사항<br>' +
@@ -1997,6 +1999,7 @@
     var detailTitle = document.getElementById('detail-title');
     var detailEyebrow = document.getElementById('detail-eyebrow');
     var detailBody = document.getElementById('detail-body');
+    var detailDek = document.getElementById('detail-dek');
 
     function closePanel(){
       panel.classList.remove('open');
@@ -2028,6 +2031,8 @@
       detailBackLink.setAttribute('href', '#' + bt.id);
       detailEyebrow.textContent = t.eyebrow || '';
       detailTitle.textContent = t.title;
+      detailDek.textContent = t.dek || '';
+      detailDek.style.display = t.dek ? '' : 'none';
       detailBody.innerHTML = t.body + (t.diagram || '');
       document.body.classList.add('view-detail');
       detailView.classList.add('open');
