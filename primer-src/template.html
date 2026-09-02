@@ -1,0 +1,2257 @@
+<title>enode 입문</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --paper: #f4f6f3;
+    --surface: #ffffff;
+    --surface-2: #e9ede9;
+    --ink: #16211d;
+    --ink-soft: #4b5a54;
+    --ink-faint: #7c8983;
+    --line: #d7ded8;
+    --line-soft: #e4e9e3;
+    --accent: #0e7c7b;
+    --accent-ink: #ffffff;
+    --accent-soft: #dceceb;
+    --warm: #b5541f;
+    --warm-ink: #ffffff;
+    --warm-soft: #f3e4d8;
+    --shadow: 0 1px 2px rgba(22,33,29,0.04), 0 8px 24px -12px rgba(22,33,29,0.18);
+    --radius: 10px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #101613;
+      --surface: #161f1c;
+      --surface-2: #1c2822;
+      --ink: #e7ece8;
+      --ink-soft: #a3b3ab;
+      --ink-faint: #708079;
+      --line: #263630;
+      --line-soft: #1e2b26;
+      --accent: #3ecbc2;
+      --accent-ink: #08201d;
+      --accent-soft: #17322f;
+      --warm: #e59156;
+      --warm-ink: #211208;
+      --warm-soft: #2c2018;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 28px -14px rgba(0,0,0,0.6);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper: #101613;
+    --surface: #161f1c;
+    --surface-2: #1c2822;
+    --ink: #e7ece8;
+    --ink-soft: #a3b3ab;
+    --ink-faint: #708079;
+    --line: #263630;
+    --line-soft: #1e2b26;
+    --accent: #3ecbc2;
+    --accent-ink: #08201d;
+    --accent-soft: #17322f;
+    --warm: #e59156;
+    --warm-ink: #211208;
+    --warm-soft: #2c2018;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 28px -14px rgba(0,0,0,0.6);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  p, li, dd, dt, td, th, .decision-what, .decision-why, code, .tag {
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  a { color: var(--accent); text-decoration-thickness: 1.5px; text-underline-offset: 2px; }
+  a:focus-visible, button:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 600;
+    line-height: 1.18;
+    text-wrap: balance;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  code, .mono {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  }
+
+  .shell { display: flex; align-items: flex-start; max-width: 1180px; margin: 0 auto; }
+
+  /* ---------- Top masthead ---------- */
+  .masthead {
+    border-bottom: 1px solid var(--line);
+    padding: 28px 32px 26px;
+  }
+  .masthead-inner { max-width: 1180px; margin: 0 auto; }
+  .kicker {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .kicker::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  .masthead h1 {
+    font-size: clamp(2rem, 4vw, 2.7rem);
+    margin-top: 10px;
+  }
+  .masthead p.lede {
+    max-width: 62ch;
+    color: var(--ink-soft);
+    font-size: 1.08rem;
+    margin-top: 12px;
+  }
+  .masthead .meta-row {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    color: var(--ink-faint);
+  }
+  .masthead .meta-row span b { color: var(--ink-soft); font-weight: 500; }
+
+  /* ---------- Sidebar nav ---------- */
+  nav.toc {
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    width: 236px;
+    flex: 0 0 236px;
+    padding: 34px 20px 40px 32px;
+    max-height: 100vh;
+    overflow-y: auto;
+  }
+  nav.toc .toc-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 12px;
+  }
+  nav.toc > details > summary a {
+    display: block;
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 13.5px;
+  }
+
+  main { flex: 1 1 auto; min-width: 0; padding: 40px 32px 100px; }
+  section { max-width: 720px; margin: 0 0 78px; scroll-margin-top: 24px; }
+  section.wide { max-width: 900px; }
+  section .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  section h2 { font-size: clamp(1.5rem, 2.6vw, 1.9rem); }
+  section h2 + p.dek { margin-top: 12px; color: var(--ink-soft); font-size: 1.02rem; max-width: 60ch; }
+  section h3 { font-size: 1.15rem; margin-top: 34px; margin-bottom: 12px; }
+  p { margin: 14px 0 0; max-width: 66ch; }
+  p:first-child { margin-top: 0; }
+  ul, ol.plain { margin: 14px 0 0; padding-left: 22px; max-width: 62ch; }
+  li { margin-top: 6px; }
+
+  .callout {
+    margin-top: 20px;
+    padding: 16px 18px;
+    background: var(--surface-2);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    font-size: 14.5px;
+    color: var(--ink-soft);
+  }
+  .callout b { color: var(--ink); }
+  .callout.warm { border-left-color: var(--warm); }
+
+  /* ---------- Process timeline ---------- */
+  .timeline { display: flex; flex-direction: column; margin-top: 28px; }
+  .tstep {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 18px;
+    position: relative;
+    padding-bottom: 30px;
+  }
+  .tstep:last-child { padding-bottom: 0; }
+  .tstep::before {
+    content: "";
+    position: absolute;
+    left: 27px;
+    top: 46px;
+    bottom: 0;
+    width: 1px;
+    background: var(--line);
+  }
+  .tstep:last-child::before { display: none; }
+  .tnum {
+    width: 54px; height: 54px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    color: var(--ink-faint);
+    z-index: 1;
+  }
+  .tstep.done .tnum { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  .tstep.skip .tnum { background: var(--surface); color: var(--ink-faint); text-decoration: line-through; }
+  .tcard {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px 18px 18px;
+    box-shadow: var(--shadow);
+  }
+  .tcard .thead { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .tcard h4 { font-size: 1.05rem; }
+  .tstatus {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .tstatus.always { background: var(--accent-soft); color: var(--accent); }
+  .tstatus.cond { background: var(--warm-soft); color: var(--warm); }
+  .tstatus.skipped { background: var(--surface-2); color: var(--ink-faint); }
+  .tcard p { font-size: 14.5px; color: var(--ink-soft); margin-top: 8px; }
+  .tcard .artifacts { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    background: var(--surface-2);
+    color: var(--ink-soft);
+    padding: 3px 8px;
+    border-radius: 5px;
+    border: 1px solid var(--line-soft);
+  }
+
+  /* ---------- Glossary ---------- */
+  .glossary-group { margin-top: 30px; }
+  .glossary-group h3 { display: flex; align-items: center; gap: 10px; }
+  .glossary-group h3 .gcount { font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-faint); font-weight:400; }
+  dl.terms { margin: 14px 0 0; display: grid; gap: 2px; }
+  dl.terms > div {
+    display: grid;
+    grid-template-columns: 168px 1fr;
+    gap: 18px;
+    padding: 13px 0;
+    border-top: 1px solid var(--line-soft);
+  }
+  dl.terms > div:first-child { border-top: none; }
+  dl.terms dt {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--ink);
+    padding-top: 1px;
+  }
+  dl.terms dt small { display:block; font-weight:400; color: var(--ink-faint); font-size: 11.5px; margin-top:3px; }
+  dl.terms dd { margin: 0; font-size: 14.5px; color: var(--ink-soft); }
+  dl.terms dd code { background: var(--surface-2); padding: 1px 5px; border-radius: 4px; font-size: 13px; color: var(--ink); }
+
+  /* ---------- Units ---------- */
+  .unit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 22px; }
+  @media (max-width: 720px) { .unit-grid { grid-template-columns: 1fr; } }
+  .unit-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+  }
+  .unit-card .uid {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+  }
+  .unit-card.mine { border-color: var(--warm); }
+  .unit-card.mine .uid { color: var(--warm); }
+  .unit-card h4 { margin-top: 4px; font-size: 1.08rem; }
+  .unit-card .usub { font-size: 12.5px; color: var(--ink-faint); margin-top: 3px; }
+  .unit-card p { font-size: 14px; margin-top: 10px; }
+  .unit-card .udep {
+    margin-top: 12px;
+    font-size: 12.5px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    background: var(--surface-2);
+    color: var(--ink-soft);
+  }
+  .badge-mine {
+    display:inline-block; margin-top:10px;
+    font-family:'IBM Plex Mono',monospace; font-size: 10.5px; letter-spacing:.06em; text-transform:uppercase;
+    background: var(--warm-soft); color: var(--warm); padding: 3px 9px; border-radius: 20px;
+  }
+
+  .overlap-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13.5px; }
+  .overlap-table th, .overlap-table td {
+    border: 1px solid var(--line);
+    padding: 9px 11px;
+    text-align: left;
+  }
+  .overlap-table th { background: var(--surface-2); font-family:'IBM Plex Mono',monospace; font-weight:500; font-size:11.5px; text-transform:uppercase; letter-spacing:.04em; color: var(--ink-soft); }
+  .overlap-table td.hit { text-align: center; font-family:'IBM Plex Mono',monospace; }
+  .overlap-table td.hit.on { background: var(--warm-soft); color: var(--warm); font-weight: 600; }
+  .overlap-table td.hit.off { color: var(--line); }
+  .table-scroll { overflow-x: auto; }
+  .table-scroll::-webkit-scrollbar { height: 8px; }
+
+  /* ---------- Screenshot gallery ---------- */
+  .shot {
+    margin-top: 46px;
+    display: grid;
+    grid-template-columns: minmax(0,1.35fr) minmax(0,1fr);
+    gap: 26px;
+    align-items: start;
+  }
+  @media (max-width: 820px) { .shot { grid-template-columns: 1fr; } }
+  .shot figure { margin: 0; }
+  .shot img {
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+    display: block;
+    background: #0c1210;
+  }
+  .shot figcaption {
+    margin-top: 8px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    color: var(--ink-faint);
+  }
+  .shot .notes .screen-name {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .shot .notes h4 { margin-top: 6px; font-size: 1.12rem; }
+  .shot .notes p { font-size: 14.5px; }
+  .concept-map { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+  .concept-map .cm-row {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px;
+    align-items: baseline;
+    font-size: 13.5px;
+    padding: 8px 10px;
+    background: var(--surface-2);
+    border-radius: 6px;
+  }
+  .concept-map .cm-ui { font-family:'IBM Plex Mono',monospace; font-weight:600; color: var(--ink); white-space: nowrap; }
+  .concept-map .cm-concept { color: var(--ink-soft); }
+  .concept-map .cm-concept code { color: var(--accent); }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 30px 32px 60px;
+    font-size: 13px;
+    color: var(--ink-faint);
+  }
+  footer .fshell { max-width: 1180px; margin: 0 auto; display:flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  footer code { background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+
+  @media (max-width: 900px) {
+    .shell { flex-direction: column; }
+    nav.toc { position: static; width: 100%; flex: none; padding: 18px 32px 4px; max-height: none; }
+    main { padding: 24px 20px 80px; }
+    .masthead { padding: 22px 20px 20px; }
+  }
+
+  /* ---------- Collapsible ToC ---------- */
+  nav.toc details {
+    margin-bottom: 2px;
+  }
+  nav.toc summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 8px;
+    border-radius: 7px;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+  }
+  nav.toc summary::-webkit-details-marker { display: none; }
+  nav.toc summary::before {
+    content: "";
+    width: 0; height: 0;
+    border-left: 5px solid var(--ink-faint);
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    transition: transform 0.15s ease;
+    flex: 0 0 auto;
+  }
+  nav.toc details[open] > summary::before { transform: rotate(90deg); }
+  nav.toc summary:hover { background: var(--surface-2); color: var(--ink); }
+  nav.toc summary a { color: inherit; text-decoration: none; flex: 1; }
+  nav.toc .subitems {
+    list-style: none;
+    margin: 2px 0 6px 21px;
+    padding: 0;
+    border-left: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+  }
+  nav.toc .subitems li a {
+    display: block;
+    padding: 5px 10px;
+    margin-left: -1px;
+    border-left: 1px solid transparent;
+    font-size: 12.5px;
+    color: var(--ink-faint);
+    text-decoration: none;
+  }
+  nav.toc .subitems li a:hover { color: var(--accent); border-left-color: var(--accent); }
+  nav.toc .toc-collapse-all {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+    color: var(--ink-faint);
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 4px 8px;
+    cursor: pointer;
+    margin-bottom: 10px;
+  }
+  nav.toc .toc-collapse-all:hover { color: var(--ink); border-color: var(--ink-faint); }
+
+  /* ---------- Glossary term buttons ---------- */
+  dl.terms dt { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
+  .term-more {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.02em;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: none;
+    border-radius: 20px;
+    padding: 3px 9px 3px 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    transition: background 0.15s ease;
+  }
+  .term-more:hover { background: var(--accent); color: var(--accent-ink); }
+  .term-more::after { content: "→"; font-size: 11px; }
+  .term-more[data-mode="page"]::after { content: "⤢"; }
+
+  /* ---------- Diagrams ---------- */
+  figure.diagram { margin: 16px 0 0; }
+  figure.diagram svg { width: 100%; height: auto; display: block; color: var(--ink-soft); }
+  figure.diagram svg text { font-family: 'IBM Plex Mono', monospace; fill: currentColor; }
+  figure.diagram svg .box { fill: var(--surface-2); stroke: var(--line); stroke-width: 1.3; }
+  figure.diagram svg .box-accent { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.3; }
+  figure.diagram svg .box-warm { fill: var(--warm-soft); stroke: var(--warm); stroke-width: 1.3; }
+  figure.diagram svg .lbl { fill: var(--ink); font-weight: 600; }
+  figure.diagram svg .lbl-soft { fill: var(--ink-faint); }
+  figure.diagram svg .lbl-accent { fill: var(--accent); font-weight: 600; }
+  figure.diagram svg .lbl-warm { fill: var(--warm); font-weight: 600; }
+  figure.diagram svg line, figure.diagram svg path.arrow, figure.diagram svg polyline { stroke: currentColor; stroke-width: 1.4; fill: none; }
+  figure.diagram svg path.arrow-accent { stroke: var(--accent); }
+  figure.diagram svg path.arrow-warm { stroke: var(--warm); }
+  figure.diagram svg .dash { stroke-dasharray: 4 3; }
+  figure.diagram figcaption {
+    margin-top: 10px;
+    font-size: 12.5px;
+    color: var(--ink-faint);
+    max-width: 60ch;
+  }
+
+  /* ---------- Term panel (drawer) ---------- */
+  #term-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(10,16,14,0.38);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 40;
+  }
+  #term-backdrop.open { opacity: 1; pointer-events: auto; }
+  #term-panel {
+    position: fixed;
+    top: 0; right: 0; bottom: 0;
+    width: min(420px, 92vw);
+    background: var(--surface);
+    border-left: 1px solid var(--line);
+    box-shadow: -12px 0 32px -12px rgba(0,0,0,0.28);
+    transform: translateX(100%);
+    transition: transform 0.22s ease;
+    z-index: 41;
+    overflow-y: auto;
+    padding: 22px 24px 40px;
+  }
+  #term-panel.open { transform: translateX(0); }
+  #term-panel .panel-close {
+    position: absolute; top: 18px; right: 18px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 15px;
+    line-height: 1;
+  }
+  #term-panel .panel-close:hover { color: var(--ink); border-color: var(--ink-faint); }
+  #term-panel .panel-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--accent); margin-top: 4px;
+  }
+  #term-panel h3 { font-size: 1.35rem; margin-top: 8px; padding-right: 30px; }
+  #term-panel .panel-body { margin-top: 14px; font-size: 14.5px; color: var(--ink-soft); }
+  #term-panel .panel-body p { max-width: none; font-size: inherit; color: inherit; }
+  #term-panel .panel-body code { background: var(--surface-2); padding: 1px 5px; border-radius: 4px; color: var(--ink); font-size: 13px; }
+
+  /* ---------- Detail page view ---------- */
+  #detail-view { display: none; }
+  #detail-view.open { display: block; }
+  #detail-view .back-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    text-decoration: none;
+    padding: 6px 12px 6px 8px;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    background: var(--surface);
+    cursor: pointer;
+  }
+  #detail-view .back-link:hover { color: var(--accent); border-color: var(--accent); }
+  #detail-view .detail-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--accent); margin-top: 26px;
+  }
+  #detail-view h2.detail-title { font-size: clamp(1.5rem, 2.6vw, 1.9rem); margin-top: 10px; font-family: 'IBM Plex Mono', monospace; }
+  #detail-view p.detail-dek { margin-top: 10px; font-size: 1.08rem; color: var(--ink-soft); max-width: 60ch; font-family: 'Fraunces', Georgia, serif; }
+  #detail-view .detail-body { margin-top: 18px; max-width: 680px; font-size: 1.02rem; color: var(--ink-soft); }
+  #detail-view .detail-body p { max-width: none; color: inherit; }
+  #detail-view .detail-body code { background: var(--surface-2); padding: 1px 5px; border-radius: 4px; color: var(--ink); font-size: 0.92em; }
+  #detail-view figure.diagram { max-width: 720px; }
+  body.view-detail #view-normal { display: none; }
+
+  /* ---------- Mobile card home ---------- */
+  #mobile-home { display: none; }
+  .mobile-home-fab { display: none; }
+
+  @media (max-width: 700px) {
+    nav.toc { display: none; }
+
+    #mobile-home {
+      display: grid;
+      gap: 10px;
+      padding: 6px 20px 8px;
+    }
+    #mobile-home .mhome-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin: 10px 0 4px;
+    }
+    .mhome-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+      text-decoration: none;
+      color: var(--ink);
+    }
+    .mhome-card:active { background: var(--surface-2); }
+    .mhome-card .mnum {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      background: var(--accent-soft);
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex: 0 0 auto;
+    }
+    .mhome-card .mtext { min-width: 0; }
+    .mhome-card .mtext h3 { font-size: 1.02rem; }
+    .mhome-card .mtext p { margin-top: 3px; font-size: 12.5px; color: var(--ink-soft); }
+    .mhome-card .mchev { margin-left: auto; color: var(--ink-faint); font-size: 20px; flex: 0 0 auto; }
+
+    .mobile-home-fab {
+      display: flex;
+      align-items: center; justify-content: center;
+      position: fixed; right: 16px; bottom: 16px;
+      width: 46px; height: 46px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: var(--accent-ink);
+      box-shadow: var(--shadow);
+      text-decoration: none;
+      font-size: 19px;
+      z-index: 30;
+    }
+
+    main { padding-top: 4px; }
+    section { scroll-margin-top: 14px; }
+  }
+
+  /* ---------- Decision highlight boxes (doc detail pages) ---------- */
+  .decision {
+    margin-top: 16px;
+    padding: 14px 18px;
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+  }
+  .decision.warm { background: var(--warm-soft); border-color: var(--warm); }
+  .decision-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 7px;
+  }
+  .decision.warm .decision-label { color: var(--warm); }
+  .decision-what { font-weight: 600; color: var(--ink); font-size: 15px; }
+  .decision-why {
+    margin-top: 8px;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    padding-top: 8px;
+    border-top: 1px dashed currentColor;
+    border-top-color: color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+  .decision.warm .decision-why { border-top-color: color-mix(in srgb, var(--warm) 35%, transparent); }
+  .decision-why b { color: var(--ink); }
+
+  /* ---------- Source excerpt + review comment (Gerrit-style) ---------- */
+  .source-block { margin-top: 20px; }
+  .source-label {
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-faint);
+    margin-bottom: 6px;
+  }
+  .source-label .src-file { color: var(--ink-soft); font-weight: 600; }
+  .source-label a {
+    margin-left: auto;
+    color: var(--ink-faint);
+    font-size: 10.5px;
+    text-decoration: none;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 2px 9px;
+  }
+  .source-label a:hover { color: var(--accent); border-color: var(--accent); }
+  blockquote.source-excerpt {
+    margin: 0;
+    padding: 12px 16px;
+    background: var(--surface-2);
+    border-left: 3px solid var(--ink-faint);
+    border-radius: 4px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-family: 'IBM Plex Mono', monospace;
+    line-height: 1.65;
+  }
+  blockquote.source-excerpt cite {
+    display: block;
+    font-style: normal;
+    font-family: 'Work Sans', sans-serif;
+    font-size: 11px;
+    color: var(--ink-faint);
+    margin-top: 8px;
+  }
+  .review-comment {
+    margin: 6px 0 0 18px;
+    padding: 10px 14px;
+    background: var(--accent-soft);
+    border-radius: 3px 12px 12px 12px;
+    font-size: 13.5px;
+    color: var(--ink);
+    position: relative;
+  }
+  .review-comment.warm { background: var(--warm-soft); }
+  .review-comment .reviewer {
+    display: block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .review-comment.warm .reviewer { color: var(--warm); }
+  .review-comment b { color: var(--ink); }
+  .why-skipped {
+    margin-top: 20px;
+    padding: 14px 16px;
+    background: var(--surface-2);
+    border: 1px dashed var(--line);
+    border-radius: 10px;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+  }
+  .why-skipped .ws-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 6px;
+  }
+
+  /* ---------- Clickable artifact tags in the timeline ---------- */
+  .tag.tag-doc {
+    cursor: pointer;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-color: transparent;
+    font-weight: 500;
+  }
+  .tag.tag-doc:hover { background: var(--accent); color: var(--accent-ink); }
+  .tag.tag-doc::after { content: " ↗"; opacity: 0.7; }
+
+  .tag.tag-doc.tag-unused {
+    background: var(--surface-2);
+    color: var(--ink-faint);
+    border: 1px dashed var(--line);
+    font-weight: 400;
+  }
+  .tag.tag-doc.tag-unused:hover { background: var(--surface); color: var(--ink-soft); border-color: var(--ink-faint); }
+  .tag.tag-doc.tag-unused::after { content: " ↗"; opacity: 0.5; }
+
+  .doc-legend {
+    display: flex; align-items: center; gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--ink-faint);
+  }
+  .doc-legend .lg-item { display: inline-flex; align-items: center; gap: 6px; }
+  .doc-legend .lg-swatch {
+    display: inline-block; width: 11px; height: 11px; border-radius: 3px;
+    background: var(--accent-soft); border: 1px solid var(--accent);
+  }
+  .doc-legend .lg-swatch.unused { background: var(--surface-2); border: 1px dashed var(--line); }
+</style>
+
+<header class="masthead" id="top">
+  <div class="masthead-inner">
+    <div class="kicker">enode 프로젝트 온보딩 노트</div>
+    <h1>AI-DLC v1으로 enode에 기능을 더한 하루</h1>
+    <p class="lede">
+      이 문서는 <code>enode-fixup-workshop</code> 저장소에서 AWS AI-DLC v1 절차를
+      따라 Requirements Analysis부터 Units Generation까지 실행한 과정을 처음 보는
+      사람 기준으로 풀어 쓴 것이다. 진행 순서 → enode 개념 사전 → 유닛을 왜 이렇게
+      나눴는지 → 실제로 이미 만들어진 대시보드 화면 → 팀원들의 다른 결과를 이해하는
+      법 순서로 읽으면 된다. 산출물 태그를 클릭하면 원본이 아니라, 왜 그 문서를
+      검토했고 어떤 결정을 왜 골랐는지 재가공한 설명이 열린다.
+    </p>
+    <div class="meta-row">
+      <span>저장소 <b>taeels/enode-fixup-workshop</b></span>
+      <span>브랜치 <b>v1-run-02</b></span>
+      <span>도달 지점 <b>Units Generation (Construction 이전)</b></span>
+    </div>
+  </div>
+</header>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor" />
+    </marker>
+  </defs>
+</svg>
+
+<div id="mobile-home">
+  <div class="mhome-label">모바일 목차 · 탭해서 이동</div>
+  <a class="mhome-card" href="#process">
+    <span class="mnum">01</span>
+    <span class="mtext"><h3>AI-DLC v1 진행 순서</h3><p>여덟 단계, Units Generation에서 정지</p></span>
+    <span class="mchev">&#8250;</span>
+  </a>
+  <a class="mhome-card" href="#glossary">
+    <span class="mnum">02</span>
+    <span class="mtext"><h3>enode 용어 사전</h3><p>용어 17개, 탭하면 다이어그램과 함께 펼쳐짐</p></span>
+    <span class="mchev">&#8250;</span>
+  </a>
+  <a class="mhome-card" href="#units">
+    <span class="mnum">03</span>
+    <span class="mtext"><h3>유닛을 나눈 이유</h3><p>파일 겹침 분석 — 회의에서 쓸 내용</p></span>
+    <span class="mchev">&#8250;</span>
+  </a>
+  <a class="mhome-card" href="#dashboard">
+    <span class="mnum">04</span>
+    <span class="mtext"><h3>대시보드 화면</h3><p>스크린샷 7장, 화면별 개념 매칭</p></span>
+    <span class="mchev">&#8250;</span>
+  </a>
+  <a class="mhome-card" href="#synthesis">
+    <span class="mnum">05</span>
+    <span class="mtext"><h3>팀 종합 준비</h3><p>사실 vs 판단 구분, 팀원 결과 비교 체크리스트</p></span>
+    <span class="mchev">&#8250;</span>
+  </a>
+</div>
+
+<div class="shell">
+  <nav class="toc">
+    <div class="toc-label">이 문서</div>
+    <button class="toc-collapse-all" id="toc-toggle-all" type="button">전부 접기</button>
+    <details open>
+      <summary><a href="#process">01 · AI-DLC v1 진행 순서</a></summary>
+    </details>
+    <details open>
+      <summary><a href="#glossary">02 · enode 용어 사전</a></summary>
+      <ul class="subitems">
+        <li><a href="#" data-term="enode">enode</a></li>
+        <li><a href="#" data-term="mediator">Mediator</a></li>
+        <li><a href="#" data-term="node">노드</a></li>
+        <li><a href="#" data-term="enodectl">enodectl</a></li>
+        <li><a href="#" data-term="runctl">runctl</a></li>
+        <li><a href="#" data-term="harness">하네스</a></li>
+        <li><a href="#" data-term="run">Run</a></li>
+        <li><a href="#" data-term="contract">계약</a></li>
+        <li><a href="#" data-term="advertise-lease">광고 vs 임대</a></li>
+        <li><a href="#" data-term="claim">claim</a></li>
+        <li><a href="#" data-term="record">Record</a></li>
+        <li><a href="#" data-term="drain">drain</a></li>
+        <li><a href="#" data-term="principal">소유자</a></li>
+        <li><a href="#" data-term="queued">QUEUED</a></li>
+        <li><a href="#" data-term="observation">운용 관측</a></li>
+        <li><a href="#" data-term="invariants">INVARIANTS</a></li>
+        <li><a href="#" data-term="adr">ADR</a></li>
+      </ul>
+    </details>
+    <details open>
+      <summary><a href="#units">03 · 유닛을 이렇게 나눈 이유</a></summary>
+    </details>
+    <details open>
+      <summary><a href="#dashboard">04 · 대시보드 화면</a></summary>
+    </details>
+    <details open>
+      <summary><a href="#synthesis">05 · 팀 종합 준비</a></summary>
+    </details>
+  </nav>
+
+  <main>
+    <div id="view-normal">
+
+    <section id="process">
+      <div class="eyebrow">Part 1</div>
+      <h2>AI-DLC v1이 밟은 순서</h2>
+      <p class="dek">
+        AI-DLC는 INCEPTION(무엇을 왜 만들지) → CONSTRUCTION(어떻게 만들지) →
+        OPERATIONS(어떻게 배포·운영할지) 세 단계로 된 절차다. 이번 실행은
+        INCEPTION 안에서 아래 순서로 진행했고, <b>Units Generation에서 멈췄다</b> —
+        코드는 한 줄도 쓰지 않았다.
+      </p>
+
+      <div class="doc-legend">
+        <span class="lg-item"><span class="lg-swatch"></span> 실제로 판단 근거로 쓴 문서</span>
+        <span class="lg-item"><span class="lg-swatch unused"></span> 읽었지만 이번 판단엔 안 쓴 문서 — 클릭하면 왜 안 썼는지 나온다</span>
+      </div>
+
+      <div class="timeline">
+
+        <div class="tstep done">
+          <div class="tnum">01</div>
+          <div class="tcard">
+            <div class="thead"><h4>Workspace Detection</h4><span class="tstatus always">항상 실행</span></div>
+            <p>기존 코드가 있는지(브라운필드인지) 확인한다. enode는 Go 1.26으로
+            짜인 다섯 실행파일(<code>mediator</code>·<code>enode</code>·
+            <code>enodectl</code>·<code>runctl</code>·<code>iapadapter</code>)짜리
+            브라운필드 프로젝트였다.</p>
+          </div>
+        </div>
+
+        <div class="tstep done">
+          <div class="tnum">02</div>
+          <div class="tcard">
+            <div class="thead"><h4>Reverse Engineering</h4><span class="tstatus cond">조건부 · 브라운필드만</span></div>
+            <p>기존 코드를 읽고 아키텍처·컴포넌트·API 문서 아홉 개를 만드는
+            단계인데, 이번엔 <b>다른 세션(v2 리뷰 워크스페이스)이 이미 만들어 둔
+            것을 그대로 옮겨왔다</b> — 코드가 그 스캔 시점과 같다는 것만 확인하고
+            다시 훑지 않았다.</p>
+            <div class="artifacts">
+              <button class="tag tag-doc" data-term="re-architecture" type="button">architecture.md</button>
+              <button class="tag tag-doc" data-term="re-component-inventory" type="button">component-inventory.md</button>
+              <button class="tag tag-doc" data-term="re-technology-stack" type="button">technology-stack.md</button>
+              <button class="tag tag-doc" data-term="re-timestamp" type="button">reverse-engineering-timestamp.md</button>
+              <button class="tag tag-doc tag-unused" data-term="re-business-overview" type="button">business-overview.md</button>
+              <button class="tag tag-doc tag-unused" data-term="re-code-structure" type="button">code-structure.md</button>
+              <button class="tag tag-doc tag-unused" data-term="re-code-quality" type="button">code-quality-assessment.md</button>
+              <button class="tag tag-doc tag-unused" data-term="re-dependencies" type="button">dependencies.md</button>
+              <button class="tag tag-doc tag-unused" data-term="re-api-documentation" type="button">api-documentation.md</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tstep done">
+          <div class="tnum">03</div>
+          <div class="tcard">
+            <div class="thead"><h4>Requirements Analysis</h4><span class="tstatus always">항상 실행</span></div>
+            <p>이미 쓰여 있던 요구사항 문서의 미정 표시 25개 중, <b>유닛을 나누는
+            경계에 실제로 영향을 주는 2개만</b> 골라 질문했다(호스트 제어판 서버
+            위치, drain 노출 범위). 나머지 23개는 미정인 채로 기록만 하고
+            넘어갔다 — 다 물어보면 그것도 잘못이다.</p>
+            <p>답변 뒤에는 이 프로젝트의 정본 설계 저장소(<code>enode-design</code>)를
+            다시 대조해서, 이미 결정·구현된 것(<code>GET /v1/nodes</code>의 정확한
+            응답 모양)은 그 결정으로 교체하고, 새로 드러난 상호작용(drain을 무기한
+            걸면 대기열도 무기한 대기한다)은 미정 목록에 새로 추가했다.</p>
+            <div class="artifacts">
+              <button class="tag tag-doc" data-term="ra-questions" type="button">requirement-verification-questions.md</button>
+              <button class="tag tag-doc" data-term="ra-requirements" type="button">requirements.md</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tstep skip">
+          <div class="tnum">04</div>
+          <div class="tcard">
+            <div class="thead"><h4>User Stories</h4><span class="tstatus skipped">건너뜀</span></div>
+            <p>조건부 단계. 이번엔 건너뛰었다 — 대상이 외부 고객이 아니라 팀
+            자체 개발보드 함대를 관리하는 내부 도구고, 요구사항 문서 자체가 이미
+            기능마다 목적·수용 기준을 담고 있어 스토리로 다시 쓰면 같은 내용을
+            반복하게 됐다. 대신 "유닛-요구사항 절 매핑" 문서로 그 역할을
+            대신했다.</p>
+          </div>
+        </div>
+
+        <div class="tstep done">
+          <div class="tnum">05</div>
+          <div class="tcard">
+            <div class="thead"><h4>Workflow Planning</h4><span class="tstatus always">항상 실행</span></div>
+            <p>남은 단계 중 무엇을 실행할지 정하는 단계. 여기서 중요한 발견 하나 —
+            분석만 해봐도 <code>internal/store</code>와
+            <code>internal/api</code>가 세 기능(현황판·대기열·drain)에서 공통으로
+            겹친다는 게 이미 보였다. 이걸 유닛으로 어떻게 처리할지는 대신 정하지
+            않고 다음 단계로 넘겼다.</p>
+            <div class="artifacts"><button class="tag tag-doc" data-term="wp-plan" type="button">execution-plan.md</button></div>
+          </div>
+        </div>
+
+        <div class="tstep done">
+          <div class="tnum">06</div>
+          <div class="tcard">
+            <div class="thead"><h4>Application Design</h4><span class="tstatus cond">조건부 · 이번엔 강제</span></div>
+            <p>새 컴포넌트·메서드 시그니처 수준의 설계. 원래는 "새 컴포넌트가
+            있을 때만" 실행하는 조건부 단계지만, 다음 단계(Units Generation)의
+            전제조건으로 못 박혀 있어 강제로 실행했다. 여기서 drain 정책이
+            Mediator에 닿는 새 엔드포인트(<code>POST /v1/nodes/&#123;id&#125;/drain</code>,
+            그 노드 자신만 호출 가능)처럼 실제 설계 결정 몇 개를 확정했다.</p>
+            <div class="artifacts">
+              <button class="tag tag-doc" data-term="ad-components" type="button">components.md</button>
+              <button class="tag tag-doc" data-term="ad-methods" type="button">component-methods.md</button>
+              <button class="tag tag-doc" data-term="ad-dependency" type="button">component-dependency.md</button>
+              <button class="tag tag-doc" data-term="ad-services" type="button">services.md</button>
+              <button class="tag tag-doc" data-term="ad-summary" type="button">application-design.md</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tstep done">
+          <div class="tnum">07</div>
+          <div class="tcard">
+            <div class="thead"><h4>Units Generation</h4><span class="tstatus always">이번 실행의 목표 지점</span></div>
+            <p>요구사항 넷을 사람이 나눠 맡을 수 있는 작업 단위(유닛) 넷으로
+            쪼갠다. <b>파일이 겹치는지는 아무도 시키지 않았는데</b> 앞선 단계에서
+            이미 관측한 사실을 근거로 스스로 확인했다 — 아래 "유닛을 이렇게 나눈
+            이유"에서 자세히 다룬다.</p>
+            <div class="artifacts">
+              <button class="tag tag-doc" data-term="ug-unit-of-work" type="button">unit-of-work.md</button>
+              <button class="tag tag-doc" data-term="ug-dependency" type="button">unit-of-work-dependency.md</button>
+              <button class="tag tag-doc" data-term="ug-story-map" type="button">unit-of-work-story-map.md</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tstep skip">
+          <div class="tnum">08</div>
+          <div class="tcard">
+            <div class="thead"><h4>Construction</h4><span class="tstatus skipped">이번 라운드 아님</span></div>
+            <p>여기서부터가 실제 코드를 쓰는 단계다. 이번 실행 지시(<code>START.md</code>)가
+            "Units Generation까지, 코드는 한 줄도 쓰지 않는다"로 못 박아 뒀으므로
+            멈췄다. 팀이 유닛을 나눠 맡으면 그때부터 시작되는 구간이다.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="glossary">
+      <div class="eyebrow">Part 2</div>
+      <h2>enode 용어 사전</h2>
+      <p class="dek">
+        회의에서 이 단어들이 그냥 나온다. 아는 셈 치고 넘어가지 않아도 되게
+        하나씩 풀어 썼다.
+      </p>
+
+      <div class="glossary-group">
+        <h3>시스템을 이루는 것들 <span class="gcount">component</span></h3>
+        <dl class="terms">
+          <div>
+            <dt>enode <small>왜 이 이름인가</small><button class="term-more" data-term="enode" type="button">더 보기</button></dt>
+            <dd>이 프로젝트 전체의 이름이자, 자원이 있는 기계(개발보드가 꽂힌 PC 등)에
+            상주하는 <b>노드 데몬 프로세스</b>의 이름이기도 하다. "부재중인 담당자의
+            대리인" — 개발보드처럼 복제할 수 없는 자원에 AI가 대신 접근하게 하는
+            것이 이 프로젝트의 존재 이유다.</dd>
+          </div>
+          <div>
+            <dt>Mediator<button class="term-more" data-term="mediator" type="button">더 보기</button></dt>
+            <dd>중앙 서버 하나. 상태(누가 무엇을 하고 있나)를 유일하게 소유한다.
+            매칭·임대·시퀀싱을 하고 결과를 봉인한다. PostgreSQL에 저장한다.</dd>
+          </div>
+          <div>
+            <dt>노드 <small>node</small><button class="term-more" data-term="node" data-mode="page" type="button">더 보기</button></dt>
+            <dd>광고를 보내는 기계 한 대. <code>node_id</code>로 식별한다. 노드는
+            <b>절대 먼저 듣지 않는다</b> — 항상 자기가 Mediator로 연결을 건다(방화벽
+            뒤 개발보드가 아무 설정 없이 함대에 들어올 수 있는 이유).</dd>
+          </div>
+          <div>
+            <dt>enodectl<button class="term-more" data-term="enodectl" type="button">더 보기</button></dt>
+            <dd>한 기계에 있는 enode를 로컬에서 관리하는 CLI —
+            <code>status</code>·<code>start</code>·<code>stop</code>·<code>logs</code>.
+            오늘은 HTTP를 전혀 안 쓰는 순수 로컬 도구다. 이번 기능(호스트 제어판)이
+            여기 첫 HTTP 서버를 얹는다.</dd>
+          </div>
+          <div>
+            <dt>runctl<button class="term-more" data-term="runctl" type="button">더 보기</button></dt>
+            <dd>사람이 쓰는 CLI. 무상태. Run을 제출하고 상태를 조회하고 취소한다.</dd>
+          </div>
+          <div>
+            <dt>하네스 <small>harness</small><button class="term-more" data-term="harness" type="button">더 보기</button></dt>
+            <dd>노드가 실제로 실행하는 AI 실행기 — 지금은 <code>claude</code> CLI
+            하나뿐이다. enode가 이걸 실행하는 유일한 지점을 갖고 있다.</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="glossary-group">
+        <h3>일이 흘러가는 방식 <span class="gcount">lifecycle</span></h3>
+        <dl class="terms">
+          <div>
+            <dt>Run<button class="term-more" data-term="run" data-mode="page" type="button">더 보기</button></dt>
+            <dd>사용자가 제출한 작업 실행 하나. <code>CREATED → RESOLVING →
+            ALLOCATING → RUNNING → VERIFYING → SUCCEEDED/FAILED</code> 상태를
+            지나간다.</dd>
+          </div>
+          <div>
+            <dt>계약 <small>contract</small><button class="term-more" data-term="contract" type="button">더 보기</button></dt>
+            <dd>Run이 무엇을 할지 선언한 문서. 단계(<code>step</code>)들과 그
+            사이의 의존(<code>needs</code>)을 담는다.</dd>
+          </div>
+          <div>
+            <dt>광고 <small>advertise</small><button class="term-more" data-term="advertise-lease" data-mode="page" type="button">더 보기</button></dt>
+            <dd>노드가 "나는 무엇을 할 수 있다"를 스스로 알리는 것. <b>매번
+            전부를 다시 보내고, 만료된다.</b> 소유자가 편집할 수 없다 — 다음 광고가
+            덮어버리기 때문이다.</dd>
+          </div>
+          <div>
+            <dt>임대 <small>lease</small><button class="term-more" data-term="advertise-lease" data-mode="page" type="button">더 보기</button></dt>
+            <dd>Mediator가 노드 하나를 어느 Run에 배타적으로 묶는 것. 노드 하나엔
+            임대가 최대 하나뿐이다. <b>광고와 달리 사람이 정하고, 만료되지
+            않는다</b> — 이 차이가 이번에 만드는 drain 기능의 핵심 축이다.</dd>
+          </div>
+          <div>
+            <dt>claim<button class="term-more" data-term="claim" data-mode="page" type="button">더 보기</button></dt>
+            <dd>노드가 "내가 할 일 있어?"라고 Mediator에 롱폴(길게 붙잡는 요청)로
+            묻는 것. 저장소에서 유일하게 비멱등(같은 요청을 두 번 하면 결과가
+            달라짐)인 지점이다.</dd>
+          </div>
+          <div>
+            <dt>Record<button class="term-more" data-term="record" type="button">더 보기</button></dt>
+            <dd>Run이 끝나면 파일시스템에 봉인되는 실행 기록. 봉인되면 고칠 수도
+            지울 수도 없다.</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="glossary-group">
+        <h3>이번에 새로 배우는 것 <span class="gcount">이번 라운드</span></h3>
+        <dl class="terms">
+          <div>
+            <dt>drain<button class="term-more" data-term="drain" data-mode="page" type="button">더 보기</button></dt>
+            <dd>노드 소유자가 "내 자원 돌려줘"라고 말하는 것. 새 임대만 막는
+            <code>graceful</code> 모드와, 다음 단계 경계에서 강제로 놓는
+            <code>at-boundary</code> 모드 둘이 있다. Run을 죽이지 않는다는 게
+            핵심 — 그 점이 "선점(preemption, 이번엔 안 만듦)"과 갈리는 지점이다.</dd>
+          </div>
+          <div>
+            <dt>소유자 <small>principal</small><button class="term-more" data-term="principal" type="button">더 보기</button></dt>
+            <dd>노드를 함대에 내놓은 사람. 지금까지는 이 값이 장부에 기록만 되고
+            아무 데도 쓰이지 않았다 — 이번 기능이 처음으로 이걸 쓰는 기능이다.</dd>
+          </div>
+          <div>
+            <dt>QUEUED<button class="term-more" data-term="queued" data-mode="page" type="button">더 보기</button></dt>
+            <dd>새로 생기는 Run 상태. 지금은 자원이 다 차 있으면(<code>409</code>)
+            즉시 실패(<code>FAILED</code>)로 죽는데, 이번 기능은 그 대신 대기시켰다가
+            자원이 풀리면 자동으로 재시도하게 한다.</dd>
+          </div>
+          <div>
+            <dt>운용 관측 <small>operational observation</small><button class="term-more" data-term="observation" data-mode="page" type="button">더 보기</button></dt>
+            <dd>운영자가 지금 함대에 무슨 일이 있는지 보는 것 —
+            <code>GET /v1/nodes</code>가 담당한다. <b>배정 판정이 아니다</b> — 이
+            응답을 보고 "이 노드가 비어 있다"고 믿고 행동하면 그 사이 다른 Run이
+            채갈 수 있다. 실제 배정 가능 여부는 항상 Mediator의 매칭 함수만 안다.</dd>
+          </div>
+          <div>
+            <dt>INVARIANTS<button class="term-more" data-term="invariants" type="button">더 보기</button></dt>
+            <dd>정본 설계 저장소(<code>enode-design</code>)가 정한, 절대 깨면 안
+            되는 규칙 목록. 예를 들어 <b>I1</b>은 "노드 하나는 동시에 임대 하나"고,
+            <b>I4</b>는 "봉인된 Record는 못 고친다". 이번 기능들은 전부 이 규칙을
+            건드리지 않는 선에서 설계됐다.</dd>
+          </div>
+          <div>
+            <dt>ADR<button class="term-more" data-term="adr" type="button">더 보기</button></dt>
+            <dd>Architecture Decision Record — "왜 이렇게 정했나"를 적어두는
+            문서. 이번에 세 개(<code>ADR-063</code> drain, <code>ADR-064</code>
+            대기열, <code>ADR-065</code> 운용 관측)를 대조했다. 앞 둘은 아직
+            초안(미결)이고, 마지막은 이미 결정되고 구현까지 됐다.</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <section id="units" class="wide">
+      <div class="eyebrow">Part 3 · 회의에서 쓸 내용</div>
+      <h2>유닛을 이렇게 나눈 이유</h2>
+      <p class="dek">
+        요구사항 넷이 그대로 유닛 넷이 됐다. 그런데 그냥 넷으로 나눈 게 아니라,
+        <b>어느 파일이 겹치는지를 스스로 찾아서</b> 그 위에 병합 순서 권고를
+        얹었다 — 아무도 "파일 겹침을 확인해라"라고 시키지 않았는데도. 여기가
+        팀장이 궁금해할 지점이다.
+      </p>
+
+      <div class="unit-grid">
+        <div class="unit-card mine">
+          <div class="uid">U1</div>
+          <h4>중앙 현황판</h4>
+          <div class="usub">requirements.md 3.1.2</div>
+          <p>함대 전체가 지금 뭘 하는지 한 화면에서 본다. <code>GET /v1/runs</code>·
+          <code>GET /v1/nodes</code> 신규.</p>
+          <div class="udep">의존: 없음 — 바로 시작 가능. 대기열(U2)과 서로를 완성시켜준다.</div>
+          <span class="badge-mine">담당 후보 — 대시보드 계열</span>
+        </div>
+        <div class="unit-card">
+          <div class="uid">U2</div>
+          <h4>대기열</h4>
+          <div class="usub">requirements.md 3.2.2</div>
+          <p>자원이 꽉 찼을 때 죽는 대신 기다린다. <code>409 → QUEUED</code>, FIFO
+          하나로 순서를 정한다.</p>
+          <div class="udep">의존: U1과 상호 의존 — 둘 다 끝나야 "대기 Run이 목록에 뜬다"가 참이 된다.</div>
+        </div>
+        <div class="unit-card">
+          <div class="uid">U3</div>
+          <h4>drain</h4>
+          <div class="usub">requirements.md 3.2.1</div>
+          <p>소유자가 자기 자원을 돌려받는다. 정책 저장 + 매칭 제외 + 노드 전용
+          신규 엔드포인트.</p>
+          <div class="udep">의존: 없음 — 바로 시작 가능. 대기열(U2)과 동작으로 얽힌다(코드 의존은 아님).</div>
+        </div>
+        <div class="unit-card mine">
+          <div class="uid">U4</div>
+          <h4>호스트 제어판</h4>
+          <div class="usub">requirements.md 3.1.1</div>
+          <p>노드 소유자가 자기 기계에서 enode를 보고 통제한다.
+          <code>enodectl</code>에 첫 HTTP 서버가 생긴다.</p>
+          <div class="udep">의존: U1·U3에 진짜로 의존 — 그 둘의 엔드포인트가 서야 완주(수용 기준 통과)할 수 있다.</div>
+          <span class="badge-mine">담당 후보 — 대시보드 계열</span>
+        </div>
+      </div>
+
+      <h3>어느 파일에서 실제로 부딪히나</h3>
+      <p>
+        패키지 이름만 보면 안 와닿을 수 있어서 파일 단위로 짚었다.
+        <code>internal/api/api.go</code>는 <b>파일 하나</b>에 API 라우트 15개가
+        전부 등록돼 있는 구조다 — 세 유닛이 여기 동시에 손을 대면 코드 리뷰나
+        병합 순서를 정하지 않는 이상 반드시 부딪힌다.
+      </p>
+      <div class="table-scroll">
+        <table class="overlap-table">
+          <thead>
+            <tr><th>파일 / 패키지</th><th>U1 현황판</th><th>U2 대기열</th><th>U3 drain</th><th>U4 제어판</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>internal/api/api.go</code><br><span style="color:var(--ink-faint);font-size:12px;">단일 파일 · 830줄</span></td>
+              <td class="hit on">●</td><td class="hit on">●</td><td class="hit on">●</td><td class="hit off">–</td>
+            </tr>
+            <tr>
+              <td><code>internal/store</code><br><span style="color:var(--ink-faint);font-size:12px;">패키지 · 파일 12개</span></td>
+              <td class="hit on">●</td><td class="hit on">●</td><td class="hit on">●</td><td class="hit off">–</td>
+            </tr>
+            <tr>
+              <td><code>internal/match/match.go</code></td>
+              <td class="hit off">–</td><td class="hit off">–</td><td class="hit on">●</td><td class="hit off">–</td>
+            </tr>
+            <tr>
+              <td><code>cmd/enodectl</code></td>
+              <td class="hit off">–</td><td class="hit off">–</td><td class="hit off">–</td><td class="hit on">●</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout warm">
+        <b>회의에서 이렇게 말하면 된다</b> — "유닛은 요구사항 그대로 넷이지만,
+        현황판·대기열·drain 셋이 <code>api.go</code> 한 파일과
+        <code>internal/store</code> 패키지를 같이 건드립니다. 동시에 시작해도
+        되는데, 그 파일에 손대는 순간(=병합 시점)만 순서를 정해야 합니다. 제가
+        맡은 호스트 제어판(U4)은 현황판·drain의 엔드포인트가 서야 끝까지 검증할
+        수 있어서, 뼈대는 먼저 만들되 완료 표시는 그 둘이 끝난 뒤로 미루겠습니다."
+      </div>
+
+      <h3>파일은 안 겹치는데 동작으로 얽히는 것 하나</h3>
+      <p>
+        drain(U3)을 무기한으로 걸어두면, 그 노드를 기다리는 대기열(U2)의 Run도
+        무기한 대기하게 된다 — 이건 정본 설계 문서(<code>ADR-064</code>)가 짚은
+        내용이다. 코드 의존은 아니라서 유닛은 따로 개발해도 되지만,
+        <b>통합 테스트는 반드시 같이 봐야 한다.</b> 둘 다 각자 수용 기준을
+        통과해도 이 상호작용은 저절로 검증되지 않는다.
+      </p>
+    </section>
+
+    <section id="dashboard" class="wide">
+      <div class="eyebrow">Part 4 · 참고 구현</div>
+      <h2>이미 있는 대시보드 화면 — 화면별로 뜯어보기</h2>
+      <p class="dek">
+        다른 클론(<code>enode-work/enode</code>, 브랜치
+        <code>feat/runaway-dashboard-observation</code>, 아직 원격 main에 안
+        올라간 상태)에 Python 표준 라이브러리만으로 짠 참고 대시보드가 이미
+        있다. 우리 U1·U4가 최종적으로 Go로 만들 것과 기술 스택은 다르지만(이건
+        Python 서버가 Mediator를 대신 호출하는 방식), 화면 구성과 "무엇을
+        보여줘야 하는가"는 그대로 참고할 수 있다.
+      </p>
+
+      <div class="callout">
+        <b>이 스크린샷들은 Mediator가 꺼진 상태에서 찍혔다</b> — <code>WinError
+        10061</code>(연결 거부)이 곳곳에 보이는 이유다. 그래서 데이터는 비어
+        있지만, 화면 구조와 라벨(<code>LIVE</code>·<code>MOCK</code>·<code>CONFIG</code>
+        같은 출처 표시)은 실제 그대로다.
+      </div>
+
+      <h3>운영 화면 — 함대를 관리하는 사람이 본다</h3>
+
+      <div class="shot">
+        <figure>
+          <img src="__IMG_OPS_FULL__" alt="enode 운영 대시보드 전체 화면 — 셋업 체크리스트, 함대 능력, Fleet nodes 패널이 세로로 배치돼 있다" loading="lazy" />
+          <figcaption>operations-dashboard.png</figcaption>
+        </figure>
+        <div class="notes">
+          <div class="screen-name">전체 구성</div>
+          <h4>운영자용 첫 화면</h4>
+          <p>위에서부터 셋업 체크리스트(이 PC 자체를 점검) · 함대 능력
+          요약 · Fleet nodes(개별 노드 관측) 순서로 쌓여 있다. 각 패널 옆에
+          <code>LIVE</code>/<code>CONFIG</code>/<code>MOCK</code> 배지로 이 값이
+          어디서 왔는지를 숨기지 않고 밝힌다 — enode 설계 문화 자체가
+          "자리표시(mock)를 진짜인 척하지 않는다"를 중요하게 여긴다.</p>
+          <div class="concept-map">
+            <div class="cm-row"><span class="cm-ui">LIVE</span><span class="cm-concept">이 PC 또는 Mediator의 <b>지금 이 순간</b> 응답 — 우리 문서의 "관측"과 같은 말</span></div>
+            <div class="cm-row"><span class="cm-ui">CONFIG</span><span class="cm-concept">운영자가 스스로 선언한 값(엔드포인트 등) — <code>정책</code> 개념과 결이 같다</span></div>
+            <div class="cm-row"><span class="cm-ui">MOCK</span><span class="cm-concept">API가 아직 없어서 빈 자리임을 숨기지 않고 표시</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="shot">
+        <figure>
+          <img src="__IMG_OPS_FLEET__" alt="Fleet nodes 패널 상세 — 왼쪽은 활성 광고 목록(비어 있음), 오른쪽은 사용자 작업 템플릿 여섯 개" loading="lazy" />
+          <figcaption>operations-running-enodes-detail.png</figcaption>
+        </figure>
+        <div class="notes">
+          <div class="screen-name">부분 화면</div>
+          <h4>Fleet nodes — 우리 U1이 만드는 바로 그 화면</h4>
+          <p>왼쪽 "ACTIVE ADVERTISEMENTS"가 정확히 우리 U1의
+          <code>GET /v1/nodes</code> 결과다 — 만료 전 광고와, 응답 시점에 관측된
+          임대만 보여준다. 오른쪽 "WORK TEMPLATES"는 노드가 광고하는 진짜
+          capability(<code>agent.reason</code>)와 다른, 사람이 작업을 분류하는
+          로컬 라벨일 뿐이라고 화면 자체가 명시한다 — 개념을 섞지 않는다.</p>
+          <div class="concept-map">
+            <div class="cm-row"><span class="cm-ui">ACTIVE&nbsp;ADVERTISEMENTS</span><span class="cm-concept"><code>GET /v1/nodes</code> 응답의 <code>nodes[]</code> — 광고 + 관측된 임대</span></div>
+            <div class="cm-row"><span class="cm-ui">LEASE&nbsp;OBSERVED</span><span class="cm-concept">그 노드 행의 <code>lease</code> 필드 — "지금 이 순간 그렇게 보였다"일 뿐, 배정을 보장하지 않는다</span></div>
+            <div class="cm-row"><span class="cm-ui">WORK&nbsp;TEMPLATES</span><span class="cm-concept">enode의 정식 개념이 아니다 — 이 대시보드가 얹은 사용자 편의 분류</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="shot">
+        <figure>
+          <img src="__IMG_OPS_RUN__" alt="Run 조사 패널 — Run ID 입력창과 조회 버튼, 결과 없음 안내 문구" loading="lazy" />
+          <figcaption>operations-run-inspection-detail.png</figcaption>
+        </figure>
+        <div class="notes">
+          <div class="screen-name">부분 화면</div>
+          <h4>Run 조사 — 작업 그래프의 입구</h4>
+          <p>Run ID 하나를 넣으면 그 Run의 단계 타임라인·판정·record를
+          <code>GET /v1/runs/&#123;id&#125;</code>로 가져온다. 우리 U1의 "작업
+          그래프"(<code>steps[]</code>+<code>needs[]</code>) 요구사항이 실제
+          화면에서는 이런 식의 "조회 → 상세 펼치기" 흐름으로 나타난다.</p>
+        </div>
+      </div>
+
+      <h3>사용자 화면 — 개발자 개인이 본다</h3>
+
+      <div class="shot">
+        <figure>
+          <img src="__IMG_ME_FULL__" alt="내 작업 화면 전체 — 현재 맥락, 내 작업 목록, DLC 맥락 태그가 세로로 배치돼 있다" loading="lazy" />
+          <figcaption>my-work.png</figcaption>
+        </figure>
+        <div class="notes">
+          <div class="screen-name">전체 구성</div>
+          <h4>운영 화면과 다른 대상 — 소유자 한 명</h4>
+          <p>같은 대시보드 서버가 상단 탭(운영/내 작업)으로 두 화면을 나눈다.
+          이쪽은 "함대 전체"가 아니라 <b>내가 지금 하는 작업 하나</b>가
+          중심이다 — 우리 요구사항의 호스트 제어판(U4)이 노리는 것과 같은
+          "소유자 개인 시점"이다.</p>
+        </div>
+      </div>
+
+      <div class="shot">
+        <figure>
+          <img src="__IMG_ME_LIST__" alt="내 작업 목록 — 램덤프 분석, 빌드, 퓨징 등 다섯 항목이 각각 NOT LINKED 상태로 표시돼 있다" loading="lazy" />
+          <figcaption>my-work-list-detail.png</figcaption>
+        </figure>
+        <div class="notes">
+          <div class="screen-name">부분 화면</div>
+          <h4>내 작업 목록 — Run과 로컬 메모의 분리</h4>
+          <p>이 목록 자체는 브라우저에만 저장된다(enode 서버는 모른다). Run ID를
+          연결한 항목만 Mediator에서 실제 상태를 읽어온다. <code>NOT LINKED</code>는
+          "아직 Run과 안 이었음", <code>OFFLINE</code>은 "통신 실패"로,
+          Run의 정식 상태(<code>RESOLVING</code>·<code>ALLOCATING</code>· 등)와
+          섞이지 않게 어휘를 갈라 뒀다 — 우리 용어 사전의 "광고 vs 정책" 축
+          분리와 같은 태도다.</p>
+        </div>
+      </div>
+
+      <div class="shot">
+        <figure>
+          <img src="__IMG_ME_DLC__" alt="DLC 맥락 태그 패널 — MAIN에 구현 태그 하나, RELATED는 비어 있음, 참고용 요구사항·설계·배포 버튼" loading="lazy" />
+          <figcaption>my-work-dlc-context-detail.png</figcaption>
+        </figure>
+        <div class="notes">
+          <div class="screen-name">부분 화면</div>
+          <h4>DLC 맥락 태그 — "지금 내가 어느 단계에 있나"</h4>
+          <p>선택한 Run의 상태를 보고 지금 검토할 개발 수명주기 맥락을
+          추정해서 보여준다. 화면 자체가 "이건 enode의 정식 DLC 단계 필드가
+          아니라 화면상의 추정"이라고 못 박아 둔다 — 우리가 다루는
+          <b>AI-DLC(계획 절차)</b>와 이 <b>DLC 태그(런타임 추정)</b>는 이름은
+          비슷해도 다른 개념이니 헷갈리지 않아야 한다.</p>
+        </div>
+      </div>
+
+      <div class="shot">
+        <figure>
+          <img src="__IMG_ME_RUNDETAIL__" alt="Run 상세 패널 — TIMELINE·VERDICT·HARNESS 탭과 Run을 적용하면 표시된다는 안내 문구" loading="lazy" />
+          <figcaption>my-work-run-detail.png</figcaption>
+        </figure>
+        <div class="notes">
+          <div class="screen-name">부분 화면</div>
+          <h4>Run 상세 — 판정 근거까지 내려간다</h4>
+          <p><code>TIMELINE</code>(단계별 진행) · <code>VERDICT</code>(최종 판정
+          — 우리 용어 사전의 <code>I3</code>, "성공은 계약의 기계적 조건만") ·
+          <code>HARNESS</code>(실제 AI 실행 상세)까지 파고든다. 안내 문구만
+          보이는 상태를 그대로 두고 가짜 성공 데이터로 채우지 않은 것도, 이
+          프로젝트 전반의 "자리표시를 진짜처럼 보이게 하지 않는다"는 원칙과
+          같다.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="synthesis" class="wide">
+      <div class="eyebrow">Part 5 · 팀 종합 준비</div>
+      <h2>왜 유닛이 갈렸나 — 실행 셋을 나란히 놓고 본다</h2>
+      <p class="dek">
+        이 저장소에는 <code>v1-run-02</code>(이 페이지) 말고
+        <code>v1-run-01</code>과 <code>shin-son-development</code> 두 실행이 더
+        있다. 셋 다 같은 입력을 받았다 — <code>prep/GOALS.md</code> ·
+        <code>requirements/enode-features.md</code> ·
+        <code>requirements/constraints.md</code> 세 파일이 세 브랜치에서
+        md5 해시까지 동일하다. <b>그런데 유닛 개수는 4개 · 10개 · 7개로
+        갈렸다.</b> 아래는 그 갈림이 AI-DLC의 어느 단계에서, 어떤 판단
+        때문에 생겼는지를 실제 문서 발췌로 추적한 것이다.
+      </p>
+
+      <div class="decision">
+        <div class="decision-label">먼저 짚을 비대칭 — v1-run-01은 출발선이 다르다</div>
+        <p class="decision-what"><code>git merge-base</code>로 확인하면
+        v1-run-01은 <a href="https://github.com/taeels/enode-fixup-workshop/commit/17b74c645423def64131988b418a0be2666e23c3" target="_blank" rel="noopener">17b74c6</a>에서
+        갈라졌다 — <code>START.md</code>가 저장소에 생기기(다음 커밋
+        <code>6b49118</code>) <b>전</b>이다. 그래서 v1-run-01 브랜치에는 지금도
+        <code>START.md</code>가 없다. START.md 자신도 §7에서 이 브랜치를 "미리
+        볼 수 있는 선행 실행"으로 규정해 둔다.</p>
+        <p class="decision-why"><b>왜 중요한가:</b> START.md는 "미정 25개 중
+        유닛 경계에 실제로 걸리는 것만 물어라", "확장은 전부 꺼도 된다" 같은
+        이번 라운드 전용 지시를 담고 있다. v1-run-01은 이 지시 없이 진행했다 —
+        그래서 아래 차이 중 상당수는 "같은 조건에서 다르게 판단했다"가 아니라
+        "조건 자체가 달랐다"에 가깝다. shin-son-development는 v1-run-02와 같은
+        START.md를 받았으므로 그 둘의 비교가 더 순수한 대조다.</p>
+      </div>
+
+      <h3>한눈에 — 세 실행이 각 단계에서 고른 것</h3>
+      <div class="table-scroll">
+        <table class="overlap-table">
+          <thead>
+            <tr><th>단계 · 항목</th><th>v1-run-02(이 페이지)</th><th>v1-run-01</th><th>shin-son-development</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>START.md 보유</td><td class="hit on">있음</td><td class="hit off">없음(이전 브랜치)</td><td class="hit on">있음</td></tr>
+            <tr><td>RA 범위</td><td>MVP 필수 넷</td><td>필수+그다음 전부 (FR 8개로 세분)</td><td>MVP 필수 넷</td></tr>
+            <tr><td>RA 확장 opt-in</td><td>셋 다 끔</td><td>Resiliency · PBT 켬, Security 끔</td><td>셋 다 끔</td></tr>
+            <tr><td>RA 질문 라운드</td><td>1라운드(질문 2 + 확장 3)</td><td>3라운드 + 복원력 질문 3</td><td>2라운드(질문 5 + 확장 3)</td></tr>
+            <tr><td>User Stories</td><td>건너뜀</td><td>실행 — 스토리 10 · 페르소나 4</td><td>실행 — 스토리 25 · 페르소나 3</td></tr>
+            <tr><td>AD 컴포넌트 표기</td><td>손댄 것만 5개</td><td>전체 재계수 15→19</td><td>신규 3개(UI를 컴포넌트로 분리)</td></tr>
+            <tr><td>UG 유닛 개수</td><td class="hit on">4</td><td class="hit on">10</td><td class="hit on">7</td></tr>
+            <tr><td>UG 분할 축</td><td>기능 1:1</td><td>기능 + 선행 이동 + 검증 유닛</td><td>바닥 + 기능세로 + 화면 분리</td></tr>
+            <tr><td>겹침 처리</td><td>찾음 → 병합 순서 권고</td><td>찾음 → 유닛 병합 + 되돌림 절차</td><td>찾음 → 실행 순서 지정</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>1 · Reverse Engineering — 여기는 갈리지 않았다</h3>
+      <p>
+        세 브랜치 모두 <code>aidlc-docs/inception/reverse-engineering/</code> 아홉
+        산출물이 파일 단위로 같다 — v2 워크스페이스에서 이관됐고 스캔 기준선
+        <code>f46e187</code>도 같다. <b>여기가 갈렸다면 그건 판단 차이가 아니라
+        사고다.</b> 실제 갈림은 전부 Requirements Analysis부터 시작된다.
+      </p>
+
+      <h3>2 · Requirements Analysis — 범위와 확장이 여기서 갈린다</h3>
+      <p>공유 입력 <code>requirements/enode-features.md</code> §4는 이미 "필수
+      넷"과 "그다음 셋"을 나눠 두고 있다.</p>
+      <div class="source-block">
+        <div class="source-label"><span class="src-file">requirements/enode-features.md · 셋 다 동일</span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-02/requirements/enode-features.md" target="_blank" rel="noopener">GitHub 원본 ↗</a></div>
+        <blockquote class="source-excerpt">이 넷이 <code>dhseo</code> 시나리오를 한 장면으로 만든다 — 현황판에서 보드가 도는 것을 보고, 소유자가 drain 을 걸고, 단계 경계에서 풀리고, 대기열의 다음이 집는다.</blockquote>
+        <div class="review-comment"><span class="reviewer">비교 코멘트</span>세 실행 모두 이 문장을 읽었다. shin-son-development와 v1-run-02는 이것을 이번 라운드의 경계로 그대로 받아들였고, v1-run-01은 같은 §4를 읽고도 "그다음 셋"까지 범위에 넣었다 — 아래.</div>
+      </div>
+
+      <div class="source-block">
+        <div class="source-label"><span class="src-file">requirement-verification-questions.md · shin-son-development</span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/shin-son-development/aidlc-docs/inception/requirements/requirement-verification-questions.md" target="_blank" rel="noopener">GitHub 원본 ↗</a></div>
+        <blockquote class="source-excerpt">이번 실행의 범위를 어디까지 잡나? 요구사항 문서 §4 가 MVP 를 둘로 갈라 두었다. 범위가 유닛 개수를 직접 정하므로 먼저 정해야 한다.<br><br>[Answer]: A — MVP 필수 네개만 (2026-09-01 채팅으로 답변, 확정)</blockquote>
+        <div class="review-comment"><span class="reviewer">비교 코멘트</span>범위를 게이트 질문으로 명시적으로 물었고, 사람이 A(필수 넷)로 확정했다.</div>
+      </div>
+
+      <div class="source-block">
+        <div class="source-label"><span class="src-file">requirement-verification-questions.md · v1-run-02</span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-02/aidlc-docs/inception/requirements/requirement-verification-questions.md" target="_blank" rel="noopener">GitHub 원본 ↗</a></div>
+        <blockquote class="source-excerpt">MVP 범위(중앙 현황판 · 대기열 · drain · 호스트 제어판 넷)는 요구사항 문서 4절이 이미 확정해 두었으므로 다시 묻지 않는다.</blockquote>
+        <div class="review-comment"><span class="reviewer">비교 코멘트</span>이 실행은 범위를 아예 질문으로 만들지도 않았다 — §4의 "필수" 딱지를 그대로 확정으로 읽었다. shin-son-development처럼 사람에게 다시 물었어야 더 안전했을 수 있다(우연히 같은 답에 도달했을 뿐이다).</div>
+      </div>
+
+      <div class="source-block">
+        <div class="source-label"><span class="src-file">requirements.md · v1-run-01</span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-01/aidlc-docs/inception/requirements/requirements.md" target="_blank" rel="noopener">GitHub 원본 ↗</a></div>
+        <blockquote class="source-excerpt">깊이&nbsp;&nbsp;&nbsp;&nbsp;Comprehensive<br><br>(중략 — §1.1 "왜 이 여섯인가")<br><br>여기에 접수 경로 하나(MCP)와 실행 단위 하나(역할)를 더한다.</blockquote>
+        <div class="review-comment warm"><span class="reviewer">비교 코멘트</span>같은 §4를 읽고도 의도 분석 단계에서 깊이를 "Comprehensive"로 스스로 매기고, "그다음 셋"(MCP·트랜스크립트·역할 주입)까지 범위에 넣었다. 범위를 질문으로 만들지도 않았다 — START.md 없이 CLAUDE.md의 기본 판단만 썼기 때문일 가능성이 크다.</div>
+      </div>
+
+      <p>확장(extension) opt-in도 같은 이유로 갈렸다. <code>START.md</code>는 "지금은
+      입도만 재므로 전부 꺼도 된다"고 명시적으로 권한다.</p>
+      <div class="source-block">
+        <div class="source-label"><span class="src-file">requirements-clarification-questions.md · shin-son-development</span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/shin-son-development/aidlc-docs/inception/requirements/requirements-clarification-questions.md" target="_blank" rel="noopener">GitHub 원본 ↗</a></div>
+        <blockquote class="source-excerpt">참고 — START.md 는 이 워크샵의 목적(유닛 입도 측정)상 확장을 전부 꺼도 된다고 안내한다. 개발 체험이 목적이라도 처음 한 바퀴는 가볍게 도는 편을 권한다.<br><br>[Answer]: B — 끈다 (2026-09-02 채팅으로 답변, 확정. aidlc-state.md 에 기록)</blockquote>
+        <div class="review-comment"><span class="reviewer">비교 코멘트</span>START.md의 권고를 질문 파일에 그대로 인용하고 사람이 확정했다. 셋(Security·Resiliency·PBT) 전부 같은 근거로 껐다.</div>
+      </div>
+      <div class="source-block">
+        <div class="source-label"><span class="src-file">requirement-verification-questions.md · v1-run-02</span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-02/aidlc-docs/inception/requirements/requirement-verification-questions.md" target="_blank" rel="noopener">GitHub 원본 ↗</a></div>
+        <blockquote class="source-excerpt">B) No — skip all SECURITY rules ... — this run stops at Units Generation and never reaches Construction, so no code will exist for these rules to check (Recommended for this run)</blockquote>
+        <div class="review-comment"><span class="reviewer">비교 코멘트</span>같은 결론(끈다)이지만 근거가 다르다 — START.md의 권고를 직접 인용한 게 아니라 "이번 라운드는 Construction까지 안 간다"는 자체 추론이었다. 결과는 같아도 <b>추론 경로가 다르면 다음 라운드(Construction까지 가는 실행)에서 같은 결론이 안 나올 수 있다</b>는 뜻이다.</div>
+      </div>
+      <div class="source-block">
+        <div class="source-label"><span class="src-file">requirements.md · v1-run-01</span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-01/aidlc-docs/inception/requirements/requirements.md" target="_blank" rel="noopener">GitHub 원본 ↗</a></div>
+        <blockquote class="source-excerpt">NFR-R5 는 기능 여섯 밖의 범위 확장이다. 켠 확장이 요구해서 들어왔다. Mediator 표면 15개에 헬스 라우트가 0개인 것이 관측 사실이고, 규칙은 모든 서비스에 요구한다.</blockquote>
+        <div class="review-comment warm"><span class="reviewer">비교 코멘트</span>Resiliency를 켠 것이 실제로 새 요구사항(NFR-R5, 헬스 엔드포인트)을 낳았다 — 원래 여섯 기능 어디에도 없던 요구가 확장 opt-in 하나로 생겨난 것이다. <b>확장 opt-in은 "어차피 안 쓸 옵션"이 아니라 요구사항 자체를 바꾸는 지점</b>이라는 걸 보여준다.</div>
+      </div>
+
+      <h3>3 · User Stories — 실행 여부부터 갈린다</h3>
+      <div class="table-scroll">
+        <table class="overlap-table">
+          <thead><tr><th></th><th>v1-run-02</th><th>v1-run-01</th><th>shin-son-development</th></tr></thead>
+          <tbody>
+            <tr><td>실행 여부</td><td class="hit off">건너뜀</td><td class="hit on">실행</td><td class="hit on">실행</td></tr>
+            <tr><td>페르소나</td><td>—</td><td>4</td><td>3</td></tr>
+            <tr><td>스토리</td><td>—</td><td>10</td><td>25</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="source-block">
+        <div class="source-label"><span class="src-file">aidlc-state.md · v1-run-02</span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-02/aidlc-docs/aidlc-state.md" target="_blank" rel="noopener">GitHub 원본 ↗</a></div>
+        <blockquote class="source-excerpt">User Stories | 건너뜀 | 내부 운영 도구, requirements.md 가 이미 목적 · UI/UX · 수용기준을 담음 — 근거는 execution-plan.md</blockquote>
+        <div class="review-comment"><span class="reviewer">비교 코멘트</span>CLAUDE.md의 User Stories 판단 기준(사용자 대면 기능이면 실행 쪽으로 기운다)에 따르면 이 판단은 위험한 쪽이다 — 대시보드 둘 다 사용자 대면이다. requirements.md의 수용 기준으로 대체됐다고 판단했지만, 페르소나별 관점(노드 소유자 대 관찰자)은 스토리 없이는 잘 안 드러난다.</div>
+      </div>
+      <div class="source-block">
+        <div class="source-label"><span class="src-file">aidlc-state.md · shin-son-development</span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/shin-son-development/aidlc-docs/aidlc-state.md" target="_blank" rel="noopener">GitHub 원본 ↗</a></div>
+        <blockquote class="source-excerpt">User Stories | <b>완료 (2026-09-02 승인)</b> | 페르소나 3 · 스토리 25. <code>inception/user-stories/</code></blockquote>
+        <div class="review-comment"><span class="reviewer">비교 코멘트</span>스토리 25개는 셋 중 가장 세밀하다 — 나중에 Units Generation에서 "스토리 2~4개 크기"를 유닛 하나로 묶는 기준을 쓸 수 있었던 것도 이 세밀함 덕분이다(§5 참조). 스토리 개수가 그대로 유닛 산정 방식에 재료로 쓰인 사례다.</div>
+      </div>
+
+      <h3>4 · Application Design — 컴포넌트를 세는 방식이 갈린다</h3>
+      <div class="source-block">
+        <div class="source-label"><span class="src-file">aidlc-state.md · v1-run-01</span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-01/aidlc-docs/aidlc-state.md" target="_blank" rel="noopener">GitHub 원본 ↗</a></div>
+        <blockquote class="source-excerpt">산출물 다섯. 컴포넌트 15 -> 19. 판단 다섯이 뒤집히지 않고 채택됐다</blockquote>
+        <div class="review-comment"><span class="reviewer">비교 코멘트</span>기존 15개를 포함해 전체를 다시 세었다 — 실행파일 5→6, 라이브러리 10→13. 가장 완비된 인벤토리지만 문서 분량도 가장 크다.</div>
+      </div>
+      <div class="source-block">
+        <div class="source-label"><span class="src-file">components.md · shin-son-development</span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/shin-son-development/aidlc-docs/inception/application-design/components.md" target="_blank" rel="noopener">GitHub 원본 ↗</a></div>
+        <blockquote class="source-excerpt">3.1 internal/panel — 호스트 제어판 서버 &nbsp;·&nbsp; 3.2 internal/api/ui/ — 중앙 현황판 (정적) &nbsp;·&nbsp; 3.3 internal/panel/ui/ — 호스트 제어판 (정적)</blockquote>
+        <div class="review-comment"><span class="reviewer">비교 코멘트</span>정적 UI(HTML·CSS·JS)를 서버 로직과 <b>별개 컴포넌트</b>로 센다 — 이 축이 그대로 Units Generation에서 "화면은 별도 유닛"(U6·U7)으로 이어진다.</div>
+      </div>
+      <div class="source-block">
+        <div class="source-label"><span class="src-file">components.md · v1-run-02</span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-02/aidlc-docs/inception/application-design/components.md" target="_blank" rel="noopener">GitHub 원본 ↗</a></div>
+        <blockquote class="source-excerpt">이번 라운드에 새로 생기거나 손이 가는 컴포넌트만 적는다. 기존 열다섯 패키지의 전체 책임은 component-inventory.md 를 본다.</blockquote>
+        <div class="review-comment"><span class="reviewer">비교 코멘트</span>기존 컴포넌트를 다시 안 세고 신규·변경분 5개(HostPanelServer · DrainPolicy 둘 · QueueState · DashboardQuery)만 적었다. UI를 별도 컴포넌트로 가르지 않았다 — 그래서 뒤의 유닛도 화면과 서버가 한 유닛 안에 있다.</div>
+      </div>
+
+      <h3>5 · Units Generation — 축과 개수가 갈린다</h3>
+      <div class="table-scroll">
+        <table class="overlap-table">
+          <thead><tr><th>v1-run-02 (4)</th><th>v1-run-01 (10)</th><th>shin-son-development (7)</th></tr></thead>
+          <tbody>
+            <tr><td>U1 중앙 현황판</td><td>UOW-01 프로세스 조작 이동</td><td>U1 바닥(foundation)</td></tr>
+            <tr><td>U2 대기열</td><td>UOW-02 api.go 분할</td><td>U2 현황판 API</td></tr>
+            <tr><td>U3 drain</td><td>UOW-03 클라이언트 이동</td><td>U3 대기열</td></tr>
+            <tr><td>U4 호스트 제어판</td><td>UOW-04 스키마 기반</td><td>U4 drain</td></tr>
+            <tr><td>—</td><td>UOW-05 관측(중앙 현황판)</td><td>U5 제어판 서버</td></tr>
+            <tr><td>—</td><td>UOW-06 대기열</td><td>U6 중앙 화면(UI)</td></tr>
+            <tr><td>—</td><td>UOW-07 제어권(drain)</td><td>U7 호스트 화면(UI)</td></tr>
+            <tr><td>—</td><td>UOW-08 호스트 제어판</td><td>—</td></tr>
+            <tr><td>—</td><td>UOW-09 출력과 역할</td><td>—</td></tr>
+            <tr><td>—</td><td>UOW-10 dhseo 검증</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        세 축이 뚜렷이 다르다. v1-run-02는 <b>요구사항 절과 1:1</b>(기능 넷 =
+        유닛 넷, 가장 단순). v1-run-01은 기능 축 위에 <b>선행 이동/분할
+        유닛(01~04)</b>과 <b>마지막 통합 검증 유닛(10)</b>을 따로 세웠다 —
+        범위가 넓었던 만큼(여섯 기능) 준비·검증 단계가 유닛으로 분리돼 나온
+        것이다. shin-son-development는 <b>바닥 유닛 하나 + 기능마다 서버/화면을
+        가르는 축</b>이다.
+      </p>
+
+      <div class="source-block">
+        <div class="source-label"><span class="src-file">aidlc-state.md · v1-run-01</span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-01/aidlc-docs/aidlc-state.md" target="_blank" rel="noopener">GitHub 원본 ↗</a></div>
+        <blockquote class="source-excerpt">사라짐&nbsp;&nbsp;mount.go&nbsp;&nbsp;&nbsp;&nbsp;US-4 와 US-6 이 UOW-05 한 유닛<br>사라짐&nbsp;&nbsp;claude.go&nbsp;&nbsp;&nbsp;&nbsp;US-7 과 US-8 이 UOW-09 한 유닛</blockquote>
+        <div class="review-comment warm"><span class="reviewer">비교 코멘트</span>겹침을 찾은 뒤 <b>유닛 자체를 합쳤다</b> — 겹치는 두 기능을 아예 한 유닛으로 만들어 겹침을 구조적으로 없앴다.</div>
+      </div>
+      <div class="source-block">
+        <div class="source-label"><span class="src-file">unit-of-work.md · shin-son-development</span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/shin-son-development/aidlc-docs/inception/application-design/unit-of-work.md" target="_blank" rel="noopener">GitHub 원본 ↗</a></div>
+        <blockquote class="source-excerpt">internal/api/api.go 는 U2 · U3 · U4 · U6 넷이 건드리는 유일한 파일이다 ... U3 를 먼저 끝내고 U4 가 시작하면 겹치지 않는다</blockquote>
+        <div class="review-comment"><span class="reviewer">비교 코멘트</span>유닛은 그대로 넷을 두고 <b>착수 순서를 지정</b>했다 — 병합이 아니라 시퀀싱으로 겹침을 풀었다.</div>
+      </div>
+      <div class="source-block">
+        <div class="source-label"><span class="src-file">unit-of-work-dependency.md · v1-run-02</span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-02/aidlc-docs/inception/application-design/unit-of-work-dependency.md" target="_blank" rel="noopener">GitHub 원본 ↗</a></div>
+        <blockquote class="source-excerpt">internal/api/api.go 를 고치는 세 유닛(U1·U2·U3)은 동시 착수해도 되지만 api.go 에 손대는 순간은 순차로 병합한다 — 한 사람이 라우트를 등록하고 병합한 뒤 다음 사람이 이어받는 식.</blockquote>
+        <div class="review-comment"><span class="reviewer">비교 코멘트</span>shin-son-development와 같은 방식(시퀀싱)이다 — 유닛 경계는 그대로 두고 <b>병합 순서</b>로 겹침을 풀었다. v1-run-01만 유닛을 합치는 쪽을 택했다.</div>
+      </div>
+
+      <h3>요약과 결론</h3>
+      <p>
+        인과 사슬은 한 방향으로 이어진다. <b>입력은 완전히 같았다</b>(md5
+        동일) → <b>Requirements Analysis에서 범위·깊이·확장 판단이 갈렸다</b>
+        (v1-run-01만 START.md 없이 진행, 스스로 "Comprehensive"를 택함) →
+        그 판단이 <b>User Stories 실행 여부와 스토리 개수</b>를 갈랐다(0 · 10 ·
+        25) → 그것이 <b>Application Design의 컴포넌트 표기 범위와 UI 분리
+        여부</b>를 갈랐다 → 최종적으로 <b>Units Generation의 분할 축과
+        개수</b>(4 · 10 · 7)로 나타났다. 유닛 개수 차이는 원인이 아니라
+        결과다 — 진짜 갈림은 훨씬 앞, 첫 게이트 질문에서 이미 났다.
+      </p>
+      <div class="callout warm">
+        <code>prep/GOALS.md</code>와 <code>START.md</code> §5는 이미 이렇게 경고해
+        뒀다 — "v1 에는 협업 지원이 없다 ... 유닛이 겹치면 사람이 그냥
+        부딪힌다." 세 실행의 유닛 개수가 다르다는 것 자체가 그 경고의 실측
+        증거다. <b>넷의 unit-of-work.md를 이어붙여서 그대로 팀원 4명에게
+        나눠줄 수 없다</b> — 세 실행이 이미 서로 다른 축(기능 1:1 · 기능+선행
+        이동 · 바닥+화면분리)으로 세계를 나눴기 때문이다.
+      </div>
+      <p>
+        팀 종합 회의에서 할 일은 "누구 유닛 개수가 맞았나"를 가리는 게
+        아니라, <b>Requirements Analysis 게이트로 다시 돌아가</b> 범위(필수
+        넷인가 여섯인가)와 확장 opt-in을 팀 전체가 하나로 맞추고, 그 다음에야
+        <a href="#units">Part 3</a>의 파일 겹침 표처럼 <b>분할 축 하나</b>를
+        골라 유닛을 다시 긋는 것이다. 축을 먼저 통일하지 않으면 네 사람의
+        "완료"가 서로 다른 경계를 가리키게 된다.
+      </p>
+    </section>
+
+    </div>
+
+    <section id="detail-view">
+      <a href="#glossary" class="back-link" id="detail-back">← 용어 사전으로 돌아가기</a>
+      <div class="detail-eyebrow" id="detail-eyebrow"></div>
+      <h2 class="detail-title" id="detail-title"></h2>
+      <p class="detail-dek" id="detail-dek"></p>
+      <div class="detail-body" id="detail-body"></div>
+    </section>
+
+  </main>
+</div>
+
+<a href="#top" class="mobile-home-fab" aria-label="모바일 목차로 돌아가기">&#8962;</a>
+
+<div id="term-backdrop"></div>
+<aside id="term-panel" aria-hidden="true">
+  <button class="panel-close" id="panel-close" type="button" aria-label="닫기">✕</button>
+  <div class="panel-eyebrow" id="panel-eyebrow"></div>
+  <h3 id="panel-title"></h3>
+  <div class="panel-body" id="panel-body"></div>
+</aside>
+
+<footer>
+  <div class="fshell">
+    <span>enode-fixup-workshop · <code>v1-run-02</code> · Units Generation에서 정지, Construction 없음</span>
+    <span>참고 대시보드 출처 · <code>enode-work/enode</code> · <code>feat/runaway-dashboard-observation</code></span>
+  </div>
+
+  <script>
+  (function(){
+    var GH = 'https://github.com/taeels/enode-fixup-workshop/blob/v1-run-02/';
+
+    function src(file, path, quote, comment, warm){
+      return '<div class="source-block">' +
+        '<div class="source-label"><span class="src-file">' + file + '</span>' +
+        '<a href="' + GH + path + '" target="_blank" rel="noopener">GitHub 원본 ↗</a></div>' +
+        '<blockquote class="source-excerpt">' + quote + '</blockquote>' +
+        '<div class="review-comment' + (warm ? ' warm' : '') + '"><span class="reviewer">리뷰 코멘트</span>' + comment + '</div>' +
+        '</div>';
+    }
+
+    function fileHeader(file, path){
+      return '<div class="source-label" style="margin-top:-4px;"><span class="src-file">' + file + '</span>' +
+        '<a href="' + GH + path + '" target="_blank" rel="noopener">GitHub 원본 전체 보기 ↗</a></div>';
+    }
+
+    function whySkipped(comment){
+      return '<div class="why-skipped"><div class="ws-label">이번 실행에서 안 쓴 이유</div>' + comment + '</div>';
+    }
+
+    var TERMS = {
+
+      enode: { mode:'panel', eyebrow:'component', title:'enode', body:
+        '<p>이 프로젝트 전체의 이름이자, 자원이 있는 기계에 상주하는 노드 데몬 프로세스의 이름이기도 하다. "부재중인 담당자의 대리인" — 개발보드처럼 복제할 수 없는 자원에 AI가 대신 접근하게 하는 것이 존재 이유다.</p>',
+        diagram:
+        '<figure class="diagram"><svg viewBox="0 0 340 140" role="img" aria-label="enode 데몬은 기계 안에 있고 Mediator로만 아웃바운드 연결을 건다">' +
+        '<rect x="14" y="18" width="150" height="96" rx="8" class="box" stroke-dasharray="4 3"/>' +
+        '<text x="89" y="34" text-anchor="middle" class="lbl-soft" font-size="10">기계(개발보드 있음)</text>' +
+        '<rect x="34" y="52" width="110" height="40" rx="6" class="box-accent"/>' +
+        '<text x="89" y="76" text-anchor="middle" class="lbl-accent" font-size="12">enode 데몬</text>' +
+        '<rect x="230" y="52" width="96" height="40" rx="6" class="box"/>' +
+        '<text x="278" y="76" text-anchor="middle" class="lbl" font-size="12">Mediator</text>' +
+        '<line x1="144" y1="66" x2="226" y2="66" marker-end="url(#arrow)"/>' +
+        '<text x="185" y="58" text-anchor="middle" class="lbl-soft" font-size="9">HTTP, 항상 나간다</text>' +
+        '<line x1="226" y1="82" x2="144" y2="82" class="dash" marker-end="url(#arrow)"/>' +
+        '<text x="185" y="100" text-anchor="middle" class="lbl-soft" font-size="9">듣는 포트 0개</text>' +
+        '</svg><figcaption>enode는 자기 기계 안에서 돌지만 포트를 열지 않는다 — Mediator로 나가는 연결만 있다.</figcaption></figure>' },
+
+      mediator: { mode:'panel', eyebrow:'component', title:'Mediator', body:
+        '<p>중앙 서버 하나. 상태를 유일하게 소유한다. 매칭·임대·시퀀싱을 하고 결과를 봉인해 PostgreSQL에 저장한다.</p>',
+        diagram:
+        '<figure class="diagram"><svg viewBox="0 0 360 150" role="img" aria-label="Mediator가 runctl과 여러 enode의 요청을 받아 PostgreSQL에 상태를 저장한다">' +
+        '<rect x="132" y="52" width="96" height="44" rx="6" class="box-accent"/><text x="180" y="78" text-anchor="middle" class="lbl-accent" font-size="12">Mediator</text>' +
+        '<rect x="10" y="18" width="90" height="34" rx="6" class="box"/><text x="55" y="39" text-anchor="middle" class="lbl" font-size="11">runctl</text>' +
+        '<rect x="10" y="100" width="90" height="34" rx="6" class="box"/><text x="55" y="121" text-anchor="middle" class="lbl" font-size="11">enode ×N</text>' +
+        '<rect x="258" y="58" width="92" height="34" rx="6" class="box"/><text x="304" y="79" text-anchor="middle" class="lbl" font-size="11">PostgreSQL</text>' +
+        '<line x1="100" y1="35" x2="128" y2="63" marker-end="url(#arrow)"/>' +
+        '<line x1="100" y1="117" x2="128" y2="88" marker-end="url(#arrow)"/>' +
+        '<line x1="228" y1="75" x2="254" y2="75" marker-end="url(#arrow)"/>' +
+        '<text x="180" y="28" text-anchor="middle" class="lbl-soft" font-size="9">HTTP /v1</text>' +
+        '<text x="304" y="110" text-anchor="middle" class="lbl-soft" font-size="9">상태 저장</text>' +
+        '</svg><figcaption>모든 요청이 한 곳으로 모인다 — 노드끼리는 서로 존재를 모른다.</figcaption></figure>' },
+
+      node: { mode:'page', eyebrow:'component · 핵심 방향', title:'노드(node)', body:
+        '<p>광고를 보내는 기계 한 대. <code>node_id</code>로 식별한다. 노드는 절대 먼저 듣지 않는다 — 항상 자기가 Mediator로 연결을 건다.</p>' +
+        '<p>이게 사소한 구현 디테일이 아니다. <code>internal/enode/</code> 전체에 <code>net.Listen</code>이 0건이고, 저장소에서 포트를 여는 자리는 <code>cmd/mediator/main.go</code> 단 하나다. 방화벽 뒤 개발보드나 남의 노트북이 아무 설정 없이 함대에 들어올 수 있는 것이 이 방향의 직접적 결과다.</p>',
+        diagram:
+        '<figure class="diagram"><svg viewBox="0 0 620 200" role="img" aria-label="가상의 인바운드 방식과 실제 아웃바운드 방식을 비교한다">' +
+        '<text x="140" y="24" text-anchor="middle" class="lbl-warm" font-size="12">만약 — 노드가 포트를 연다면</text>' +
+        '<rect x="30" y="50" width="100" height="40" rx="6" class="box"/><text x="80" y="74" text-anchor="middle" class="lbl" font-size="11">누구나</text>' +
+        '<rect x="180" y="50" width="110" height="40" rx="6" class="box-warm"/><text x="235" y="74" text-anchor="middle" class="lbl-warm" font-size="11">노드 :PORT</text>' +
+        '<line x1="130" y1="70" x2="176" y2="70" class="dash" marker-end="url(#arrow)"/>' +
+        '<text x="153" y="58" text-anchor="middle" class="lbl-warm" font-size="16">✕</text>' +
+        '<text x="153" y="106" text-anchor="middle" class="lbl-soft" font-size="9">방화벽 설정을 노드마다 열어야 함</text>' +
+        '<line x1="330" y1="20" x2="330" y2="180" class="dash"/>' +
+        '<text x="480" y="24" text-anchor="middle" class="lbl-accent" font-size="12">실제 — 노드가 나간다</text>' +
+        '<rect x="370" y="120" width="110" height="40" rx="6" class="box-accent"/><text x="425" y="144" text-anchor="middle" class="lbl-accent" font-size="10.5">노드(방화벽 뒤)</text>' +
+        '<rect x="470" y="50" width="100" height="40" rx="6" class="box"/><text x="520" y="74" text-anchor="middle" class="lbl" font-size="11">Mediator</text>' +
+        '<line x1="430" y1="118" x2="500" y2="92" marker-end="url(#arrow)"/>' +
+        '<text x="470" y="105" text-anchor="middle" class="lbl-soft" font-size="9">광고·claim(항상 이 방향)</text>' +
+        '</svg><figcaption>노드가 먼저 듣는 구조였다면 방화벽 설정이 노드마다 필요했을 것이다. 실제로는 노드가 항상 먼저 나가므로 설정 없이 함대에 들어온다.</figcaption></figure>' },
+
+      enodectl: { mode:'panel', eyebrow:'component', title:'enodectl', body:
+        '<p>한 기계에 있는 enode를 로컬에서 관리하는 CLI. 오늘은 HTTP를 전혀 안 쓰는 순수 로컬 도구다 — 이번 기능(호스트 제어판)이 여기 첫 HTTP 서버를 얹는다.</p>',
+        diagram:
+        '<figure class="diagram"><svg viewBox="0 0 380 160" role="img" aria-label="enodectl이 오늘은 CLI 넷만 갖고 있고 이번 라운드에 HTTP 서버가 더해진다">' +
+        '<text x="90" y="20" text-anchor="middle" class="lbl-soft" font-size="11">오늘</text>' +
+        '<rect x="20" y="32" width="140" height="110" rx="8" class="box"/><text x="90" y="50" text-anchor="middle" class="lbl" font-size="11">enodectl CLI</text>' +
+        '<text x="90" y="72" text-anchor="middle" class="lbl-soft" font-size="9.5">status</text>' +
+        '<text x="90" y="90" text-anchor="middle" class="lbl-soft" font-size="9.5">start / stop</text>' +
+        '<text x="90" y="108" text-anchor="middle" class="lbl-soft" font-size="9.5">logs</text>' +
+        '<text x="90" y="128" text-anchor="middle" class="lbl-soft" font-size="8.5">HTTP 0건</text>' +
+        '<line x1="170" y1="87" x2="200" y2="87" marker-end="url(#arrow)"/>' +
+        '<text x="290" y="20" text-anchor="middle" class="lbl-accent" font-size="11">이번 라운드</text>' +
+        '<rect x="210" y="32" width="150" height="110" rx="8" class="box-accent"/><text x="285" y="50" text-anchor="middle" class="lbl-accent" font-size="11">enodectl CLI</text>' +
+        '<text x="285" y="70" text-anchor="middle" class="lbl-soft" font-size="9">status/start/stop/logs</text>' +
+        '<rect x="230" y="80" width="110" height="30" rx="6" fill="none" stroke="var(--accent)" stroke-width="1.3"/>' +
+        '<text x="285" y="99" text-anchor="middle" class="lbl-accent" font-size="9.5">호스트 제어판 HTTP</text>' +
+        '<text x="285" y="128" text-anchor="middle" class="lbl-soft" font-size="8.5">127.0.0.1 기본</text>' +
+        '</svg><figcaption>같은 CLI 프로세스가 기존 커맨드를 감싸면서, 이번 라운드에 HTTP 서버 하나를 새로 얹는다.</figcaption></figure>' },
+
+      runctl: { mode:'panel', eyebrow:'component', title:'runctl', body:
+        '<p>사람이 쓰는 CLI. 무상태. Run을 제출하고 상태를 조회하고 취소한다. 종료코드 넷이 상황을 구분해준다.</p>',
+        diagram:
+        '<figure class="diagram"><svg viewBox="0 0 380 130" role="img" aria-label="runctl이 Mediator에 Run을 제출하고 네 가지 종료코드 중 하나를 돌려받는다">' +
+        '<rect x="10" y="45" width="90" height="40" rx="6" class="box"/><text x="55" y="69" text-anchor="middle" class="lbl" font-size="11">runctl</text>' +
+        '<rect x="150" y="45" width="110" height="40" rx="6" class="box-accent"/><text x="205" y="69" text-anchor="middle" class="lbl-accent" font-size="11">Mediator</text>' +
+        '<line x1="100" y1="58" x2="146" y2="58" marker-end="url(#arrow)"/><text x="123" y="48" text-anchor="middle" class="lbl-soft" font-size="8.5">submit</text>' +
+        '<line x1="146" y1="76" x2="100" y2="76" class="dash" marker-end="url(#arrow)"/><text x="123" y="96" text-anchor="middle" class="lbl-soft" font-size="8.5">종료코드</text>' +
+        '<text x="300" y="35" class="lbl-soft" font-size="9.5">0 성공</text>' +
+        '<text x="300" y="53" class="lbl-soft" font-size="9.5">1 Run 실패</text>' +
+        '<text x="300" y="71" class="lbl-soft" font-size="9.5">2 요청 거절</text>' +
+        '<text x="300" y="89" class="lbl-soft" font-size="9.5">3 도달 불가</text>' +
+        '</svg><figcaption>종료코드가 "Run이 실패했다"와 "제출이 거절됐다"를 구분해준다 — 스크립트가 상황별로 다르게 반응할 수 있다.</figcaption></figure>' },
+
+      harness: { mode:'panel', eyebrow:'component', title:'하네스(harness)', body:
+        '<p>노드가 실제로 실행하는 AI 실행기. 지금은 <code>claude</code> CLI 하나뿐이다. enode가 이걸 실행하는 유일한 지점을 갖고 있다.</p>',
+        diagram:
+        '<figure class="diagram"><svg viewBox="0 0 380 120" role="img" aria-label="enode가 유일한 exec 지점에서 claude CLI를 실행하고 종료 봉투를 돌려받는다">' +
+        '<rect x="20" y="40" width="120" height="40" rx="6" class="box-accent"/><text x="80" y="64" text-anchor="middle" class="lbl-accent" font-size="10.5">enode(runner.go)</text>' +
+        '<rect x="240" y="40" width="110" height="40" rx="6" class="box"/><text x="295" y="64" text-anchor="middle" class="lbl" font-size="11">claude CLI</text>' +
+        '<line x1="140" y1="52" x2="236" y2="52" marker-end="url(#arrow)"/><text x="188" y="42" text-anchor="middle" class="lbl-soft" font-size="8.5">exec(유일한 지점)</text>' +
+        '<line x1="236" y1="70" x2="140" y2="70" class="dash" marker-end="url(#arrow)"/><text x="188" y="90" text-anchor="middle" class="lbl-soft" font-size="8.5">종료 봉투</text>' +
+        '</svg><figcaption>외부 프로세스를 실행하는 지점이 저장소 전체에서 이 한 곳뿐이다.</figcaption></figure>' },
+
+      run: { mode:'page', eyebrow:'lifecycle', title:'Run', body:
+        '<p>사용자가 제출한 작업 실행 하나. 아래 순서로 상태를 지나간다. 이번 기능이 <code>ALLOCATING</code>의 도착지 하나를 늘린다.</p>',
+        diagram:
+        '<figure class="diagram"><svg viewBox="0 0 700 220" role="img" aria-label="Run 상태가 CREATED에서 SUCCEEDED 또는 FAILED로 가는 경로와 ALLOCATING에서 QUEUED로 갈라지는 새 경로">' +
+        '<rect x="10" y="80" width="86" height="36" rx="6" class="box"/><text x="53" y="103" text-anchor="middle" class="lbl" font-size="10">CREATED</text>' +
+        '<rect x="120" y="80" width="94" height="36" rx="6" class="box"/><text x="167" y="103" text-anchor="middle" class="lbl" font-size="10">RESOLVING</text>' +
+        '<rect x="238" y="80" width="100" height="36" rx="6" class="box"/><text x="288" y="103" text-anchor="middle" class="lbl" font-size="10">ALLOCATING</text>' +
+        '<rect x="362" y="80" width="90" height="36" rx="6" class="box"/><text x="407" y="103" text-anchor="middle" class="lbl" font-size="10">RUNNING</text>' +
+        '<rect x="476" y="80" width="94" height="36" rx="6" class="box"/><text x="523" y="103" text-anchor="middle" class="lbl" font-size="10">VERIFYING</text>' +
+        '<rect x="594" y="48" width="100" height="34" rx="6" class="box"/><text x="644" y="69" text-anchor="middle" class="lbl" font-size="9.5">SUCCEEDED</text>' +
+        '<rect x="594" y="112" width="100" height="34" rx="6" class="box-warm"/><text x="644" y="133" text-anchor="middle" class="lbl-warm" font-size="9.5">FAILED</text>' +
+        '<line x1="96" y1="98" x2="116" y2="98" marker-end="url(#arrow)"/>' +
+        '<line x1="214" y1="98" x2="234" y2="98" marker-end="url(#arrow)"/>' +
+        '<line x1="338" y1="98" x2="358" y2="98" marker-end="url(#arrow)"/>' +
+        '<line x1="452" y1="98" x2="472" y2="98" marker-end="url(#arrow)"/>' +
+        '<line x1="570" y1="90" x2="590" y2="68" marker-end="url(#arrow)"/>' +
+        '<line x1="570" y1="106" x2="590" y2="126" marker-end="url(#arrow)"/>' +
+        '<rect x="255" y="160" width="106" height="36" rx="6" class="box-accent"/><text x="308" y="183" text-anchor="middle" class="lbl-accent" font-size="10">QUEUED(신규)</text>' +
+        '<line x1="285" y1="116" x2="300" y2="156" class="arrow-accent" marker-end="url(#arrow)"/><text x="335" y="140" text-anchor="middle" class="lbl-accent" font-size="8.5">409 점유 실패</text>' +
+        '<path d="M361,168 C 430,150 430,112 342,100" fill="none" class="arrow-accent" marker-end="url(#arrow)"/><text x="430" y="145" text-anchor="middle" class="lbl-accent" font-size="8.5">자원 풀리면 재시도</text>' +
+        '</svg><figcaption>ALLOCATING이 점유 실패(409)할 때의 도착지 하나를 FAILED에서 QUEUED로 바꾼다. 422는 그대로 FAILED다.</figcaption></figure>' },
+
+      contract: { mode:'panel', eyebrow:'lifecycle', title:'계약(contract)', body:
+        '<p>Run이 무엇을 할지 선언한 문서. 단계(<code>step</code>)들과 그 사이의 의존(<code>needs</code>)을 담는다.</p>',
+        diagram:
+        '<figure class="diagram"><svg viewBox="0 0 340 150" role="img" aria-label="계약의 단계 A B C D가 needs로 연결된 방향 그래프 예시">' +
+        '<rect x="20" y="20" width="70" height="34" rx="6" class="box-accent"/><text x="55" y="41" text-anchor="middle" class="lbl-accent" font-size="11">A</text>' +
+        '<rect x="20" y="96" width="70" height="34" rx="6" class="box"/><text x="55" y="117" text-anchor="middle" class="lbl" font-size="11">B</text>' +
+        '<rect x="140" y="20" width="70" height="34" rx="6" class="box"/><text x="175" y="41" text-anchor="middle" class="lbl" font-size="11">C</text>' +
+        '<rect x="230" y="58" width="90" height="34" rx="6" class="box"/><text x="275" y="79" text-anchor="middle" class="lbl" font-size="11">D</text>' +
+        '<line x1="55" y1="54" x2="55" y2="92" marker-end="url(#arrow)"/>' +
+        '<line x1="90" y1="37" x2="136" y2="37" marker-end="url(#arrow)"/>' +
+        '<line x1="90" y1="110" x2="240" y2="83" marker-end="url(#arrow)"/>' +
+        '<line x1="210" y1="45" x2="240" y2="65" marker-end="url(#arrow)"/>' +
+        '<text x="230" y="112" text-anchor="middle" class="lbl-soft" font-size="9">D.needs = [B, C]</text>' +
+        '</svg><figcaption>needs가 간선이다 — D는 B와 C가 끝나야 시작한다.</figcaption></figure>' },
+
+      'advertise-lease': { mode:'page', eyebrow:'lifecycle · 핵심 축', title:'광고 vs 임대', body:
+        '<p>이번 기능(drain)이 통째로 이 구분 위에 서 있다. 광고는 노드가 스스로 쓰고 매번 전부 다시 보내며 만료된다. 임대(그리고 이번에 생기는 drain 정책)는 사람이 정하고 만료되지 않는다.</p>' +
+        '<p>같은 <code>nodes</code> 행이 두 성격의 사실을 같이 들고 있었다 — 그래서 지금까지 아무도 <code>principal</code> 열에 손대지 않았다. 광고의 규칙("다음 광고가 덮는다")이 정책에도 적용되는 것처럼 읽혔기 때문이다. 이번 설계는 그 축을 코드로 갈라놓는다.</p>',
+        diagram:
+        '<figure class="diagram"><svg viewBox="0 0 680 220" role="img" aria-label="광고는 노드가 매번 전부 갱신하고 만료되는 축, 정책은 사람이 정하고 만료되지 않는 축으로 분리된다">' +
+        '<text x="20" y="26" class="lbl-accent" font-size="12">광고 — 노드가 쓴다</text>' +
+        '<rect x="20" y="40" width="110" height="34" rx="6" class="box-accent"/><text x="75" y="61" text-anchor="middle" class="lbl-accent" font-size="9.5">광고 t0</text>' +
+        '<rect x="160" y="40" width="120" height="34" rx="6" class="box-accent"/><text x="220" y="61" text-anchor="middle" class="lbl-accent" font-size="9.5">광고 t0+60s</text>' +
+        '<rect x="310" y="40" width="130" height="34" rx="6" class="box-accent"/><text x="375" y="61" text-anchor="middle" class="lbl-accent" font-size="9.5">광고 t0+120s</text>' +
+        '<line x1="130" y1="57" x2="156" y2="57" marker-end="url(#arrow)"/>' +
+        '<line x1="280" y1="57" x2="306" y2="57" marker-end="url(#arrow)"/>' +
+        '<text x="230" y="94" text-anchor="middle" class="lbl-soft" font-size="9.5">매번 전부, 다음 광고가 이전을 덮는다 — 만료된다</text>' +
+        '<line x1="20" y1="120" x2="660" y2="120" class="dash"/>' +
+        '<text x="20" y="145" class="lbl-warm" font-size="12">정책(임대 · drain) — 사람이 쓴다</text>' +
+        '<rect x="20" y="158" width="580" height="34" rx="6" class="box-warm"/>' +
+        '<text x="310" y="179" text-anchor="middle" class="lbl-warm" font-size="9.5">소유자가 건 정책 — 지우기 전까지 그대로 남는다</text>' +
+        '</svg><figcaption>위 축은 초 단위로 갱신·만료되고 아래 축은 사람이 지울 때까지 남는다. drain은 아래 축에 산다 — 다음 광고가 지우지 못한다.</figcaption></figure>' },
+
+      claim: { mode:'page', eyebrow:'lifecycle', title:'claim', body:
+        '<p>노드가 "내가 할 일 있어?"라고 Mediator에 롱폴(길게 붙잡는 요청)로 묻는 것. 저장소에서 유일하게 비멱등인 지점이다 — 같은 요청을 실수로 두 번 보내면 결과가 달라질 수 있다는 뜻이다.</p>',
+        diagram:
+        '<figure class="diagram"><svg viewBox="0 0 640 260" role="img" aria-label="노드의 claim 롱폴 요청이 204 또는 200 Claimed로 응답받는 두 경로">' +
+        '<rect x="20" y="16" width="110" height="34" rx="6" class="box"/><text x="75" y="37" text-anchor="middle" class="lbl" font-size="10.5">enode 노드</text>' +
+        '<rect x="470" y="16" width="130" height="34" rx="6" class="box-accent"/><text x="535" y="37" text-anchor="middle" class="lbl-accent" font-size="10.5">Mediator</text>' +
+        '<line x1="75" y1="50" x2="75" y2="230"/><line x1="535" y1="50" x2="535" y2="230"/>' +
+        '<line x1="75" y1="70" x2="531" y2="70" marker-end="url(#arrow)"/><text x="300" y="63" text-anchor="middle" class="lbl-soft" font-size="9">POST /v1/nodes/{id}/claim(롱폴)</text>' +
+        '<rect x="480" y="82" width="110" height="60" rx="6" fill="none" stroke="currentColor" stroke-opacity="0.3" stroke-dasharray="3 3"/>' +
+        '<text x="535" y="100" text-anchor="middle" class="lbl-soft" font-size="8.5">1초 티커</text>' +
+        '<text x="535" y="114" text-anchor="middle" class="lbl-soft" font-size="8.5">최대 7200초</text>' +
+        '<text x="535" y="128" text-anchor="middle" class="lbl-soft" font-size="8.5">SKIP LOCKED</text>' +
+        '<line x1="531" y1="160" x2="79" y2="160" class="dash" marker-end="url(#arrow)"/><text x="300" y="153" text-anchor="middle" class="lbl-soft" font-size="9">줄 단계 없음 → 204 No Content</text>' +
+        '<line x1="531" y1="200" x2="79" y2="200" class="arrow-accent" marker-end="url(#arrow)"/><text x="300" y="193" text-anchor="middle" class="lbl-accent" font-size="9">단계 있음 → 200 Claimed(프롬프트+argv)</text>' +
+        '</svg><figcaption>노드가 붙잡고 기다리는 요청 하나가 최대 7200초까지 유지된다.</figcaption></figure>' },
+
+      record: { mode:'panel', eyebrow:'lifecycle', title:'Record', body:
+        '<p>Run이 끝나면 파일시스템에 봉인되는 실행 기록. 봉인되면 고칠 수도 지울 수도 없다.</p>',
+        diagram:
+        '<figure class="diagram"><svg viewBox="0 0 340 130" role="img" aria-label="Run이 종료되면 Record가 파일 0444 디렉터리 0555로 봉인된다">' +
+        '<rect x="20" y="40" width="100" height="40" rx="6" class="box"/><text x="70" y="64" text-anchor="middle" class="lbl" font-size="10.5">Run 종료</text>' +
+        '<rect x="200" y="30" width="120" height="60" rx="6" class="box-warm"/><text x="260" y="55" text-anchor="middle" class="lbl-warm" font-size="11">Record</text><text x="260" y="72" text-anchor="middle" class="lbl-warm" font-size="9">0444 · 0555</text>' +
+        '<line x1="120" y1="60" x2="196" y2="60" marker-end="url(#arrow)"/><text x="158" y="50" text-anchor="middle" class="lbl-soft" font-size="8.5">봉인</text>' +
+        '<text x="260" y="110" text-anchor="middle" class="lbl-soft" font-size="9">이후로는 고칠 수도 지울 수도 없다</text>' +
+        '</svg><figcaption>봉인은 삭제까지 막는다 — 디스크가 차도 사람이 지우지 못한다.</figcaption></figure>' },
+
+      drain: { mode:'page', eyebrow:'이번 라운드 · 핵심 기능', title:'drain', body:
+        '<p>노드 소유자가 "내 자원 돌려줘"라고 말하는 것. 두 모드가 있고, 둘 다 <b>Run을 죽이지 않는다</b> — 그 점이 이번에 만들지 않는 "선점(preemption)"과 갈리는 지점이다.</p>' +
+        '<p><code>graceful</code>은 새 임대만 막고 도는 Run은 자연 종료를 기다린다. <code>at-boundary</code>는 다음 단계 경계(<code>RUNNING → RUNNING</code>이 비멱등이라 중단이 안전한 유일한 지점)에서 임대를 강제로 놓는다.</p>',
+        diagram:
+        '<figure class="diagram"><svg viewBox="0 0 680 220" role="img" aria-label="graceful 모드는 현재 Run이 끝날 때까지 기다리고 at-boundary 모드는 다음 단계 경계에서 강제로 임대를 놓는다">' +
+        '<text x="20" y="26" class="lbl-accent" font-size="12">graceful</text>' +
+        '<line x1="20" y1="60" x2="640" y2="60"/>' +
+        '<circle cx="60" cy="60" r="5" class="box-accent"/><text x="60" y="45" text-anchor="middle" class="lbl-accent" font-size="9">drain 걸림</text>' +
+        '<rect x="90" y="48" width="260" height="24" rx="4" class="box"/><text x="220" y="64" text-anchor="middle" class="lbl" font-size="9.5">현재 Run 계속 실행</text>' +
+        '<circle cx="380" cy="60" r="5" class="box-accent"/><text x="380" y="45" text-anchor="middle" class="lbl-accent" font-size="9">자연 종료</text>' +
+        '<line x1="386" y1="60" x2="430" y2="60" marker-end="url(#arrow)"/><text x="480" y="64" class="lbl-soft" font-size="9.5">→ 임대 풀림</text>' +
+        '<text x="20" y="120" class="lbl-warm" font-size="12">at-boundary</text>' +
+        '<line x1="20" y1="154" x2="640" y2="154"/>' +
+        '<circle cx="60" cy="154" r="5" class="box-warm"/><text x="60" y="139" text-anchor="middle" class="lbl-warm" font-size="9">drain 걸림</text>' +
+        '<rect x="90" y="142" width="130" height="24" rx="4" class="box"/><text x="155" y="158" text-anchor="middle" class="lbl" font-size="9.5">단계 계속</text>' +
+        '<circle cx="230" cy="154" r="5" class="box-warm"/><text x="230" y="139" text-anchor="middle" class="lbl-warm" font-size="9">다음 경계</text>' +
+        '<line x1="236" y1="154" x2="280" y2="154" class="arrow-warm" marker-end="url(#arrow)"/><text x="360" y="158" class="lbl-warm" font-size="9.5">→ 임대 강제로 풀림</text>' +
+        '<text x="20" y="205" class="lbl-soft" font-size="10">둘 다 Run을 죽이지 않는다 — 진행분을 버리는 선점과 다르다</text>' +
+        '</svg><figcaption>graceful은 자연 종료를 기다리고 at-boundary는 다음 단계 경계에서 강제로 놓는다.</figcaption></figure>' },
+
+      principal: { mode:'panel', eyebrow:'이번 라운드', title:'소유자(principal)', body:
+        '<p>노드를 함대에 내놓은 사람. 지금까지는 장부에 기록만 되고 아무 데도 쓰이지 않았다 — 이번 기능이 처음으로 이걸 쓴다.</p>',
+        diagram:
+        '<figure class="diagram"><svg viewBox="0 0 380 160" role="img" aria-label="소유자가 노드를 함대에 내놓고 Run이 쓰지만 drain 전에는 돌아오는 길이 없었다">' +
+        '<rect x="10" y="60" width="90" height="36" rx="6" class="box"/><text x="55" y="83" text-anchor="middle" class="lbl" font-size="10">소유자</text>' +
+        '<rect x="150" y="60" width="90" height="36" rx="6" class="box"/><text x="195" y="83" text-anchor="middle" class="lbl" font-size="10">함대</text>' +
+        '<rect x="290" y="60" width="80" height="36" rx="6" class="box"/><text x="330" y="83" text-anchor="middle" class="lbl" font-size="10">Run</text>' +
+        '<line x1="100" y1="72" x2="146" y2="72" marker-end="url(#arrow)"/><text x="123" y="62" text-anchor="middle" class="lbl-soft" font-size="8">내놓는다</text>' +
+        '<line x1="240" y1="72" x2="286" y2="72" marker-end="url(#arrow)"/><text x="263" y="62" text-anchor="middle" class="lbl-soft" font-size="8">빌려준다</text>' +
+        '<path d="M330,100 C 330,140 55,140 55,100" fill="none" class="dash arrow-warm" marker-end="url(#arrow)"/>' +
+        '<text x="195" y="130" text-anchor="middle" class="lbl-warm" font-size="9">돌아오는 길 — drain 전엔 없었다</text>' +
+        '</svg><figcaption>drain이 처음으로 이 돌아오는 길을 만든다.</figcaption></figure>' },
+
+      queued: { mode:'page', eyebrow:'이번 라운드', title:'QUEUED', body:
+        '<p>새로 생기는 Run 상태. 지금은 자원이 다 차 있으면(<code>409</code>) 즉시 <code>FAILED</code>로 죽는데, 이번 기능은 대기시켰다가 자원이 풀리면 자동으로 재시도하게 한다. 함대에 아예 없는 능력을 요구한 것(<code>422</code>)은 그대로 <code>FAILED</code>다 — 기다려도 안 되는 것을 기다리게 하지 않는다.</p>',
+        diagram:
+        '<figure class="diagram"><svg viewBox="0 0 620 200" role="img" aria-label="점유 실패는 QUEUED로 대기했다가 자원이 풀리면 ALLOCATING으로 재시도하고 함대에 없는 요구는 그대로 FAILED다">' +
+        '<rect x="30" y="70" width="120" height="40" rx="6" class="box"/><text x="90" y="94" text-anchor="middle" class="lbl" font-size="10.5">ALLOCATING</text>' +
+        '<rect x="250" y="70" width="120" height="40" rx="6" class="box-accent"/><text x="310" y="94" text-anchor="middle" class="lbl-accent" font-size="10.5">QUEUED</text>' +
+        '<rect x="470" y="20" width="120" height="40" rx="6" class="box-warm"/><text x="530" y="44" text-anchor="middle" class="lbl-warm" font-size="10.5">FAILED</text>' +
+        '<line x1="150" y1="85" x2="246" y2="85" class="arrow-accent" marker-end="url(#arrow)"/><text x="198" y="75" text-anchor="middle" class="lbl-accent" font-size="8.5">409 점유 실패</text>' +
+        '<path d="M370,80 C 440,60 440,140 154,102" fill="none" class="arrow-accent" marker-end="url(#arrow)"/><text x="440" y="155" text-anchor="middle" class="lbl-accent" font-size="8.5">임대 풀리면 재시도</text>' +
+        '<line x1="150" y1="70" x2="466" y2="42" class="dash arrow-warm" marker-end="url(#arrow)"/><text x="300" y="35" text-anchor="middle" class="lbl-warm" font-size="8.5">422 함대에 없음</text>' +
+        '</svg><figcaption>409만 QUEUED로 대기시킨다. 422는 기다려도 소용없으므로 그대로 FAILED다.</figcaption></figure>' },
+
+      observation: { mode:'page', eyebrow:'이번 라운드', title:'운용 관측', body:
+        '<p>운영자가 지금 함대에 무슨 일이 있는지 보는 것 — <code>GET /v1/nodes</code>가 담당한다. <b>배정 판정이 아니다.</b> 이 응답을 보고 "이 노드가 비어 있다"고 믿고 행동하면 그 사이 다른 Run이 채갈 수 있다 — 확인 후 행동 경쟁이다.</p>' +
+        '<p>그래서 이 표면은 <code>free</code>·순위·필터를 일부러 안 낸다. 실제 배정 가능 여부는 항상 <code>POST /v1/runs/dry-run</code> 또는 <code>POST /v1/runs</code>의 매칭 함수만 안다.</p>',
+        diagram:
+        '<figure class="diagram"><svg viewBox="0 0 640 220" role="img" aria-label="GET /v1/nodes는 관측만 하고 실제 배정은 POST /v1/runs의 매칭 함수가 따로 판단한다 — 둘은 연결돼 있지 않다">' +
+        '<rect x="20" y="30" width="150" height="40" rx="6" class="box"/><text x="95" y="54" text-anchor="middle" class="lbl" font-size="10">운영자 화면</text>' +
+        '<rect x="230" y="30" width="190" height="40" rx="6" class="box-accent"/><text x="325" y="54" text-anchor="middle" class="lbl-accent" font-size="10">GET /v1/nodes</text>' +
+        '<line x1="170" y1="50" x2="226" y2="50" marker-end="url(#arrow)"/>' +
+        '<text x="325" y="90" text-anchor="middle" class="lbl-soft" font-size="9">시각이 붙은 스냅샷만 돌려준다 — 배정은 안 함</text>' +
+        '<rect x="20" y="140" width="150" height="40" rx="6" class="box"/><text x="95" y="164" text-anchor="middle" class="lbl" font-size="10">runctl submit</text>' +
+        '<rect x="230" y="140" width="190" height="40" rx="6" class="box-warm"/><text x="325" y="164" text-anchor="middle" class="lbl-warm" font-size="10">POST /v1/runs</text>' +
+        '<rect x="460" y="140" width="150" height="40" rx="6" class="box"/><text x="535" y="164" text-anchor="middle" class="lbl" font-size="10">매칭 함수</text>' +
+        '<line x1="170" y1="160" x2="226" y2="160" marker-end="url(#arrow)"/>' +
+        '<line x1="420" y1="160" x2="456" y2="160" class="arrow-warm" marker-end="url(#arrow)"/>' +
+        '<text x="535" y="195" text-anchor="middle" class="lbl-warm" font-size="9">여기서만 진짜 배정이 결정된다</text>' +
+        '<line x1="325" y1="70" x2="325" y2="136" class="dash"/>' +
+        '<text x="480" y="105" text-anchor="middle" class="lbl-soft" font-size="8.5">두 표면 사이에 화살표가 없다</text>' +
+        '</svg><figcaption>관측(위)과 배정(아래)은 서로 다른 함수다 — 화면이 비어 보인다고 배정을 보장하지 않는다.</figcaption></figure>' },
+
+      invariants: { mode:'panel', eyebrow:'이번 라운드', title:'INVARIANTS', body:
+        '<p>정본 설계 저장소가 정한, 절대 깨면 안 되는 규칙 목록. 이번 기능들은 전부 이 규칙을 건드리지 않는 선에서 설계됐다.</p>',
+        diagram:
+        '<figure class="diagram"><svg viewBox="0 0 380 130" role="img" aria-label="I1부터 I5까지 다섯 규칙을 나란히 보여준다">' +
+        '<rect x="6" y="30" width="70" height="60" rx="6" class="box"/><text x="41" y="55" text-anchor="middle" class="lbl">I1</text><text x="41" y="72" text-anchor="middle" class="lbl-soft" font-size="7.5">노드당 임대 1개</text>' +
+        '<rect x="82" y="30" width="70" height="60" rx="6" class="box"/><text x="117" y="55" text-anchor="middle" class="lbl">I2</text><text x="117" y="72" text-anchor="middle" class="lbl-soft" font-size="7.5">종료 시 장부 비움</text>' +
+        '<rect x="158" y="30" width="70" height="60" rx="6" class="box"/><text x="193" y="55" text-anchor="middle" class="lbl">I3</text><text x="193" y="72" text-anchor="middle" class="lbl-soft" font-size="7.5">성공은 기계적 조건만</text>' +
+        '<rect x="234" y="30" width="70" height="60" rx="6" class="box-warm"/><text x="269" y="55" text-anchor="middle" class="lbl-warm">I4</text><text x="269" y="72" text-anchor="middle" class="lbl-warm" font-size="7.5">봉인 불변</text>' +
+        '<rect x="310" y="30" width="64" height="60" rx="6" class="box"/><text x="342" y="55" text-anchor="middle" class="lbl">I5</text><text x="342" y="72" text-anchor="middle" class="lbl-soft" font-size="7.5">전부 아니면 전무</text>' +
+        '<text x="190" y="115" text-anchor="middle" class="lbl-soft" font-size="9">이번 기능 넷 모두 다섯을 건드리지 않는다</text>' +
+        '</svg><figcaption>I4(봉인 불변)가 특히 이번 설계를 좌우한다 — drain이 Run을 죽이지 않는 이유가 여기서 나온다.</figcaption></figure>' },
+
+      adr: { mode:'panel', eyebrow:'이번 라운드', title:'ADR', body:
+        '<p>Architecture Decision Record — "왜 이렇게 정했나"를 적어두는 문서. 이번에 세 개를 대조했다.</p>',
+        diagram:
+        '<figure class="diagram"><svg viewBox="0 0 380 140" role="img" aria-label="ADR-063과 064는 아직 초안이고 065는 결정되어 구현까지 됐다">' +
+        '<line x1="30" y1="70" x2="350" y2="70"/>' +
+        '<circle cx="70" cy="70" r="7" fill="none" stroke="var(--warm)" stroke-width="2"/><text x="70" y="50" text-anchor="middle" class="lbl-warm" font-size="9">ADR-063</text><text x="70" y="95" text-anchor="middle" class="lbl-soft" font-size="8">drain · 초안</text>' +
+        '<circle cx="190" cy="70" r="7" fill="none" stroke="var(--warm)" stroke-width="2"/><text x="190" y="50" text-anchor="middle" class="lbl-warm" font-size="9">ADR-064</text><text x="190" y="95" text-anchor="middle" class="lbl-soft" font-size="8">대기열 · 초안</text>' +
+        '<circle cx="310" cy="70" r="7" class="box-accent" stroke="var(--accent)" stroke-width="2"/><text x="310" y="50" text-anchor="middle" class="lbl-accent" font-size="9">ADR-065</text><text x="310" y="95" text-anchor="middle" class="lbl-accent" font-size="8">관측 · 결정+구현</text>' +
+        '<text x="190" y="122" text-anchor="middle" class="lbl-soft" font-size="9">초안이 결정으로 오르면 코드에 반영된다</text>' +
+        '</svg><figcaption>같은 저장소 안에서도 ADR마다 성숙도가 다르다.</figcaption></figure>' },
+
+      're-architecture': { mode:'page', back:'process', eyebrow:'02 Reverse Engineering', title:'architecture.md', dek:'아키텍처 지도 — 무엇을 근거로 삼았나', body:
+        '<p><b>왜 검토했나</b> — 호스트 제어판이 정말 새 표면인지, 어느 파일이 유닛끼리 겹칠지는 아키텍처 지도 없이는 판단할 수 없다.</p>' +
+        src('architecture.md', 'aidlc-docs/inception/reverse-engineering/architecture.md',
+          '핵심은 <b>연결의 방향</b>이다. 노드는 서버를 열지 않고 자기가 연결을 건다.<br>' +
+          '<code>internal/enode/</code> 전체에 <code>net.Listen</code>·<code>http.Server</code> 가 0건이고,<br>' +
+          '저장소에서 포트를 여는 자리는 <code>cmd/mediator/main.go:112</code> 하나뿐이다.',
+          '이 한 문장이 게이트 Q1(호스트 제어판 서버 위치)의 출발점이다. 노드가 포트를 연 적이 0건이라는 건, 호스트 제어판이 "기존 표면에 얹는" 게 아니라 "처음부터 세우는" 일이라는 뜻이다 — 그래서 <button class="term-more" data-term="ra-questions" type="button" style="display:inline">Q1</button> 에서 그 위치(누가 세우나)를 물었다.') +
+        src('architecture.md', 'aidlc-docs/inception/reverse-engineering/architecture.md',
+          '라우터 라이브러리가 없다. 표준 <code>ServeMux</code> 의 메서드+경로 패턴만 쓰고<br>' +
+          '15개 라우트 전부가 <code>internal/api/api.go:55-69</code> 한 함수에 등록된다.',
+          '이 문장 하나가 나중에 <b>Units Generation 단계에서 파일 겹침을 스스로 찾아낸 것</b>의 근거다. 15개 라우트가 파일 하나(한 함수)에 모여 있다는 걸 여기서 미리 읽었기 때문에, 중앙 현황판·대기열·drain 유닛이 새 라우트를 낼 때 셋 다 이 한 파일에 손을 댄다는 걸 뒤에서 계산해낼 수 있었다.', true) },
+
+      're-component-inventory': { mode:'page', back:'process', eyebrow:'02 Reverse Engineering', title:'component-inventory.md', dek:'컴포넌트 인벤토리 — 무엇을 근거로 삼았나', body:
+        '<p><b>왜 검토했나</b> — architecture.md가 "어느 방향으로 연결되나"를 줬다면, 이 문서는 "패키지 하나하나가 몇 파일로 쪼개져 있나"를 준다. 유닛끼리 겹칠 때 파일 단위로 겹치는지 패키지 단위로만 겹치는지를 가르는 데 필요했다.</p>' +
+        src('component-inventory.md', 'aidlc-docs/inception/reverse-engineering/component-inventory.md',
+          '<b>파일</b> — <code>api.go</code> 단일 파일 830줄. 테스트는 <code>api_test.go</code> 3,342줄에 78개.',
+          '830줄짜리 파일 하나에 API 표면 전체가 있다는 정확한 규모를 여기서 얻었다. "파일 하나"라는 사실은 architecture.md에서, "830줄"이라는 크기는 여기서 — 두 문서가 같은 사실을 다른 각도로 확인해준 셈이다.') +
+        src('component-inventory.md', 'aidlc-docs/inception/reverse-engineering/component-inventory.md',
+          '<b>파일</b> — 동사별로 12개로 갈려 있다.<br>' +
+          '<code>store.go</code> · <code>claim.go</code>(938줄) · <code>verdict.go</code> · <code>reap.go</code> · <code>expand.go</code> ·<br>' +
+          '<code>dispatch.go</code> · <code>acquire.go</code> · <code>release.go</code> · <code>rollback.go</code> · <code>seal.go</code> · <code>ask.go</code> · <code>observe.go</code>',
+          '<code>internal/api</code>는 파일 하나인데 <code>internal/store</code>는 12개로 이미 나뉘어 있다는 이 대비가, "같은 패키지"라는 겹침과 "같은 파일"이라는 겹침을 구분해야 한다는 관점을 만들었다. component-dependency.md의 겹침 표에서 store를 api.go보다 한 단계 완화해서 적은 이유가 여기서 나온다.') },
+
+      're-technology-stack': { mode:'page', back:'process', eyebrow:'02 Reverse Engineering', title:'technology-stack.md', dek:'기술 스택 — 무엇을 근거로 삼았나', body:
+        '<p><b>왜 검토했나</b> — 새 기능 넷이 새 외부 라이브러리를 요구하는지 확인해야, Application Design에서 "새 저장소·새 의존 없음"이라고 자신 있게 쓸 수 있다.</p>' +
+        src('technology-stack.md', 'aidlc-docs/inception/reverse-engineering/technology-stack.md',
+          '셋 전부 실사용된다. 미사용 의존 0건.<br><br>' +
+          '<code>github.com/jackc/pgx/v5</code> · <code>golang.org/x/sys</code> · <code>gopkg.in/yaml.v3</code>',
+          '직접 의존이 이 셋뿐이라는 걸 확인했기 때문에, <code>components.md</code>의 "이번에 새로 생기지 않는 것" 절에 "신규 라이브러리 의존 없음"이라고 단정해서 쓸 수 있었다 — drain·대기열·대시보드·호스트 제어판 전부 기존 pgx/yaml/x-sys 조합만으로 풀린다.') },
+
+      're-business-overview': { mode:'page', back:'process', eyebrow:'02 Reverse Engineering', title:'business-overview.md', dek:'비즈니스 개요 — 왜 이번 판단에 직접 안 썼나', body:
+        '<p>읽었다. 다만 이번 라운드의 설계 결정을 뒷받침하는 근거로 직접 인용하지는 않았다 — 이유는 아래.</p>' +
+        src('business-overview.md', 'aidlc-docs/inception/reverse-engineering/business-overview.md',
+          '<b>dhseo 가 퇴근했다. 재현 환경이 그 자리에만 있다. candidate patch 를 거기서<br>' +
+          '검증해야 한다.</b><br><br>' +
+          'enode 는 <b>부재중인 기능 담당자의 대리인 노릇</b>을 한다.',
+          whySkipped('이 "dhseo 시나리오"는 이미 <code>requirements/enode-features.md</code>와 <code>prep/GOALS.md</code>가 같은 문장으로 인용해 두고 있었다 — enode-features.md 자체가 이 문서의 요약본 역할을 하고 있어서, requirements.md를 쓸 때 이 원본까지 다시 열 필요가 없었다. 완전히 안 읽은 게 아니라, <b>더 가까운 요약이 이미 있어서 그쪽을 썼다.</b>')) },
+
+      're-code-structure': { mode:'page', back:'process', eyebrow:'02 Reverse Engineering', title:'code-structure.md', dek:'코드 구조 — 왜 이번 판단에 직접 안 썼나', body:
+        '<p>읽었다. 다만 이번 라운드의 설계 결정을 뒷받침하는 근거로 직접 인용하지는 않았다 — 이유는 아래.</p>' +
+        src('code-structure.md', 'aidlc-docs/inception/reverse-engineering/code-structure.md',
+          '| Go 파일 | 100 (비테스트 67 · 테스트 33) |<br>' +
+          '| 총 LOC | 27,211 (비테스트 17,288 · 테스트 9,923) |<br>' +
+          '| 패키지 | 15 (<code>cmd/</code> 5 · <code>internal/</code> 10) |',
+          whySkipped('저장소 전체 규모(파일 100개, LOC 27,211)는 흥미롭지만, 이번 넷(현황판·대기열·drain·호스트 제어판)이 실제로 손대는 건 그중 예닐곱 패키지뿐이다. 그 좁은 범위의 파일 배치는 <code>component-inventory.md</code>가 패키지별로 더 자세히 준다 — 저장소 전체 지도까지는 이번 판단에 필요하지 않았다.')) },
+
+      're-code-quality': { mode:'page', back:'process', eyebrow:'02 Reverse Engineering', title:'code-quality-assessment.md', dek:'코드 품질 평가 — 왜 이번 판단에 직접 안 썼나', body:
+        '<p>읽었다. 이 문서의 첫 절("이번 스캔의 가장 큰 발견")까지 읽었지만, 이번 라운드의 결정에 직접 인용하지는 않았다 — 이유는 아래.</p>' +
+        src('code-quality-assessment.md', 'aidlc-docs/inception/reverse-engineering/code-quality-assessment.md',
+          '<b>이 문서의 첫 절이 이번 스캔의 가장 큰 발견이다.</b> 워크플로가 들고 있던<br>' +
+          '커버리지 기준선이 틀렸고, ... <code>internal/store</code> 는 실제로 <b>81.0%</b> 이고,<br>' +
+          '<b>90개 함수 전부가 테스트에 한 번 이상 들어간다.</b>',
+          whySkipped('이건 <b>테스트 커버리지</b> 이야기다 — 코드를 실제로 짤 때(Construction) 쓸 정보이지, 어떤 유닛으로 나눌지·어느 파일이 겹칠지에는 영향이 없다. 이번 실행은 START.md 지시대로 Construction에 들어가지 않아서, 커버리지 수치가 결정에 개입할 자리가 아예 없었다. 다음 라운드에서 실제로 테스트를 짤 사람은 이 문서, 특히 "ENODE_TEST_DATABASE_URL 없이 재면 안 된다"는 첫 절을 꼭 먼저 읽어야 한다.')) },
+
+      're-dependencies': { mode:'page', back:'process', eyebrow:'02 Reverse Engineering', title:'dependencies.md', dek:'의존 관계 — 왜 이번 판단에 직접 안 썼나', body:
+        '<p>읽었다. 다만 이번 라운드의 설계 결정을 뒷받침하는 근거로 직접 인용하지는 않았다 — 이유는 아래.</p>' +
+        src('dependencies.md', 'aidlc-docs/inception/reverse-engineering/dependencies.md',
+          '<b>의존이 셋뿐인 것이 우연이 아니다.</b> 웹 프레임워크 · 테스트 프레임워크 · ORM ·<br>' +
+          '마이그레이션 도구 · assertion 라이브러리 · mock 라이브러리 · 로거를 전부 표준<br>' +
+          '라이브러리로 대신했다. <b>미사용 직접 의존 0건.</b>',
+          whySkipped('이 문서는 외부 라이브러리의 <b>전이 의존 트리</b>(누가 누구를 끌고 오나)까지 파고든다. 이번 판단에 필요했던 건 "새 의존이 필요한가"라는 훨씬 얕은 질문뿐이었고, 그 답은 옆 파일 <button class="term-more" data-term="re-technology-stack" type="button" style="display:inline">technology-stack.md</button>의 직접 의존 표 한 줄로 충분했다. 전이 의존까지 볼 이유가 없었다.')) },
+
+      're-api-documentation': { mode:'page', back:'process', eyebrow:'02 Reverse Engineering', title:'api-documentation.md', dek:'API 표면 — 왜 이번 판단에 직접 안 썼나', body:
+        '<p>읽었다. 15개 라우트 전수 표까지 살펴봤지만, 이번 라운드의 결정에 직접 인용하지는 않았다 — 이유는 아래.</p>' +
+        src('api-documentation.md', 'aidlc-docs/inception/reverse-engineering/api-documentation.md',
+          '<b>표면에서 비멱등인 곳은 <code>claim</code> 하나뿐이다.</b> <code>postClaim</code> →<br>' +
+          '<code>internal/store/claim.go:246</code> <code>ClaimStep</code><br><br>' +
+          '<b>별도의 하트비트 표면이 없다.</b> <code>POST /v1/nodes</code> 광고가 곧 하트비트다.',
+          whySkipped('이 문서는 기존 라우트 15개를 <b>메서드+경로+핸들러</b> 단위로 전수 정리한다 — 매우 상세하지만, 우리 넷은 기존 라우트를 고치는 게 아니라 새 라우트 셋(<code>GET /v1/runs</code>·<code>GET /v1/nodes</code>·<code>POST /v1/nodes/&#123;id&#125;/drain</code>)을 추가하는 일이다. "라우트가 몇 개고 어디 등록되나"라는 구조적 사실은 architecture.md 한 문장으로 충분했고, 개별 라우트의 상세 동작까지는 이번 판단에 필요 없었다.')) },
+
+      're-timestamp': { mode:'page', back:'process', eyebrow:'02 Reverse Engineering', title:'reverse-engineering-timestamp.md', dek:'이관 기록 — 실제로 어떻게 썼나', body:
+        '<p>이 문서는 나머지 다섯과 다르다 — <b>실제로 상태 문서(aidlc-state.md)에 반영했다.</b> 다만 유닛을 나누는 설계 결정에 쓴 건 아니라서 "채택" 하이라이트로는 안 올렸다.</p>' +
+        src('reverse-engineering-timestamp.md', 'aidlc-docs/inception/reverse-engineering/reverse-engineering-timestamp.md',
+          '<b>신선도 — 코드 드리프트 없음.</b><br><br>' +
+          '스캔 기준선 <code>f46e187</code><br>' +
+          '이 저장소의 Go 코드 <code>f46e187</code> 과 동일<br><br>' +
+          '다만 아는 델타가 하나 있다. <code>enode-review/enode</code> 클론에 <b>밀리지 않은 커밋<br>' +
+          '28개</b>가 있다 ... 병합되면 <code>code-quality-assessment.md</code> 와<br>' +
+          '<code>code-structure.md</code> 가 즉시 낡는다.',
+          '이 문장을 그대로 <code>aidlc-state.md</code>의 "Reverse Engineering 산출물" 절에 옮겨 적었다 — 리버스 엔지니어링을 다시 훑지 않기로 한 근거(코드가 스캔 시점과 같다)이자, 나중에 그 커밋 28개가 병합되면 무엇이 낡는지 미리 적어 둔 경고이기도 하다.') },
+
+      'ra-questions': { mode:'page', back:'process', eyebrow:'03 Requirements Analysis', title:'requirement-verification-questions.md', dek:'질문 다섯 — 왜 이 둘만 물었고, 왜 이 답을 추천했나', body:
+        '<p><b>왜 검토했나</b> — 요구사항 문서(enode-features.md)에 미정 표시가 25개 있었다. 전부 물으면 게이트가 무거워지고, 이 워크샵의 지시(START.md)는 "유닛을 나누는 데 실제로 걸리는 것만 물어라"였다.</p>' +
+        src('requirement-verification-questions.md', 'aidlc-docs/inception/requirements/requirement-verification-questions.md',
+          '<b>Question 1</b><br>' +
+          '호스트 제어판(3.1.1)의 HTTP 서버를 어디에 둘까. ... 어디에 두느냐에 따라<br>' +
+          '이 유닛이 만지는 파일과 다른 유닛과의 경계가 달라진다.<br><br>' +
+          'B) <code>enodectl</code> 이 별도로 띄운다 ... (<b>Recommended</b>)<br>' +
+          '[Answer]: B',
+          '<b>채택.</b> 기각한 대안은 A(enode 데몬 안에 얹는다)다. 수용 기준에 "노드가 멈춘 상태에서 열면 <code>start</code>로 띄울 수 있다"가 있는데, 서버가 데몬 프로세스 안에 있으면 데몬이 죽었을 때 서버도 같이 죽어 이 기준 자체가 성립하지 않는다 — 그래서 생명주기를 분리한 B를 골랐다.') +
+        src('requirement-verification-questions.md', 'aidlc-docs/inception/requirements/requirement-verification-questions.md',
+          '<b>Question 2</b><br>' +
+          'drain(3.2.1)을 어디까지 노출할까. ... Mediator 표면도 열면 <code>internal/api</code><br>' +
+          '를 만지게 되어 중앙 현황판(3.1.2) 유닛과 같은 파일을 건드리게 된다.<br><br>' +
+          'A) 호스트 제어판 전용 ... (<b>Recommended</b>)<br>' +
+          '[Answer]: A',
+          '<b>채택.</b> 기각한 대안은 B(Mediator API도 연다)다. B를 고르면 "누가 이 노드를 drain할 자격이 있나"를 중앙이 판정해야 하는데, <code>constraints.md</code> §4가 "중앙에서의 소유권 판정"을 명시적으로 빼놓았다 — B는 이 워크샵이 안 하기로 한 것을 사실상 다시 만드는 셈이라 A를 골랐다.') +
+        '<p><b>확장 opt-in 셋</b> — security-baseline · resiliency-baseline · property-based-testing 전부 skip 답을 추천하고 그대로 채택했다. 이번 실행이 Units Generation에서 멈추고 Construction에 안 들어가서, 세 확장이 검증할 코드 자체가 안 생기기 때문이다.</p>' +
+        '<p><b>나머지 23개는 왜 안 물었나</b> — 포트 번호·갱신 주기·drain 기본 모드 같은 값들은 어떤 답이든 "이 기능이 어느 유닛에 속하는가"를 바꾸지 않는다. 유닛 분할에 안 걸리는 결정을 게이트에서 미리 묻는 건 과잉이라고 판단했다.</p>' },
+
+      'ra-requirements': { mode:'page', back:'process', eyebrow:'03 Requirements Analysis', title:'requirements.md', dek:'정본을 대조해서 무엇을 바꿨나', body:
+        '<p><b>왜 검토했나</b> — <code>enode-features.md</code> §1.4가 "설계 정본은 enode-design이다. 어긋나면 그쪽이 이긴다"고 명시한다. 게이트 답변을 반영해 초안을 완성한 뒤, 사용자 요청으로 정본 저장소를 실제로 대조했다.</p>' +
+        src('requirements.md', 'aidlc-docs/inception/requirements/requirements.md',
+          '<b>GET /v1/nodes — 결정된 응답 모양</b> (ADR-065, protocol/mediator-api.md §4)<br><br>' +
+          '{ "observed_at": ..., "nodes": [{ "node_id", "label", "instance",<br>' +
+          '"capabilities", "seen_at", "expires_at", "lease":&#123;"run_id","not_after"&#125; }] }<br><br>' +
+          '<code>principal</code> 은 내지 않는다. 필터 · 정렬 · 페이지네이션도 내지 않는다.',
+          '<b>채택.</b> 이 표면은 이미 결정되고 구현까지 끝난 것(ADR-065, 2026-08-31)이다. 우리가 다시 추측해서 다른 모양을 만들 이유가 없다 — 추측하면 나중에 실제 구현과 어긋나는 위험만 생긴다. 이걸로 원래 미정이던 "임대 표면 위치"도 같이 풀렸다(별도 /v1/leases를 안 만들고 lease를 노드 행에 내장).') +
+        src('requirements.md', 'aidlc-docs/inception/requirements/requirements.md',
+          '<b>기능 간 상호작용 — drain 과 대기열이 만나는 자리</b><br><br>' +
+          'ADR-064 §5 가 명시적으로 적어 둔 것: drain(3.2.1)이 어느 노드의 새 임대를<br>' +
+          '막으면, 그 노드를 기다리던 Run 은 대기열(3.2.2)의 QUEUED 에 선다.',
+          '<b>신규 발견.</b> 정본 대조 과정에서 찾아 새 미정으로 추가했다 — 원래 enode-features.md의 25개 미정에는 없던 항목이다. 두 기능이 코드 의존은 없어도 동작으로 얽혀 있다는 사실이 Units Generation의 의존 분석에 실제로 쓰이므로 기록해야 했다.', true) +
+        '<p><b>왜 main과 대시보드 브랜치 둘 다 봤나</b> — 처음엔 대시보드 작업 브랜치(ADR-065)만 반영했는데, 사용자가 "main 브랜치 내용도 반영은 같이 해야해"라고 짚어줬다. 확인해보니 drain(ADR-063)·대기열(ADR-064) 초안은 애초에 main에 먼저 있던 것이었다 — 출처를 브랜치별로 구분해 표로 다시 정리했다.</p>' },
+
+      'wp-plan': { mode:'page', back:'process', eyebrow:'05 Workflow Planning', title:'execution-plan.md', dek:'뭘 넣고 뭘 뺐나', body:
+        '<p><b>왜 검토했나</b> — Requirements Analysis 다음에 남은 단계 중 무엇을 실행할지 정하는 것이 이 단계의 일이다.</p>' +
+        src('execution-plan.md', 'aidlc-docs/inception/plans/execution-plan.md',
+          '- [x] User Stories — <b>SKIP</b><br>' +
+          '&nbsp;&nbsp;근거: 이 기능들은 팀 자체 함대(개발보드)를 위한 내부 운영 도구다 —<br>' +
+          '&nbsp;&nbsp;외부 고객이 쓰는 제품이 아니다.',
+          '<b>채택.</b> requirements.md가 이미 comprehensive depth로 기능마다 목적·UI/UX·수용 기준을 담고 있어서, 스토리로 다시 쓰면 같은 내용을 서술 형식만 바꿔 반복하게 된다. 대신 유닛-요구사항 절 매핑 문서(<code>unit-of-work-story-map.md</code>)로 그 역할을 대신했다.') +
+        src('execution-plan.md', 'aidlc-docs/inception/plans/execution-plan.md',
+          '- [ ] Application Design — <b>EXECUTE</b><br>' +
+          '&nbsp;&nbsp;근거: units-generation.md 의 전제조건이 "Application Design stage<br>' +
+          '&nbsp;&nbsp;REQUIRED"로 못박아 두었다 — 조건부가 아니라 강제다.',
+          '<b>채택, 선택 아님.</b> 새 메서드가 기존 패키지 여럿에 걸쳐 추가되는데, 그 경계가 정확히 어디인지가 다음 단계의 겹침 판단을 좌우하기도 해서 실질적으로도 필요했다.') +
+        src('execution-plan.md', 'aidlc-docs/inception/plans/execution-plan.md',
+          '<b>겹침 관측 (분석 단계에서 이미 보이는 것)</b>: internal/store 와 internal/api 가<br>' +
+          '중앙 현황판 · 대기열 · drain 셋 모두에서 공통으로 나타난다. ... 유닛을 대신<br>' +
+          '정하지 않는다.',
+          '<b>채택 — 여기서 유닛을 미리 안 나눈다.</b> 겹침을 어떻게 처리할지 이 단계에서 정해버리면, Units Generation이 "시키지 않아도 스스로 그 겹침을 다루는가"를 재는 이 워크샵의 목적 자체가 무의미해진다. 그래서 사실만 적어두고 판단은 다음 단계로 넘겼다.') },
+
+      'ad-components': { mode:'page', back:'process', eyebrow:'06 Application Design', title:'components.md', dek:'새로 생기는 컴포넌트 넷', body:
+        '<p><b>왜 검토했나</b> — 무엇을 새로 만들고 무엇을 기존 것에 얹는지부터 정해야 메서드·의존을 이어서 정할 수 있다.</p>' +
+        src('components.md', 'aidlc-docs/inception/application-design/components.md',
+          '### HostPanelServer<br>' +
+          '<b>소속</b>: cmd/enodectl 안의 새 서브패키지. 신규 실행파일이 아니다(게이트 Q1 답변).<br><br>' +
+          '## 이번에 새로 생기지 않는 것<br>' +
+          '새 실행파일 없음. 새 저장소 없음. ... 신규 라이브러리 의존 없음.',
+          '게이트 Q1(enodectl이 별도 서버)을 "새 서브패키지"라는 구체적인 소속으로 좁혔다. "새로 생기지 않는 것"까지 같이 적은 건 — technology-stack.md에서 확인한 "새 의존 없음"이 이 컴포넌트 설계에도 그대로 이어진다는 걸 명시하기 위해서다.') },
+
+      'ad-methods': { mode:'page', back:'process', eyebrow:'06 Application Design', title:'component-methods.md', dek:'설계 질문 넷을 스스로 답한 이유', body:
+        '<p><b>왜 검토했나</b> — 컴포넌트가 정해져도 "정확히 어느 엔드포인트로, 무엇을 조합해서" 만드는지가 없으면 Units Generation이 완료 기준을 못 쓴다. 질문 파일을 만들고 기다리는 대신 자동 모드로 넷을 스스로 답했다.</p>' +
+        src('component-methods.md', 'aidlc-docs/inception/application-design/component-methods.md',
+          '| POST /api/drain | ... | 로컬에서 POST /v1/nodes/&#123;id&#125;/drain 을<br>' +
+          '호출한다(설계 질문 Q1) |',
+          '<b>Q1 · 채택.</b> 기각한 대안은 정책을 광고(POST /v1/nodes)에 얹는 것. 게이트 Q2가 막은 건 "제3자가 남의 노드를 지목하는 표면"이지 노드가 자기 정책을 중앙에 알리는 경로가 아니다. 광고에 안 얹은 이유는 ADR-063 §2가 광고(매번 전부·만료)와 정책(사람이 씀·안 만료)의 축을 갈라뒀기 때문 — 얹으면 그 구분이 코드에서 사라진다.') +
+        src('component-methods.md', 'aidlc-docs/inception/application-design/component-methods.md',
+          '| GET /api/status | ... | 기존 enodectl status 를 감싸고, GET /v1/nodes<br>' +
+          '+GET /v1/runs/&#123;id&#125; 조합으로 현재 작업을 채운다(설계 질문 Q2) |',
+          '<b>Q2 · 채택.</b> 기각한 대안은 enode 데몬과 새 IPC(로컬 소켓·파일)를 만드는 것. ADR-065로 이미 결정된 GET /v1/nodes가 lease 정보를 갖고 있고 기존 GET /v1/runs/&#123;id&#125;가 단계 상세를 준다 — 두 기존 호출 조합이면 새 표면 없이 풀린다.') +
+        src('component-methods.md', 'aidlc-docs/inception/application-design/component-methods.md',
+          '| WakeQueued(가칭) | ... 설계 질문 Q3, 추천: 기존 RunReaper 확장 | ... |',
+          '<b>Q3 · 추천(확정 아님).</b> "주기적으로 DB를 훑는다"는 패턴(RunReaper)이 이미 있어 같은 성격의 일을 새 프리미티브로 다시 만들 이유가 없다. 정확한 주기·트랜잭션 경계는 Functional Design(이번 라운드 밖)의 몫이라 확정은 안 했다.') },
+
+      'ad-dependency': { mode:'page', back:'process', eyebrow:'06 Application Design', title:'component-dependency.md', dek:'겹침을 처음 관측한 자리', body:
+        '<p><b>왜 검토했나</b> — 새 메서드들이 실제로 어느 방향으로 의존하는지 그려야, 유닛을 나눌 때 무엇이 먼저 서야 하는지 알 수 있다. <b>이 문서가 "파일 겹침"을 이 워크샵에서 처음 표로 만든 자리다</b> — Units Generation은 이 표를 유닛 관점에서 다시 확인했을 뿐이다.</p>' +
+        src('component-dependency.md', 'aidlc-docs/inception/application-design/component-dependency.md',
+          '| 컴포넌트 | 손대는 기능 |<br>' +
+          '| internal/store | 중앙 현황판 · 대기열 · drain — <b>셋 다</b> |<br>' +
+          '| internal/api | 중앙 현황판 · drain — <b>둘</b> |',
+          '<b>스스로 찾음 — 지시받은 적 없다.</b> Workflow Planning 단계의 "관련 컴포넌트" 분석에서 이미 낌새가 보였던 걸(execution-plan.md 참조), 여기서 컴포넌트별 의존 매트릭스로 확정했다. 이 표 한 장이 뒤이은 Units Generation의 겹침 표(unit-of-work-dependency.md) 그대로의 뿌리다.', true) },
+
+      'ad-services': { mode:'page', back:'process', eyebrow:'06 Application Design', title:'services.md', dek:'새 오케스트레이션 계층을 안 만든 이유', body:
+        '<p><b>왜 검토했나</b> — Application Design의 정석 절차는 서비스 계층(오케스트레이션 경계)을 정하는 것인데, 이 컴포넌트들을 억지로 새 서비스로 묶을지 아니면 기존 경계를 쓸지 판단이 필요했다.</p>' +
+        src('services.md', 'aidlc-docs/inception/application-design/services.md',
+          'enode 는 이미 <b>경계가 실행파일로 서 있는</b> 시스템이다(Mediator·enode·<br>' +
+          'enodectl·runctl·iapadapter). 새 오케스트레이션 계층을 추가로 만들지<br>' +
+          '않는다 — <b>기존 실행파일 경계가 곧 서비스 경계다.</b>',
+          '<b>채택.</b> 기각한 대안은 새 조정 계층(예: 별도 오케스트레이터 프로세스)을 만드는 것. internal/store가 이미 상태를 소유하는 유일한 컴포넌트라, "조정이 필요한 자리가 새로 생기는" 게 아니라 "이미 있는 조정 지점에 로직이 느는" 것뿐이다 — 새 서비스를 만들 이유가 없었다.') },
+
+      'ad-summary': { mode:'page', back:'process', eyebrow:'06 Application Design', title:'application-design.md', dek:'통합본 — 넷을 하나로 묶으면', body:
+        '<p>이 파일은 위 넷(components·component-methods·component-dependency·services)의 요약이다. 새 근거를 담기보다, 완결성을 <b>체크리스트로 검증</b>한 자리라 그 부분을 발췌한다.</p>' +
+        src('application-design.md', 'aidlc-docs/inception/application-design/application-design.md',
+          '## 완결성 검증<br>' +
+          '- [x] 요구사항 문서의 기능 넷 각각에 대응하는 컴포넌트가 있다<br>' +
+          '- [x] 새 컴포넌트마다 소속 패키지 · 책임 · 기존과의 관계가 적혀 있다<br>' +
+          '- [x] 겹침을 유닛으로 미리 나누지 않았다',
+          '마지막 체크박스가 제일 중요하다 — Application Design은 겹침을 "관측"까지만 하고 "처리"는 다음 단계로 넘겼다는 걸, 스스로 확인하는 항목으로 남겨 뒀다. Units Generation이 그 판단을 실제로 어떻게 했는지는 <button class="term-more" data-term="ug-dependency" type="button" style="display:inline">unit-of-work-dependency.md</button>에서 이어진다.') },
+
+      'ug-unit-of-work': { mode:'page', back:'process', eyebrow:'07 Units Generation', title:'unit-of-work.md', dek:'유닛 넷 — 완료 기준은 무엇으로 삼았나', body:
+        '<p><b>왜 검토했나</b> — 이 워크샵의 목표 산출물이다. 요구사항 넷을 사람이 나눠 맡을 작업 단위로 쪼개고, 완료 기준·출처 요구사항·의존 관계를 각 유닛에 담아야 한다(START.md §2).</p>' +
+        src('unit-of-work.md', 'aidlc-docs/inception/application-design/unit-of-work.md',
+          '요구사항 문서(requirements.md)의 MVP 넷과 1:1 대응하는 유닛 넷. 각 유닛에<br>' +
+          '완료 기준 · 출처 요구사항 절 · 다른 유닛 의존 여부를 담는다.',
+          '<b>채택 — 요구사항 넷과 1:1.</b> User Stories를 건너뛰어서 스토리 기반 그루핑이 없었고, 대신 요구사항 문서 3절의 기능 절이 자연스러운 그루핑 기준이 됐다 — Application Design이 낸 컴포넌트 경계와도 정확히 일치해서 억지로 재그룹핑할 이유가 없었다.') +
+        src('unit-of-work.md', 'aidlc-docs/inception/application-design/unit-of-work.md',
+          '## U4 — 호스트 제어판 ... <b>다른 유닛에 의존하는가</b>: 예 — U1 과 U3 에<br>' +
+          '진짜로 의존한다(인터페이스 의존). ... 서버 골격 · UI 뼈대는 먼저 만들 수 있다.',
+          'U4만 유일하게 "진짜 의존"이 있다고 명시했다. U1(GET /v1/nodes)·U3(POST drain)의 엔드포인트가 실제로 응답해야 U4의 수용 기준을 통과시킬 수 있어서다 — 다만 뼈대까지 막을 이유는 없어서 "완료"와 "착수"를 분리해 적었다.') },
+
+      'ug-dependency': { mode:'page', back:'process', eyebrow:'07 Units Generation', title:'unit-of-work-dependency.md', dek:'스스로 찾은 겹침 — 그리고 어떻게 대응했나', body:
+        '<p><b>왜 검토했나</b> — 유닛 넷을 나눈 것과 별개로, 그 유닛들이 실제로 같은 파일을 건드리는지는 따로 확인해야 한다. <b>이 확인을 하라고 프롬프트에 지시한 적이 없다</b> — Application Design의 component-dependency.md에 이미 있던 사실을 유닛 관점에서 다시 확인했을 뿐이다.</p>' +
+        src('unit-of-work-dependency.md', 'aidlc-docs/inception/application-design/unit-of-work-dependency.md',
+          '<b>이 표는 누가 시켜서 만든 것이 아니다.</b><br><br>' +
+          '| 파일/패키지 | U1 | U2 | U3 | U4 | 겹치는 유닛 수 |<br>' +
+          '| internal/api/api.go(단일 파일, 830줄) | 라우트 둘 신규 | submit() 로직 수정 |<br>' +
+          '라우트 하나 신규 | — | <b>3</b> |',
+          '<b>스스로 찾음.</b> U1·U2·U3 셋이 같은 830줄 파일을 고친다는 걸 여기서 표로 확정했다. 이 사실이 이 워크샵이 재려는 것과 정확히 일치한다(<code>prep/GOALS.md</code>) — v1 워크플로 규칙 어디에도 "파일 겹침을 확인해라"라는 문장이 없는데도 앞선 단계들의 관측을 이어 붙여 스스로 짚어냈다.', true) +
+        src('unit-of-work-dependency.md', 'aidlc-docs/inception/application-design/unit-of-work-dependency.md',
+          '1. internal/api/api.go 를 고치는 세 유닛(U1·U2·U3)은 <b>동시 착수해도 되지만<br>' +
+          'api.go 에 손대는 순간은 순차로 병합한다</b> ... 개발 자체를 순차로 만들 필요는 없다',
+          '<b>채택 — 유닛을 합치지 않고 병합 순서 권고로 대응.</b> 기각한 대안은 겹치는 세 유닛을 하나의 큰 유닛으로 합치는 것 — 합치면 "반나절 크기"(START.md §5-④) 기준을 넘는다. v1에 worktree 격리가 없다는 사실은 "유닛을 줄여라"가 아니라 "겹치면 사람이 조율해야 한다"는 뜻으로 읽어서, 유닛 경계는 그대로 두고 병합 순서만 권고했다.') },
+
+      'ug-story-map': { mode:'page', back:'process', eyebrow:'07 Units Generation', title:'unit-of-work-story-map.md', dek:'스토리 대신 요구사항 절을 매핑한 이유', body:
+        '<p><b>왜 검토했나</b> — units-generation.md는 "스토리 → 유닛" 매핑을 필수 산출물로 요구한다. User Stories를 건너뛰었으니 이 문서가 그 자리를 대신 채워야 했다.</p>' +
+        src('unit-of-work-story-map.md', 'aidlc-docs/inception/application-design/unit-of-work-story-map.md',
+          'User Stories 단계를 건너뛰었으므로, 스토리 대신 requirements.md 의 요구사항<br>' +
+          '절을 유닛에 매핑한다. 이 문서가 units-generation.md 가 요구하는<br>' +
+          '"스토리 → 유닛" 매핑의 대체물이다.',
+          '<b>채택.</b> 기각한 대안은 이 산출물 자체를 생략하는 것 — 하지만 units-generation.md가 필수로 요구하는 산출물이라 생략은 규칙 위반이다. 스토리가 없으니 가장 가까운 대체물(요구사항 절)로 채웠고, 그 사실을 문서 제목에 "대체:"라고 명시해 나중에 헷갈리지 않게 했다.') }
+
+    };
+
+    var panel = document.getElementById('term-panel');
+    var backdrop = document.getElementById('term-backdrop');
+    var panelTitle = document.getElementById('panel-title');
+    var panelEyebrow = document.getElementById('panel-eyebrow');
+    var panelBody = document.getElementById('panel-body');
+    var detailView = document.getElementById('detail-view');
+    var detailTitle = document.getElementById('detail-title');
+    var detailEyebrow = document.getElementById('detail-eyebrow');
+    var detailBody = document.getElementById('detail-body');
+    var detailDek = document.getElementById('detail-dek');
+
+    function closePanel(){
+      panel.classList.remove('open');
+      backdrop.classList.remove('open');
+      panel.setAttribute('aria-hidden','true');
+    }
+    function openPanel(id){
+      var t = TERMS[id]; if(!t) return;
+      panelEyebrow.textContent = t.eyebrow || '';
+      panelTitle.textContent = t.title;
+      panelBody.innerHTML = t.body + (t.diagram || '');
+      panel.classList.add('open');
+      backdrop.classList.add('open');
+      panel.setAttribute('aria-hidden','false');
+    }
+    var backTargets = {
+      glossary: { id:'glossary', label:'용어 사전으로 돌아가기' },
+      process:  { id:'process',  label:'AI-DLC v1 진행 순서로 돌아가기' }
+    };
+    var currentBack = 'glossary';
+    var detailBackLink = document.getElementById('detail-back');
+
+    function openDetailPage(id){
+      var t = TERMS[id]; if(!t) return;
+      closePanel();
+      currentBack = t.back || 'glossary';
+      var bt = backTargets[currentBack] || backTargets.glossary;
+      detailBackLink.textContent = '← ' + bt.label;
+      detailBackLink.setAttribute('href', '#' + bt.id);
+      detailEyebrow.textContent = t.eyebrow || '';
+      detailTitle.textContent = t.title;
+      detailDek.textContent = t.dek || '';
+      detailDek.style.display = t.dek ? '' : 'none';
+      detailBody.innerHTML = t.body + (t.diagram || '');
+      document.body.classList.add('view-detail');
+      detailView.classList.add('open');
+      window.scrollTo(0,0);
+    }
+    function closeDetailPage(){
+      document.body.classList.remove('view-detail');
+      detailView.classList.remove('open');
+    }
+
+    Array.prototype.forEach.call(document.querySelectorAll('[data-term]'), function(el){
+      el.addEventListener('click', function(e){
+        var id = el.getAttribute('data-term');
+        var t = TERMS[id];
+        if(!t) return;
+        e.preventDefault();
+        if(t.mode === 'page'){ openDetailPage(id); } else { openPanel(id); }
+      });
+    });
+
+    document.getElementById('panel-close').addEventListener('click', closePanel);
+    backdrop.addEventListener('click', closePanel);
+    detailBackLink.addEventListener('click', function(e){
+      e.preventDefault();
+      closeDetailPage();
+      var bt = backTargets[currentBack] || backTargets.glossary;
+      var g = document.getElementById(bt.id);
+      if(g) g.scrollIntoView();
+    });
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape'){
+        closePanel();
+        if(document.body.classList.contains('view-detail')){ closeDetailPage(); }
+      }
+    });
+
+    var tocToggle = document.getElementById('toc-toggle-all');
+    if(tocToggle){
+      tocToggle.addEventListener('click', function(){
+        var detailsEls = document.querySelectorAll('nav.toc details');
+        var anyOpen = Array.prototype.some.call(detailsEls, function(d){ return d.open; });
+        Array.prototype.forEach.call(detailsEls, function(d){ d.open = !anyOpen; });
+        tocToggle.textContent = anyOpen ? '전부 펼치기' : '전부 접기';
+      });
+    }
+  })();
+  </script>
+</footer>

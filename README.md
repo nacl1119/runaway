@@ -63,7 +63,10 @@ placeholder일 뿐, 실제 Mediator에 붙일 때만 그쪽 토큰과 맞추면 
 
 ## 구성
 
-- [docs/](docs/) — GitHub Pages로 배포되는 primer 원본(`index.html`)
+- [primer-src/](primer-src/) — primer 원본. 여기를 고치고 `perl build.pl`로
+  다시 빌드한다
+- [docs/](docs/) — GitHub Pages가 배포하는 빌드 결과물(`index.html`). 직접
+  고치지 않는다
 - [ENODE-PRIMER.md](ENODE-PRIMER.md) — 같은 내용의 GitHub 마크다운 버전
   (다이어그램·클릭 상호작용 없이 텍스트로만)
 - [enode-dashboard/](enode-dashboard/) — 참고 대시보드의 원본 구현과 전체
