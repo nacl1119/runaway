@@ -50,3 +50,17 @@ print $out $html;
 close($out);
 
 print "wrote $out_file (" . (-s $out_file) . " bytes)\n";
+
+# artifacts.html needs no placeholder substitution -- copy verbatim.
+my $artifacts_src = "$src_dir/artifacts.html";
+my $artifacts_out = "$repo_root/docs/artifacts.html";
+if (-e $artifacts_src) {
+    open(my $ain, '<:raw', $artifacts_src) or die $!;
+    local $/;
+    my $adata = <$ain>;
+    close($ain);
+    open(my $aout, '>:raw', $artifacts_out) or die $!;
+    print $aout $adata;
+    close($aout);
+    print "wrote $artifacts_out (" . (-s $artifacts_out) . " bytes)\n";
+}

@@ -840,6 +840,11 @@
     <span class="mtext"><h3>팀 종합 준비</h3><p>사실 vs 판단 구분, 팀원 결과 비교 체크리스트</p></span>
     <span class="mchev">&#8250;</span>
   </a>
+  <a class="mhome-card" href="artifacts.html">
+    <span class="mnum">06</span>
+    <span class="mtext"><h3>산출물 전체 지도</h3><p>산출물 15개, main 대비 무엇이 새로 생겼는지</p></span>
+    <span class="mchev">&#8250;</span>
+  </a>
 </div>
 
 <div class="shell">
@@ -879,6 +884,9 @@
     </details>
     <details open>
       <summary><a href="#synthesis">05 · 팀 종합 준비</a></summary>
+    </details>
+    <details open>
+      <summary><a href="artifacts.html">06 · 산출물 전체 지도</a></summary>
     </details>
   </nav>
 
@@ -2224,6 +2232,28 @@
         if(!t) return;
         e.preventDefault();
         if(t.mode === 'page'){ openDetailPage(id); } else { openPanel(id); }
+      });
+    });
+
+    // 목차 항목은 <summary> 안에 <a>가 있어 네이티브 클릭이 details 토글과
+    // 뒤섞여 스크롤도 페이지 이동도 실제로 안 일어나는 경우가 있다.
+    // 직접 처리한다 — 같은 페이지 앵커는 스크롤, 다른 페이지 링크는 이동.
+    Array.prototype.forEach.call(document.querySelectorAll('nav.toc summary a[href]'), function(a){
+      a.addEventListener('click', function(e){
+        e.preventDefault();
+        var href = a.getAttribute('href');
+        var details = a.closest('details');
+        if(details) details.open = true;
+        if(href.charAt(0) === '#'){
+          var id = href.slice(1);
+          var target = document.getElementById(id);
+          if(!target) return;
+          if(document.body.classList.contains('view-detail')){ closeDetailPage(); }
+          target.scrollIntoView({behavior:'smooth', block:'start'});
+          history.pushState(null, '', '#' + id);
+        } else {
+          window.location.href = href;
+        }
       });
     });
 

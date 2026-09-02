@@ -1,0 +1,466 @@
+<title>산출물 전체 지도</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --paper: #f4f6f3;
+    --surface: #ffffff;
+    --surface-2: #e9ede9;
+    --ink: #16211d;
+    --ink-soft: #4b5a54;
+    --ink-faint: #7c8983;
+    --line: #d7ded8;
+    --line-soft: #e4e9e3;
+    --accent: #0e7c7b;
+    --accent-ink: #ffffff;
+    --accent-soft: #dceceb;
+    --warm: #b5541f;
+    --warm-ink: #ffffff;
+    --warm-soft: #f3e4d8;
+    --shadow: 0 1px 2px rgba(22,33,29,0.04), 0 8px 24px -12px rgba(22,33,29,0.18);
+    --radius: 10px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #101613; --surface: #161f1c; --surface-2: #1c2822;
+      --ink: #e7ece8; --ink-soft: #a3b3ab; --ink-faint: #708079;
+      --line: #263630; --line-soft: #1e2b26;
+      --accent: #3ecbc2; --accent-ink: #08201d; --accent-soft: #17322f;
+      --warm: #e59156; --warm-ink: #211208; --warm-soft: #2c2018;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 28px -14px rgba(0,0,0,0.6);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #101613; --surface: #161f1c; --surface-2: #1c2822;
+    --ink: #e7ece8; --ink-soft: #a3b3ab; --ink-faint: #708079;
+    --line: #263630; --line-soft: #1e2b26;
+    --accent: #3ecbc2; --accent-ink: #08201d; --accent-soft: #17322f;
+    --warm: #e59156; --warm-ink: #211208; --warm-soft: #2c2018;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 28px -14px rgba(0,0,0,0.6);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 16px; line-height: 1.6; overflow-x: hidden;
+  }
+  p, li, td, th, code { overflow-wrap: break-word; word-break: break-word; }
+  a { color: var(--accent); text-decoration-thickness: 1.5px; text-underline-offset: 2px; }
+  h1, h2, h3, h4 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; line-height: 1.2; text-wrap: balance; margin: 0; }
+  code { font-family: 'IBM Plex Mono', monospace; font-size: 0.92em; background: var(--surface-2); padding: 0.1em 0.4em; border-radius: 4px; }
+
+  .shell { max-width: 980px; margin: 0 auto; padding: 0 24px 100px; }
+
+  .masthead { border-bottom: 1px solid var(--line); padding: 28px 0 24px; margin-bottom: 8px; }
+  .masthead .back { font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: var(--ink-faint); text-decoration: none; }
+  .masthead .back:hover { color: var(--accent); }
+  .masthead h1 { font-size: clamp(28px, 4vw, 40px); margin-top: 10px; }
+  .masthead .dek { color: var(--ink-soft); font-size: 15.5px; max-width: 640px; margin-top: 12px; }
+  .masthead .meta-row {
+    display: flex; gap: 16px; flex-wrap: wrap; margin-top: 16px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--ink-faint);
+  }
+  .masthead .meta-row b { color: var(--ink-soft); font-weight: 500; }
+
+  nav.minitoc {
+    position: sticky; top: 0; z-index: 5; background: var(--paper);
+    border-bottom: 1px solid var(--line); padding: 12px 0; margin-bottom: 8px;
+    display: flex; gap: 4px; flex-wrap: wrap; font-family: 'IBM Plex Mono', monospace; font-size: 12px;
+  }
+  nav.minitoc a {
+    color: var(--ink-soft); text-decoration: none; padding: 5px 10px; border-radius: 999px; border: 1px solid transparent;
+  }
+  nav.minitoc a:hover { border-color: var(--line); color: var(--ink); }
+
+  .stage { padding: 40px 0; border-bottom: 1px solid var(--line-soft); scroll-margin-top: 60px; }
+  .stage:last-of-type { border-bottom: none; }
+  .stage-head { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  .stage-num {
+    font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--ink-faint);
+    border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px;
+  }
+  .stage-head h2 { font-size: 22px; }
+  .stage-status {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
+    padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); color: var(--ink-faint);
+  }
+  .stage-status.done { color: var(--accent); border-color: var(--accent); }
+  .stage-status.skip { color: var(--ink-faint); border-style: dashed; }
+  .stage-note { color: var(--ink-soft); font-size: 15px; max-width: 720px; margin-top: 12px; }
+
+  .artifact-list { margin-top: 20px; display: flex; flex-direction: column; gap: 14px; }
+  .artifact {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 16px 18px; box-shadow: var(--shadow);
+  }
+  .artifact-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: space-between; }
+  .artifact-head .fname { font-family: 'IBM Plex Mono', monospace; font-size: 13.5px; font-weight: 600; color: var(--ink); }
+  .badge {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em;
+    padding: 2px 8px; border-radius: 999px; white-space: nowrap;
+  }
+  .badge.new { background: var(--accent-soft); color: var(--accent); }
+  .badge.same { background: var(--surface-2); color: var(--ink-faint); }
+  .badge.mod { background: var(--warm-soft); color: var(--warm); }
+  .artifact-purpose { color: var(--ink-soft); font-size: 14.5px; margin-top: 8px; }
+  .artifact-foot { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin-top: 10px; font-size: 12.5px; }
+  .artifact-foot a { font-family: 'IBM Plex Mono', monospace; }
+  .diffstat { font-family: 'IBM Plex Mono', monospace; color: var(--ink-faint); }
+  .diffstat .add { color: var(--accent); }
+  .diffstat .del { color: var(--warm); }
+
+  .crosscut-banner {
+    background: var(--surface-2); border-radius: var(--radius); padding: 14px 18px; margin: 18px 0 0;
+    font-size: 14px; color: var(--ink-soft);
+  }
+
+  footer { max-width: 980px; margin: 0 auto; padding: 30px 24px 60px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--ink-faint); }
+</style>
+
+<div class="shell">
+  <div class="masthead">
+    <a class="back" href="index.html">&larr; enode 입문으로 돌아가기</a>
+    <h1>이번 실행이 만든 산출물 전체 지도</h1>
+    <p class="dek">
+      AI-DLC v1이 Requirements Analysis부터 Units Generation까지 밟으며 만든
+      <b>산출물 15개</b>를 단계 순서대로 늘어놓는다. 각 산출물마다 무엇을 위한
+      문서인지와, <code>main</code> 브랜치(스캐폴드 상태) 대비 무엇이 새로
+      생겼거나 바뀌었는지를 같이 적는다.
+    </p>
+    <div class="meta-row">
+      <span>저장소 <b>taeels/enode-fixup-workshop</b></span>
+      <span>브랜치 <b>v1-run-02</b></span>
+      <span>비교 기준 <b>main</b></span>
+      <span>총 변경 <b>파일 15개 · +1,376줄 / -15줄</b></span>
+    </div>
+  </div>
+
+  <nav class="minitoc">
+    <a href="#re">02 Reverse Engineering</a>
+    <a href="#ra">03 Requirements Analysis</a>
+    <a href="#us">04 User Stories</a>
+    <a href="#wp">05 Workflow Planning</a>
+    <a href="#ad">06 Application Design</a>
+    <a href="#ug">07 Units Generation</a>
+    <a href="#cross">추적 문서</a>
+  </nav>
+
+  <section class="stage" id="re">
+    <div class="stage-head">
+      <span class="stage-num">02</span>
+      <h2>Reverse Engineering</h2>
+      <span class="stage-status done">조건부 · 브라운필드만</span>
+    </div>
+    <p class="stage-note">
+      브라운필드라 실행됐지만, <b>이번 세션이 새로 만든 게 아니다</b> — 다른
+      세션(v2 리뷰 워크스페이스)이 스캔 기준선 <code>f46e187</code>에서 이미
+      만들어 둔 아홉 개를 그대로 옮겨왔다. 그래서 아래 아홉 파일은 <b>main에도
+      이미 있고, v1-run-02에서 한 글자도 안 바뀌었다</b> — 이 실행의 변경사항이
+      아니라 모든 실행이 공유하는 출발선이다.
+    </p>
+    <div class="artifact-list">
+      <div class="artifact">
+        <div class="artifact-head">
+          <span class="fname">architecture.md</span>
+          <span class="badge same">main과 동일</span>
+        </div>
+        <p class="artifact-purpose">시스템 아키텍처 지도 — 다섯 실행파일과 노드가 절대 먼저 안 듣는다는 구조를 기록. Requirements Analysis에서 실제로 근거로 쓰였다.</p>
+        <div class="artifact-foot"><a href="https://github.com/taeels/enode-fixup-workshop/blob/main/aidlc-docs/inception/reverse-engineering/architecture.md" target="_blank" rel="noopener">GitHub(main) &#8599;</a></div>
+      </div>
+      <div class="artifact">
+        <div class="artifact-head">
+          <span class="fname">component-inventory.md</span>
+          <span class="badge same">main과 동일</span>
+        </div>
+        <p class="artifact-purpose">기존 컴포넌트 15개의 책임 목록. Application Design에서 "이번에 손이 가는 것만" 추려낼 때 기준선으로 썼다.</p>
+        <div class="artifact-foot"><a href="https://github.com/taeels/enode-fixup-workshop/blob/main/aidlc-docs/inception/reverse-engineering/component-inventory.md" target="_blank" rel="noopener">GitHub(main) &#8599;</a></div>
+      </div>
+      <div class="artifact">
+        <div class="artifact-head">
+          <span class="fname">technology-stack.md</span>
+          <span class="badge same">main과 동일</span>
+        </div>
+        <p class="artifact-purpose">Go 1.26·모듈 구조 등 기술 스택 기록. 새 컴포넌트가 기존 스택과 어긋나지 않는지 확인하는 데 썼다.</p>
+        <div class="artifact-foot"><a href="https://github.com/taeels/enode-fixup-workshop/blob/main/aidlc-docs/inception/reverse-engineering/technology-stack.md" target="_blank" rel="noopener">GitHub(main) &#8599;</a></div>
+      </div>
+      <div class="artifact">
+        <div class="artifact-head">
+          <span class="fname">reverse-engineering-timestamp.md</span>
+          <span class="badge same">main과 동일</span>
+        </div>
+        <p class="artifact-purpose">스캔 기준선 커밋과 이관 시점 기록. "코드가 지금도 이 스캔과 같은가"를 검증하는 근거로 썼다.</p>
+        <div class="artifact-foot"><a href="https://github.com/taeels/enode-fixup-workshop/blob/main/aidlc-docs/inception/reverse-engineering/reverse-engineering-timestamp.md" target="_blank" rel="noopener">GitHub(main) &#8599;</a></div>
+      </div>
+      <div class="artifact">
+        <div class="artifact-head">
+          <span class="fname">business-overview.md · code-structure.md · code-quality-assessment.md · dependencies.md · api-documentation.md</span>
+          <span class="badge same">main과 동일</span>
+        </div>
+        <p class="artifact-purpose">읽기는 했지만 이번 판단에는 안 쓴 다섯 개 — 비즈니스 개요·코드 구조·품질 평가·의존성·API 문서. 이번 변경이 신규 기능 넷에 좁게 걸쳐 있어 전사적 개요보다 좁고 구체적인 문서(architecture·component-inventory)가 더 직접 근거가 됐다.</p>
+        <div class="artifact-foot"><a href="https://github.com/taeels/enode-fixup-workshop/tree/main/aidlc-docs/inception/reverse-engineering" target="_blank" rel="noopener">GitHub(main) 폴더 &#8599;</a></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stage" id="ra">
+    <div class="stage-head">
+      <span class="stage-num">03</span>
+      <h2>Requirements Analysis</h2>
+      <span class="stage-status done">항상 실행</span>
+    </div>
+    <p class="stage-note">
+      <code>main</code>에는 아직 요구사항 산출물이 없다 — 이 단계에서 처음
+      생긴다. 미정 표시 25개 중 유닛 경계에 실제로 걸리는 2개만 게이트로
+      묻고, 나머지 23개는 미정인 채로 <code>requirements.md</code>에 기록했다.
+    </p>
+    <div class="artifact-list">
+      <div class="artifact">
+        <div class="artifact-head">
+          <span class="fname">requirement-verification-questions.md</span>
+          <span class="badge new">신규</span>
+        </div>
+        <p class="artifact-purpose">게이트 질문 2개(호스트 제어판 서버 위치·drain 노출 범위)와 확장(extension) opt-in 질문 3개, 그리고 사람의 답변 기록.</p>
+        <div class="artifact-foot">
+          <span class="diffstat"><span class="add">+107</span></span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-02/aidlc-docs/inception/requirements/requirement-verification-questions.md" target="_blank" rel="noopener">GitHub &#8599;</a>
+        </div>
+      </div>
+      <div class="artifact">
+        <div class="artifact-head">
+          <span class="fname">requirements.md</span>
+          <span class="badge new">신규</span>
+        </div>
+        <p class="artifact-purpose">이번 라운드의 정본 요구사항 문서. 기능 넷의 FR·NFR, 게이트 답변 반영, <code>enode-design</code> 정본과의 대조 결과, 미정 21건 목록을 담은 325줄짜리 통합본.</p>
+        <div class="artifact-foot">
+          <span class="diffstat"><span class="add">+325</span></span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-02/aidlc-docs/inception/requirements/requirements.md" target="_blank" rel="noopener">GitHub &#8599;</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stage" id="us">
+    <div class="stage-head">
+      <span class="stage-num">04</span>
+      <h2>User Stories</h2>
+      <span class="stage-status skip">건너뜀</span>
+    </div>
+    <p class="stage-note">
+      산출물 없음. 내부 운영 도구고 <code>requirements.md</code>가 이미 목적·
+      UI/UX·수용 기준을 담고 있어 스토리로 다시 쓰면 반복이 된다고 판단했다 —
+      근거는 <code>execution-plan.md</code>에 남겼다. 대신 아래 Units
+      Generation의 <code>unit-of-work-story-map.md</code>가 "스토리 대신
+      요구사항 절을 유닛에 매핑"하는 방식으로 그 역할을 대신한다.
+    </p>
+  </section>
+
+  <section class="stage" id="wp">
+    <div class="stage-head">
+      <span class="stage-num">05</span>
+      <h2>Workflow Planning</h2>
+      <span class="stage-status done">항상 실행</span>
+    </div>
+    <div class="artifact-list">
+      <div class="artifact">
+        <div class="artifact-head">
+          <span class="fname">execution-plan.md</span>
+          <span class="badge new">신규</span>
+        </div>
+        <p class="artifact-purpose">남은 단계 중 무엇을 실행할지 정하고, 위험도·건너뛸 단계·착수 우선순위를 정리. <code>internal/store</code>·<code>internal/api</code>가 세 기능에서 공통으로 겹친다는 것을 이 단계에서 이미 관측해 기록했다(처리는 Units Generation에 위임).</p>
+        <div class="artifact-foot">
+          <span class="diffstat"><span class="add">+173</span></span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-02/aidlc-docs/inception/plans/execution-plan.md" target="_blank" rel="noopener">GitHub &#8599;</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stage" id="ad">
+    <div class="stage-head">
+      <span class="stage-num">06</span>
+      <h2>Application Design</h2>
+      <span class="stage-status done">조건부 · 이번엔 강제</span>
+    </div>
+    <p class="stage-note">
+      원래는 "새 컴포넌트가 있을 때만" 실행하는 조건부 단계지만, Units
+      Generation의 전제조건으로 못 박혀 있어 강제로 실행했다. Part 1 계획
+      문서 하나(자동 모드로 스스로 답한 설계 질문 9개) 뒤에 산출물 5개를
+      만들었다.
+    </p>
+    <div class="artifact-list">
+      <div class="artifact">
+        <div class="artifact-head">
+          <span class="fname">application-design-plan.md</span>
+          <span class="badge new">신규</span>
+        </div>
+        <p class="artifact-purpose">Part 1 계획 문서. 설계 질문 9개(drain이 Mediator에 어떻게 닿는가 등)를 자동 모드로 스스로 답하고 근거를 남긴 체크리스트. 본문 primer에는 태그로 노출돼 있지 않다.</p>
+        <div class="artifact-foot">
+          <span class="diffstat"><span class="add">+56</span></span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-02/aidlc-docs/inception/plans/application-design-plan.md" target="_blank" rel="noopener">GitHub &#8599;</a>
+        </div>
+      </div>
+      <div class="artifact">
+        <div class="artifact-head">
+          <span class="fname">components.md</span>
+          <span class="badge new">신규</span>
+        </div>
+        <p class="artifact-purpose">이번 라운드에 새로 생기거나 손이 가는 컴포넌트 5개(HostPanelServer·DrainPolicy 둘·QueueState·DashboardQuery)만 기록. 기존 15개는 다시 안 세고 component-inventory.md를 참조로 남겼다.</p>
+        <div class="artifact-foot">
+          <span class="diffstat"><span class="add">+64</span></span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-02/aidlc-docs/inception/application-design/components.md" target="_blank" rel="noopener">GitHub &#8599;</a>
+        </div>
+      </div>
+      <div class="artifact">
+        <div class="artifact-head">
+          <span class="fname">component-methods.md</span>
+          <span class="badge new">신규</span>
+        </div>
+        <p class="artifact-purpose">새 컴포넌트마다 메서드·라우트 시그니처와 입출력·목적을 표로 정리(예: <code>HostPanelServer</code>의 <code>POST /api/drain</code>). 상세 비즈니스 규칙은 Construction의 Functional Design으로 미뤘다.</p>
+        <div class="artifact-foot">
+          <span class="diffstat"><span class="add">+60</span></span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-02/aidlc-docs/inception/application-design/component-methods.md" target="_blank" rel="noopener">GitHub &#8599;</a>
+        </div>
+      </div>
+      <div class="artifact">
+        <div class="artifact-head">
+          <span class="fname">component-dependency.md</span>
+          <span class="badge new">신규</span>
+        </div>
+        <p class="artifact-purpose">변경 컴포넌트 5개의 의존 매트릭스와, 새로 생기는 데이터 흐름 경로(drain 걸기·통보 등)를 기록. 겹침 관측의 원자료가 여기 있다.</p>
+        <div class="artifact-foot">
+          <span class="diffstat"><span class="add">+50</span></span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-02/aidlc-docs/inception/application-design/component-dependency.md" target="_blank" rel="noopener">GitHub &#8599;</a>
+        </div>
+      </div>
+      <div class="artifact">
+        <div class="artifact-head">
+          <span class="fname">services.md</span>
+          <span class="badge new">신규</span>
+        </div>
+        <p class="artifact-purpose">enode는 이미 실행파일 경계가 서비스 경계인 시스템이라, 새 오케스트레이션 계층을 만들지 않고 기존 다섯 실행파일에 책임을 얹는 방식으로 서비스 정의를 정리.</p>
+        <div class="artifact-foot">
+          <span class="diffstat"><span class="add">+40</span></span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-02/aidlc-docs/inception/application-design/services.md" target="_blank" rel="noopener">GitHub &#8599;</a>
+        </div>
+      </div>
+      <div class="artifact">
+        <div class="artifact-head">
+          <span class="fname">application-design.md</span>
+          <span class="badge new">신규</span>
+        </div>
+        <p class="artifact-purpose">위 4개를 통합한 요약본. 겹침 관측 요약과 완결성 검증을 담아, Units Generation이 바로 이어받을 수 있게 정리.</p>
+        <div class="artifact-foot">
+          <span class="diffstat"><span class="add">+49</span></span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-02/aidlc-docs/inception/application-design/application-design.md" target="_blank" rel="noopener">GitHub &#8599;</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stage" id="ug">
+    <div class="stage-head">
+      <span class="stage-num">07</span>
+      <h2>Units Generation</h2>
+      <span class="stage-status done">이번 실행의 목표 지점</span>
+    </div>
+    <p class="stage-note">
+      이번 라운드가 멈추는 지점. Part 1 계획 문서 하나 뒤에 산출물 3개를
+      만들었다 — 유닛 4개로 나누고, 파일 겹침을 시키지 않았는데도 스스로
+      찾아 기록했다.
+    </p>
+    <div class="artifact-list">
+      <div class="artifact">
+        <div class="artifact-head">
+          <span class="fname">unit-of-work-plan.md</span>
+          <span class="badge new">신규</span>
+        </div>
+        <p class="artifact-purpose">Part 1 계획 문서. 유닛 그룹핑 기준(요구사항 절 = 컴포넌트 경계)과 팀 정렬 방침을 자동 모드로 스스로 답한 체크리스트. 겹침 판단(②)은 시키지 않아도 스스로 하기로 명시.</p>
+        <div class="artifact-foot">
+          <span class="diffstat"><span class="add">+45</span></span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-02/aidlc-docs/inception/plans/unit-of-work-plan.md" target="_blank" rel="noopener">GitHub &#8599;</a>
+        </div>
+      </div>
+      <div class="artifact">
+        <div class="artifact-head">
+          <span class="fname">unit-of-work.md</span>
+          <span class="badge new">신규</span>
+        </div>
+        <p class="artifact-purpose">정본 산출물. 유닛 4개(U1 중앙 현황판·U2 대기열·U3 drain·U4 호스트 제어판)의 서명과 완료 조건을 요구사항 절과 1:1로 정의.</p>
+        <div class="artifact-foot">
+          <span class="diffstat"><span class="add">+73</span></span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-02/aidlc-docs/inception/application-design/unit-of-work.md" target="_blank" rel="noopener">GitHub &#8599;</a>
+        </div>
+      </div>
+      <div class="artifact">
+        <div class="artifact-head">
+          <span class="fname">unit-of-work-dependency.md</span>
+          <span class="badge new">신규</span>
+        </div>
+        <p class="artifact-purpose"><code>internal/api/api.go</code>·<code>internal/store</code> 겹침을 스스로 찾아 병합 순서를 권고한 문서. 이 실행이 실제로 낸 협업 병목 관측 결과가 여기 있다.</p>
+        <div class="artifact-foot">
+          <span class="diffstat"><span class="add">+71</span></span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-02/aidlc-docs/inception/application-design/unit-of-work-dependency.md" target="_blank" rel="noopener">GitHub &#8599;</a>
+        </div>
+      </div>
+      <div class="artifact">
+        <div class="artifact-head">
+          <span class="fname">unit-of-work-story-map.md</span>
+          <span class="badge new">신규</span>
+        </div>
+        <p class="artifact-purpose">User Stories를 건너뛴 대체물. 스토리 대신 요구사항 절 4개를 유닛에 매핑하고, 이번 라운드에 매핑하지 않는 "다음" 항목도 별도로 표시.</p>
+        <div class="artifact-foot">
+          <span class="diffstat"><span class="add">+29</span></span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-02/aidlc-docs/inception/application-design/unit-of-work-story-map.md" target="_blank" rel="noopener">GitHub &#8599;</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stage" id="cross">
+    <div class="stage-head">
+      <span class="stage-num">&#8734;</span>
+      <h2>단계를 가로지르는 추적 문서</h2>
+      <span class="stage-status done">항상 갱신</span>
+    </div>
+    <p class="stage-note">
+      아래 둘은 특정 단계의 산출물이 아니라 실행 내내 갱신되는 상태·기록
+      파일이다. 둘 다 <code>main</code>에 이미 있고, 이번 실행이 내용을
+      갈아 끼웠다.
+    </p>
+    <div class="artifact-list">
+      <div class="artifact">
+        <div class="artifact-head">
+          <span class="fname">aidlc-state.md</span>
+          <span class="badge mod">수정</span>
+        </div>
+        <p class="artifact-purpose">지금 어느 단계까지 왔는지, 다음 세션이 무엇부터 읽어야 하는지 요약하는 한 장짜리 상태판. 단계가 끝날 때마다 갱신된다.</p>
+        <div class="artifact-foot">
+          <span class="diffstat"><span class="add">+17</span> / <span class="del">-15</span></span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-02/aidlc-docs/aidlc-state.md" target="_blank" rel="noopener">GitHub(v1-run-02) &#8599;</a>
+          <a href="https://github.com/taeels/enode-fixup-workshop/compare/main...v1-run-02" target="_blank" rel="noopener">main과 비교 &#8599;</a>
+        </div>
+      </div>
+      <div class="artifact">
+        <div class="artifact-head">
+          <span class="fname">audit.md</span>
+          <span class="badge mod">수정</span>
+        </div>
+        <p class="artifact-purpose">게이트 질문·답변·승인을 타임스탬프와 함께 남기는 감사 기록. main의 짧은 준비 기록 뒤에 이번 실행의 전체 상호작용이 이어 붙는다.</p>
+        <div class="artifact-foot">
+          <span class="diffstat"><span class="add">+217</span></span>
+          <a href="https://github.com/taeels/enode-fixup-workshop/blob/v1-run-02/aidlc-docs/audit.md" target="_blank" rel="noopener">GitHub(v1-run-02) &#8599;</a>
+          <a href="https://github.com/taeels/enode-fixup-workshop/compare/main...v1-run-02" target="_blank" rel="noopener">main과 비교 &#8599;</a>
+        </div>
+      </div>
+    </div>
+    <div class="crosscut-banner">
+      전체를 한 번에 보려면 <a href="https://github.com/taeels/enode-fixup-workshop/compare/main...v1-run-02" target="_blank" rel="noopener">main...v1-run-02 비교(GitHub)</a>가 가장 정확하다 — 파일 15개, +1,376줄/-15줄이 그대로 diff로 보인다.
+    </div>
+  </section>
+</div>
+
+<footer>
+  <a href="index.html">&larr; enode 입문</a> · taeels/enode-fixup-workshop · v1-run-02
+</footer>

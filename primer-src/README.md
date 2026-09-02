@@ -1,7 +1,10 @@
 # primer-src
 
-`docs/index.html`(GitHub Pages로 배포되는 primer)의 진짜 원본이다. `docs/index.html`
-자체는 빌드 결과물이니 직접 고치지 말고 여기를 고친 뒤 다시 빌드한다.
+`docs/`(GitHub Pages로 배포되는 페이지들)의 진짜 원본이다. `docs/` 안의 파일은
+전부 빌드 결과물이니 직접 고치지 말고 여기를 고친 뒤 다시 빌드한다.
+
+- `template.html` → `docs/index.html` — 메인 primer
+- `artifacts.html` → `docs/artifacts.html` — 산출물 전체 지도(단순 복사, 이미지 없음)
 
 ## 빌드
 
@@ -11,7 +14,8 @@ perl build.pl
 ```
 
 `template.html`을 읽어 `__IMG_*__` 자리표시자를 `../enode-dashboard/screenshots/`의
-스크린샷으로(base64 data URI) 채우고 `../docs/index.html`에 쓴다. 표준
+스크린샷으로(base64 data URI) 채우고 `../docs/index.html`에 쓴다. `artifacts.html`은
+자리표시자가 없어 그대로 `../docs/artifacts.html`로 복사한다. 표준
 라이브러리(`MIME::Base64`)만 쓰므로 Perl만 있으면 된다.
 
 ## 새 스크린샷을 추가하려면
