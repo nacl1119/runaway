@@ -211,6 +211,8 @@ table.inv td.title .sub{display:block;color:var(--dim);font-size:11.5px;margin-t
   <span class="pill gap">7.3 갭 — draining 활성 상태</span>
   <span class="pill" style="color:var(--text-2)">7.5 4번째 표본 — 셋을 통째로 미룸</span>
   <span class="pill gap">7.6 Application Design — 새 발견 둘</span>
+  <span class="pill gap">7.7 RA·UG — 갭이 4개 층 전부에서 확인됨</span>
+  <span class="pill rejected">7.8 절차 검토 — 갭 4개, 넷 다 안 잡힘</span>
 </div>
 
 <section>
@@ -671,7 +673,9 @@ table.inv td.title .sub{display:block;color:var(--dim);font-size:11.5px;margin-t
       run-03 services.md 4절 — "데몬 로그를 읽나, 데몬이 상태 파일을
       남기나"가 결정 사항 아닌 것으로 명시. <code>component-methods.md</code>의
       <code>NodeCard</code> 구조체까지 내려가도 필드만 있고 출처는 없다.
-      화면은 안 바꾸되 "배선 미정" 표시가 필요하다.</div>
+      <code>unit-of-work-story-map.md</code>(run-03)가 행선지까지 좁혀줬다 —
+      "출처 결정은 U5의 Code Generation 계획에서". 화면은 안 바꾸되 "배선
+      미정, U5에서 확정" 표시가 필요하다.</div>
     </div>
     <div class="reason">
       <div class="k">② 표시 없음</div>
@@ -685,11 +689,183 @@ table.inv td.title .sub{display:block;color:var(--dim);font-size:11.5px;margin-t
   </div>
 </section>
 
+<section>
+  <h2><span class="n">08</span>Requirements Analysis·Units Generation 대조</h2>
+
+  <p>남은 두 층. 스토리보다 앞(requirements.md)과 뒤(unit-of-work-story-map.md)에
+  있는 문서라 층이 또 다르다.</p>
+
+  <h3 style="margin-top:24px;font-size:15px">requirements.md — 이 브랜치 자신의 것</h3>
+  <p class="text-2">이 브랜치는 User Stories를 건너뛰어서, 화면 요구가
+  스토리 없이 FR 절에 직접 실려 있다. 3.2.1(drain) 절을 다시 읽었다.</p>
+
+  <div class="card" style="border-color:var(--drain)">
+    <div class="reject-head">
+      <span class="reject-tag" style="color:var(--drain);border-color:var(--drain);background:var(--drain-soft)">갭 ③ · 이번에 새로 찾음</span>
+      <h3 style="margin:0;font-size:16px">S3의 갭은 스토리 이전, Requirements Analysis 시점부터 있었다</h3>
+    </div>
+    <blockquote>
+      기능: "drain 걸기/풀기" — 하나의 항목으로, 처음부터 같이 적혀 있었다.<br>
+      수용 기준: "걸면 안 배정", "graceful", "at-boundary" 셋뿐 —
+      <b>"풀기"를 확인하는 수용 기준이 하나도 없다.</b>
+      <div class="cite">— v1-run-02 requirements.md §3.2.1</div>
+    </blockquote>
+    <p style="font-size:14px;color:var(--text-2);margin:0"><code>enode-ux.pen</code>의
+    S3가 "drain 걸기"만 그린 건 스토리 단계의 실수가 아니라, <b>이 브랜치
+    자신의 정본 문서가 "풀기" 기능은 이름만 올리고 수용 기준은 안 쓴 그
+    순간부터</b> 이어진 것이다. Application Design·Units Generation을
+    거치는 동안 아무도 이 빈자리를 메우지 않았다.</p>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <div class="reject-head">
+      <span class="reject-tag" style="color:var(--dim);border-color:var(--border-strong);background:var(--surface-2)">넷째 독립 발생</span>
+      <h3 style="margin:0;font-size:16px">이 브랜치의 마지막 수용 기준도 같은 함정에 걸려 있다</h3>
+    </div>
+    <blockquote>
+      "풀린 노드는 다시 후보가 된다"
+      <div class="cite">— v1-run-02 requirements.md §3.2.1, drain 절 마지막 수용 기준</div>
+    </blockquote>
+    <p style="font-size:14px;color:var(--text-2);margin:0">바로 앞 문장이
+    "at-boundary로 걸면 다음 단계 경계에서 임대가 풀린다"라서, 이 "풀린
+    노드"가 <b>임대가 풀린 것</b>인지 <b>drain 정책이 풀린 것</b>인지
+    문장만으로 갈린다 — shin-son이 7절에서 공들여 푼 것이 정확히 이
+    자리다. <b>이 브랜치 자신의 정본 문서가, 나중에 다른 실행이 GWT까지
+    내려가서 풀어야 했던 바로 그 모호함을 이미 품고 있었다.</b> 넷째
+    독립 발생이다 — run-01(같은 자리를 "해석"이라 표시) · shin-son(직접
+    풀어냄) · v1-greenfield-01(J2 산문) · 그리고 이 브랜치 자신까지.</p>
+  </div>
+
+  <h3 style="margin-top:32px;font-size:15px">unit-of-work-story-map.md — run-01·run-03</h3>
+  <p class="text-2">이 브랜치는 스토리가 없어 이 문서가 없다.
+  <code>run-01</code>·<code>run-03</code> 것만 봤다 — 화면에 새 요구를
+  더하는 문서가 아니라 <b>어느 유닛의 어느 단계가 각 요구를 최종적으로
+  매듭짓는지 추적하는 문서</b>다. run-01의 "확인 UOW-05 — 현황판의
+  postDrain이 같은 메서드를 부른다(AC-4.9)"는 02절에서 이미 본 run-01의
+  중앙 drain 일관성이 다섯째 문서에도 반복된 것 — 새 근거는 아니다.
+  run-03의 항목은 07절 발견 ①의 정확한 행선지를 준 것(위에서 이미 반영).
+  이 문서의 값은 새 갭을 찾는 게 아니라 <b>이미 찾은 갭이 실제로 어디서
+  막혀 있는지 좌표를 준다</b>는 것이다.</p>
+
+  <div class="pass-grid" style="margin-top:24px">
+    <div class="pass-item">
+      <div class="t">Requirements Analysis</div>
+      <div class="d">requirements.md — 갭 ③(새로 찾음)</div>
+    </div>
+    <div class="pass-item">
+      <div class="t">User Stories</div>
+      <div class="d">stories.md — 갭 ①②(03절)</div>
+    </div>
+    <div class="pass-item">
+      <div class="t">Application Design</div>
+      <div class="d">services.md·components.md — 07절 갭 ①②</div>
+    </div>
+    <div class="pass-item">
+      <div class="t">Units Generation</div>
+      <div class="d">unit-of-work-story-map.md — 새 갭 없음, 좌표만 정밀화</div>
+    </div>
+  </div>
+  <p class="text-2" style="margin-top:16px"><b>드러난 갭은 여전히 하나다</b>(C3로
+  반영한 "drain을 건 뒤" 상태) — 층마다 같은 갭을 다른 각도로 다시
+  확인했을 뿐 새 화면 요구는 안 늘었다. 다만 그 갭이 얼마나 이른
+  단계(Requirements Analysis)부터, 얼마나 여러 층에 걸쳐(넷) 반복됐는지가
+  이번 대조로 분명해졌다 — 우연히 한 번 놓친 게 아니라 구조적으로
+  반복되는 자리라는 뜻이다.</p>
+</section>
+
+<section>
+  <h2><span class="n">09</span>앞을 본다 — Construction이 실제로 돌면 이 갭을 잡아낼까</h2>
+
+  <p>지금까지는 이미 나온 문서 넷을 대조했다. 이번엔 다른 질문이다 —
+  <b>아직 안 일어난 일</b>, 이 화면 설계를 갖고 누군가 실제로
+  Construction(Functional Design → NFR → Code Generation → Build and
+  Test)에 들어갔을 때, AI-DLC 절차 자체가 오늘 찾은 갭이나 비슷한 걸
+  자동으로 잡아낼지를 본다. 답은 <b>아니다 — 넷 다 안 잡는다.</b></p>
+
+  <div class="reason-list" style="margin-top:16px">
+    <div class="reason">
+      <div class="k">갭 A</div>
+      <div class="v"><b>Functional Design이 화면 스펙을 읽으라고 시키지
+      않는다.</b> <code>.aidlc-rule-details/construction/functional-design.md</code>의
+      전제조건은 Units Generation·Unit of work·Application Design 셋뿐 —
+      <code>design/enode-ux.pen</code>은 어디에도 없다. 화면에 닿는 유닛도
+      이 파일을 읽을지는 담당자 재량이다.</div>
+    </div>
+    <div class="reason">
+      <div class="k">갭 B</div>
+      <div class="v"><b>CP4(장면 게이트)가 API 수준이라 UI 버튼까지는 안
+      본다.</b> REVIEW.md §9.3의 CP0~CP3는 전부 "curl로 실데이터 JSON"
+      식으로 적혀 있다. CP4("한 장면 — dhseo 시나리오 끝까지")도 같은
+      어휘라, drain 해제 API를 curl로 직접 쳐도 통과인지 브라우저에서
+      버튼을 눌러야 통과인지 안 갈린다 — <b>C3 화면이 끝내 안 만들어져도
+      CP4는 초록이 될 수 있다.</b></div>
+    </div>
+    <div class="reason">
+      <div class="k">갭 C</div>
+      <div class="v"><b>유닛 완료 조건 어디에도 "풀기 UI"가 없다(실측).</b>
+      REVIEW.md가 "실동작 완료 문장"으로 가장 높게 평가한 run-03의 호스트
+      제어판 유닛 완료 조건조차 "drain 버튼을 <b>누르면</b> 정책 파일이
+      바뀌며... draining 표식이 뜬다"뿐이다 — 걸기만 확인한다. 가장 꼼꼼한
+      표본도 이렇다.</div>
+    </div>
+    <div class="reason">
+      <div class="k">갭 D</div>
+      <div class="v"><b>브랜치를 가로지르는 공유 설계를 당기는 절차가
+      없다.</b> <code>design/enode-ux.pen</code>은 <code>review</code>
+      브랜치에만 있다. AI-DLC 표준 워크플로우는 단위가 유닛 하나, 범위가
+      그 브랜치 하나 — "다른 브랜치의 공유 설계를 먼저 본다"는 단계가
+      없다. <code>review</code> 브랜치 자체가 이 워크샵이 임시로 만든
+      장치다.</div>
+    </div>
+  </div>
+
+  <div class="card" style="border-color:var(--drain);margin-top:24px">
+    <div class="reject-head">
+      <span class="reject-tag" style="color:var(--drain);border-color:var(--drain);background:var(--drain-soft)">화면으로 보강함</span>
+      <h3 style="margin:0;font-size:16px">S1 배지를 진행 중 / 대기 중으로 가른다</h3>
+    </div>
+    <p style="font-size:14px;color:var(--text-2)">넷 다 문서·절차의 빈틈이라
+    코드로 못 고치지만, <b>갭 B(CP4를 사람이 눈으로 구분 못 함)는 화면
+    쪽에서 절반은 줄일 수 있다.</b> 지금 S1 카드는 "draining" 배지
+    하나뿐이라, 사람이 화면만 보고는 "아직 도는 작업 있음"과 "owner가
+    풀기만 하면 됨"을 못 가른다 — 사람이 CP4를 검증할 때 API 확인으로
+    새는 지점이기도 하다.</p>
+    <div class="compare" style="margin-top:8px">
+      <div class="mock-col now">
+        <div class="label"><span class="dot"></span>C4 · draining 진행 중</div>
+        <div class="mock-frame" style="padding:16px">
+          <span class="mp-badge" style="background:var(--mock-drain);color:#160B22;font-weight:700">draining · 진행 중</span>
+        </div>
+      </div>
+      <div class="mock-col proposed">
+        <div class="label"><span class="dot"></span>C5 · draining 대기 중(owner)</div>
+        <div class="mock-frame" style="padding:16px">
+          <span class="mp-badge">draining · 대기 중(owner)</span>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:13px;color:var(--dim);margin-top:12px">기존 S1 카드
+    인스턴스는 안 건드렸다(렌더러 없이 손대면 깨질 위험) — 다음 사람이
+    디자인 툴에서 조건부로 끼워 넣으면 된다.</p>
+  </div>
+
+  <h3 style="margin-top:32px;font-size:15px">결론 — 넷 다 "사람이 기억해야 잡히는" 갭이다</h3>
+  <p class="text-2"><b>C3 하나를 화면에 그려 넣는다고 이 넷이 풀리지
+  않는다.</b> 이 넷은 화면 문제가 아니라 <b>AI-DLC v1 자체에 "화면 설계와
+  코드 구현을 서로 확인하는 장치"가 없다는 절차 문제</b>다.
+  <code>START.md</code> §5가 이미 "v1에는 협업 지원이 없다"고 실측했던
+  것과 같은 종류의 발견이다 — 이번엔 협업이 아니라 화면·코드 사이에서
+  같은 구멍이 또 보인 것이다. shift-left 팩(REVIEW.md §9.4 G4)에 넣을
+  후보: <b>"장면 게이트는 API 검증과 화면 검증을 구분해서 적는다. 화면이
+  있는 유닛의 완료 조건은 그 화면의 모든 버튼을 나열한다."</b></p>
+</section>
+
 <footer>
   <h2 style="margin-top:0">바뀐 파일</h2>
   <div class="filelist">
     <div class="fileitem"><span class="path">design/enode-ux.pen</span>
-      <span class="what">— 새 컴포넌트 <code class="mono">C3 자원 회수 · 활성</code> 추가.
+      <span class="what">— 새 컴포넌트 <code class="mono">C3 자원 회수 · 활성</code> ·
+      <code class="mono">C4</code> · <code class="mono">C5</code> 배지 추가.
       기존 화면 여덟 장은 안 건드림</span></div>
     <div class="fileitem"><span class="path">design/ux-draft-source.md</span>
       <span class="what">— §7 팀 스토리 대조 절 + §7.6 Application Design 대조 절 추가(이 페이지의 원본)</span></div>
