@@ -1,0 +1,704 @@
+<title>Drain 화면 보강안</title>
+<style>
+:root{
+  --bg:#F7F6F4; --surface:#FFFFFF; --surface-2:#F0EEEA;
+  --border:#E2DFD9; --border-strong:#CFCAC1;
+  --text:#1C1A17; --text-2:#5C574E; --dim:#8B8579;
+  --drain:#8A5CD6; --drain-soft:#8A5CD61A; --drain-ink:#FBFAFF;
+  --queued:#B4791F; --queued-soft:#B4791F14;
+  --danger:#B23B2E;
+  --body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+
+  --mock-bg:#0B0D10; --mock-surface:#14181D; --mock-surface-2:#1B2027;
+  --mock-border:#262D36; --mock-border-strong:#39434F;
+  --mock-text:#E6EAF0; --mock-text-2:#98A4B3; --mock-dim:#5F6B7A;
+  --mock-drain:#B98CFF;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F0E0C; --surface:#17150F; --surface-2:#1E1B15;
+    --border:#2C2820; --border-strong:#403A2E;
+    --text:#EEEAE1; --text-2:#A79E8E; --dim:#6E6656;
+    --drain:#B08CF0; --drain-soft:#B08CF01F; --drain-ink:#140C24;
+    --queued:#E0A94A; --queued-soft:#E0A94A1A;
+    --danger:#E27A6A;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F0E0C; --surface:#17150F; --surface-2:#1E1B15;
+  --border:#2C2820; --border-strong:#403A2E;
+  --text:#EEEAE1; --text-2:#A79E8E; --dim:#6E6656;
+  --drain:#B08CF0; --drain-soft:#B08CF01F; --drain-ink:#140C24;
+  --queued:#E0A94A; --queued-soft:#E0A94A1A;
+  --danger:#E27A6A;
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);
+     font-size:16px;line-height:1.7;-webkit-font-smoothing:antialiased}
+.wrap{max-width:980px;margin:0 auto;padding:64px 28px 140px}
+code,.mono{font-family:var(--mono)}
+
+a{color:inherit}
+
+header{padding-bottom:40px;border-bottom:1px solid var(--border);margin-bottom:48px}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:1.6px;
+  text-transform:uppercase;color:var(--drain);margin-bottom:16px}
+h1{font-size:34px;font-weight:650;letter-spacing:-0.01em;margin:0 0 16px;
+   text-wrap:balance;line-height:1.22}
+.lede{font-size:16.5px;color:var(--text-2);max-width:66ch;margin:0}
+.lede code{background:var(--surface-2);padding:1px 6px;border-radius:4px;font-size:.9em}
+
+.src{font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:22px;
+     display:flex;flex-wrap:wrap;gap:8px 22px}
+.src span::before{content:"·  ";color:var(--border-strong)}
+.src span:first-child::before{content:""}
+
+h2{font-size:12px;font-weight:650;letter-spacing:1.4px;text-transform:uppercase;
+   color:var(--dim);margin:76px 0 22px;padding-bottom:12px;
+   border-bottom:1px solid var(--border)}
+h2 .n{font-family:var(--mono);color:var(--drain);margin-right:10px}
+
+h3{font-size:19px;font-weight:600;letter-spacing:-.005em;margin:0 0 12px;
+   text-wrap:balance}
+p{margin:0 0 16px;max-width:70ch}
+p:last-child{margin-bottom:0}
+.text-2{color:var(--text-2)}
+
+.status-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:36px}
+.pill{font-family:var(--mono);font-size:11.5px;padding:5px 12px;border-radius:999px;
+      border:1px solid var(--border-strong);color:var(--text-2)}
+.pill.pass{color:#3A8A5D;border-color:#3A8A5D66;background:#3A8A5D0F}
+.pill.gap{color:var(--drain);border-color:var(--drain);background:var(--drain-soft)}
+.pill.rejected{color:var(--danger);border-color:var(--danger)66;background:var(--danger)0F}
+
+/* pass list */
+.pass-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
+@media(max-width:720px){.pass-grid{grid-template-columns:1fr}}
+.pass-item{border:1px solid var(--border);border-radius:10px;padding:16px 18px;
+           background:var(--surface)}
+.pass-item .t{font-weight:600;font-size:14px;margin-bottom:6px}
+.pass-item .d{font-size:13px;color:var(--text-2);line-height:1.55}
+.pass-item .d code{font-size:.92em}
+
+/* rejection card */
+.card{border:1px solid var(--border);border-radius:14px;padding:26px 28px;
+      background:var(--surface);margin:20px 0}
+.card.reject{border-color:var(--danger)55}
+.reject-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.reject-tag{font-family:var(--mono);font-size:10.5px;letter-spacing:1px;
+  text-transform:uppercase;color:var(--danger);background:var(--danger)12;
+  border:1px solid var(--danger)40;border-radius:5px;padding:3px 8px}
+.reason-list{display:flex;flex-direction:column;gap:14px;margin:18px 0 4px}
+.reason{display:grid;grid-template-columns:120px 1fr;gap:16px;align-items:baseline}
+@media(max-width:640px){.reason{grid-template-columns:1fr;gap:4px}}
+.reason .k{font-family:var(--mono);font-size:11px;color:var(--dim);
+  letter-spacing:.4px;text-transform:uppercase}
+.reason .v{font-size:14.5px;color:var(--text-2);line-height:1.6}
+.reason .v code{font-size:.9em}
+.reason .v b{color:var(--text);font-weight:600}
+
+/* citation */
+blockquote{margin:18px 0;padding:14px 18px;border-left:2px solid var(--border-strong);
+  background:var(--surface-2);border-radius:0 8px 8px 0;font-size:14px;
+  color:var(--text-2);line-height:1.65}
+blockquote code{background:none;padding:0}
+.cite{font-family:var(--mono);font-size:11.5px;color:var(--dim);margin-top:6px}
+
+/* mockup panels */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:28px 0 8px}
+@media(max-width:760px){.compare{grid-template-columns:1fr}}
+.mock-col .label{font-family:var(--mono);font-size:11px;letter-spacing:.6px;
+  color:var(--dim);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.mock-col .label .dot{width:6px;height:6px;border-radius:50%;background:var(--border-strong)}
+.mock-col.now .label .dot{background:var(--dim)}
+.mock-col.proposed .label .dot{background:var(--drain)}
+
+.mock-frame{background:var(--mock-bg);border-radius:16px;padding:22px;
+  border:1px solid var(--mock-border-strong)}
+.mock-panel{background:var(--mock-surface);border:1px solid var(--mock-border);
+  border-radius:10px;padding:18px;font-family:var(--body)}
+.mock-panel.active{border-color:var(--mock-drain)}
+.mp-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.mp-cap{font-size:10px;font-weight:650;letter-spacing:1px;color:var(--mock-drain)}
+.mp-btn{font-size:12px;font-weight:600;background:var(--mock-drain);color:#160B22;
+  border-radius:6px;padding:8px 14px;text-align:center}
+.mp-btn.ghost{background:transparent;border:1px solid var(--mock-border-strong);color:var(--mock-text-2)}
+.mp-badge{font-size:10px;font-weight:600;letter-spacing:.6px;color:var(--mock-drain);
+  background:#B98CFF22;border-radius:4px;padding:3px 8px}
+.mp-mode{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.mp-mode-row{border:1px solid var(--mock-border);border-radius:6px;padding:9px 11px;
+  font-size:11.5px;color:var(--mock-text-2)}
+.mp-status{border:1px solid var(--mock-border);border-radius:6px;padding:10px 12px;
+  margin-bottom:12px}
+.mp-status .l1{font-size:12px;font-weight:500;color:var(--mock-text);margin-bottom:3px}
+.mp-status .l2{font-size:10px;color:var(--mock-dim)}
+.mp-foot{font-size:10px;color:var(--mock-dim);line-height:1.55;margin-top:12px}
+.mock-caption{font-size:12.5px;color:var(--dim);margin-top:12px;line-height:1.55}
+
+/* spec chip */
+.spec-chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);
+  font-size:11px;color:var(--dim);background:var(--surface-2);border:1px solid var(--border);
+  border-radius:6px;padding:4px 9px;margin-top:18px}
+.spec-chip b{color:var(--text-2);font-weight:600}
+
+.confirm-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:8px}
+.confirm-item{display:grid;grid-template-columns:150px 1fr;gap:16px;padding:14px 0;
+  border-top:1px solid var(--border)}
+@media(max-width:640px){.confirm-item{grid-template-columns:1fr;gap:4px}}
+.confirm-item .t{font-size:13px;font-weight:600;color:var(--text)}
+.confirm-item .d{font-size:13.5px;color:var(--text-2);line-height:1.6}
+
+footer{margin-top:80px;padding-top:24px;border-top:1px solid var(--border)}
+.filelist{display:flex;flex-direction:column;gap:9px;margin-top:14px}
+.fileitem{display:flex;gap:12px;align-items:baseline;font-size:13.5px}
+.fileitem .path{font-family:var(--mono);color:var(--text);font-size:12.5px}
+.fileitem .what{color:var(--text-2)}
+footer .note{font-size:12.5px;color:var(--dim);margin-top:20px;line-height:1.6}
+
+/* story inventory */
+.inv-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px;margin:8px 0 32px}
+table.inv{width:100%;border-collapse:collapse;font-size:13px;min-width:640px}
+table.inv th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.6px;
+  text-transform:uppercase;color:var(--dim);padding:11px 14px;background:var(--surface-2);
+  border-bottom:1px solid var(--border);position:sticky;top:0}
+table.inv td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top}
+table.inv tr:last-child td{border-bottom:none}
+table.inv td.id{font-family:var(--mono);font-size:12px;color:var(--text-2);white-space:nowrap}
+table.inv td.title{color:var(--text)}
+table.inv td.title .sub{display:block;color:var(--dim);font-size:11.5px;margin-top:2px}
+.tag{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:600;
+  letter-spacing:.4px;padding:2px 7px;border-radius:5px;white-space:nowrap}
+.tag.t-pass{color:#3A8A5D;background:#3A8A5D14}
+.tag.t-gap{color:var(--drain);background:var(--drain-soft)}
+.tag.t-reject{color:var(--danger);background:var(--danger)12}
+.tag.t-na{color:var(--dim);background:var(--surface-2)}
+.inv-caption{font-size:12.5px;color:var(--dim);margin:-14px 0 28px}
+
+/* diff view */
+.diffbox{background:var(--mock-bg);border:1px solid var(--mock-border-strong);border-radius:12px;
+  padding:4px 0;margin:18px 0;overflow-x:auto}
+.diffbox pre{margin:0;padding:14px 18px;font-family:var(--mono);font-size:12px;line-height:1.65;
+  color:var(--mock-text-2);white-space:pre}
+.diffbox .add{color:#7FD99A;background:#3A8A5D12;display:block;margin:0 -18px;padding:0 18px}
+.diffbox .ctx{color:var(--mock-dim)}
+.diffbox .hunk{color:var(--mock-drain);display:block;margin:0 -18px;padding:2px 18px 6px}
+</style>
+
+<div class="wrap">
+
+<a href="index.html" style="display:inline-block;margin-top:32px;font-family:var(--mono);font-size:12.5px;color:var(--dim);text-decoration:none">&larr; enode 입문으로 돌아가기</a>
+
+<header>
+  <div class="eyebrow">enode-fixup-workshop · review 브랜치 · design/enode-ux.pen</div>
+  <h1>drain 화면, 건 뒤에는 무엇이 보이나</h1>
+  <p class="lede">네 실행(<code>v1-run-01</code>·<code>v1-run-02</code>·
+  <code>v1-greenfield-01</code>·<code>shin-son-development</code>) 중 사용자
+  스토리를 낸 두 팀원의 서른다섯 개를 기존 화면 여덟 장과 대조했다. 스물아홉은
+  이미 맞았고, 하나는 근거를 들어 기각했고, 하나는 진짜 빈 자리였다. 스토리가
+  없는 그린필드 실행도 범위 판단만 따로 대조했다.</p>
+  <div class="src">
+    <span>대조 대상 — <code>stories.md</code> × 2 + <code>requirement.md</code> × 1</span>
+    <span>기존 설계 — <code>ux-draft-source.md</code></span>
+    <span>2026-09-03</span>
+  </div>
+</header>
+
+<div class="status-row">
+  <span class="pill pass">7.1 통과 — 4항목</span>
+  <span class="pill rejected">7.2 기각 — 중앙 drain 버튼</span>
+  <span class="pill gap">7.3 갭 — draining 활성 상태</span>
+  <span class="pill" style="color:var(--text-2)">7.5 4번째 표본 — 셋을 통째로 미룸</span>
+  <span class="pill gap">7.6 Application Design — 새 발견 둘</span>
+</div>
+
+<section>
+  <h2><span class="n">00</span>스토리 인벤토리 — 35개 전체</h2>
+  <p class="text-2">아래 두 표가 대조 대상 전부다. 화면과 관련 없는 것(백엔드 전용 ·
+  CLI · 범위 밖)도 숨기지 않고 같이 실었다 — "왜 반영 안 됐나"가 "빠뜨려서"가
+  아니라 "화면과 무관해서"임을 확인할 수 있게.</p>
+
+  <h3 style="margin-top:28px;font-size:15px;color:var(--text-2)">v1-run-01 · 스토리 10 · 페르소나 4</h3>
+  <div class="inv-wrap">
+    <table class="inv">
+      <thead><tr><th style="width:70px">ID</th><th>제목</th><th style="width:120px">결과</th></tr></thead>
+      <tbody>
+        <tr><td class="id">US-1</td><td class="title">호스트 제어판<span class="sub">S3·S5에 이미 있음</span></td><td><span class="tag t-pass">통과</span></td></tr>
+        <tr><td class="id">US-2</td><td class="title">트랜스크립트<span class="sub">S4가 그대로 받음</span></td><td><span class="tag t-pass">통과</span></td></tr>
+        <tr><td class="id">US-3</td><td class="title">소유자 자원 제어권 — drain<span class="sub">AC-3.3(중앙 호출)은 기각, 나머지는 갭 근거</span></td><td><span class="tag t-gap">갭+기각</span></td></tr>
+        <tr><td class="id">US-4</td><td class="title">중앙 현황판<span class="sub">AC-4.2·4.9(principal·중앙drain)만 기각</span></td><td><span class="tag t-reject">일부 기각</span></td></tr>
+        <tr><td class="id">US-5</td><td class="title">대기열<span class="sub">S1 Run 목록이 이미 받음</span></td><td><span class="tag t-pass">통과</span></td></tr>
+        <tr><td class="id">US-6</td><td class="title">Mediator MCP<span class="sub">이번 라운드 범위 밖(MVP 필수 넷 아님)</span></td><td><span class="tag t-na">화면 무관</span></td></tr>
+        <tr><td class="id">US-7</td><td class="title">stream-json 전환<span class="sub">인에이블러, 백엔드 파싱 경로</span></td><td><span class="tag t-na">화면 무관</span></td></tr>
+        <tr><td class="id">US-8</td><td class="title">역할 주입<span class="sub">범위 밖, 화면에 표현 없음</span></td><td><span class="tag t-na">화면 무관</span></td></tr>
+        <tr><td class="id">US-9</td><td class="title">프로세스 조작 코드 이동<span class="sub">순수 리팩터, 화면 없음</span></td><td><span class="tag t-na">화면 무관</span></td></tr>
+        <tr><td class="id">US-10</td><td class="title">dhseo 시나리오(가로지름)<span class="sub">CP4 — 갭 발견의 핵심 근거</span></td><td><span class="tag t-gap">갭 근거</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="font-size:15px;color:var(--text-2)">shin-son-development · 스토리 25 · 페르소나 3</h3>
+  <div class="inv-wrap">
+    <table class="inv">
+      <thead><tr><th style="width:70px">ID</th><th>제목</th><th style="width:120px">결과</th></tr></thead>
+      <tbody>
+        <tr><td class="id">US-1.1</td><td class="title">Run 목록 API</td><td><span class="tag t-pass">통과</span></td></tr>
+        <tr><td class="id">US-1.2</td><td class="title">노드 목록 API<span class="sub">principal 미포함 — §4.1 규칙 자체의 근거</span></td><td><span class="tag t-pass">통과</span></td></tr>
+        <tr><td class="id">US-1.3</td><td class="title">임대 노출</td><td><span class="tag t-pass">통과</span></td></tr>
+        <tr><td class="id">US-1.4</td><td class="title">단계 뷰에 chosen 표시</td><td><span class="tag t-pass">통과</span></td></tr>
+        <tr><td class="id">US-1.5</td><td class="title">함대 카드 격자<span class="sub">draining 구분 보강 요구 — 이미 커버</span></td><td><span class="tag t-pass">통과</span></td></tr>
+        <tr><td class="id">US-1.6</td><td class="title">Run 단계 의존 그래프</td><td><span class="tag t-pass">통과</span></td></tr>
+        <tr><td class="id">US-1.7</td><td class="title">현황판 폴링 갱신</td><td><span class="tag t-pass">통과</span></td></tr>
+        <tr><td class="id">US-2.1</td><td class="title">자원 부족 시 대기 전이<span class="sub">상태값, 화면은 목록 표시로 이미 반영</span></td><td><span class="tag t-pass">통과</span></td></tr>
+        <tr><td class="id">US-2.2</td><td class="title">불가능한 요구는 즉시 실패<span class="sub">응답 코드, 화면 표현 없음</span></td><td><span class="tag t-na">화면 무관</span></td></tr>
+        <tr><td class="id">US-2.3</td><td class="title">도착 순서로 깨우기<span class="sub">백엔드 스케줄링</span></td><td><span class="tag t-na">화면 무관</span></td></tr>
+        <tr><td class="id">US-2.4</td><td class="title">runctl에서 대기 상태 확인<span class="sub">CLI, 웹 화면 아님</span></td><td><span class="tag t-na">화면 무관</span></td></tr>
+        <tr><td class="id">US-3.1</td><td class="title">정책 자리<span class="sub">draining 배지 지속성의 배후</span></td><td><span class="tag t-pass">통과</span></td></tr>
+        <tr><td class="id">US-3.2</td><td class="title">호스트에서만 drain 걸고 풀기<span class="sub">기각(7.2)의 직접 근거</span></td><td><span class="tag t-reject">기각 근거</span></td></tr>
+        <tr><td class="id">US-3.3</td><td class="title">graceful 모드</td><td><span class="tag t-pass">통과</span></td></tr>
+        <tr><td class="id">US-3.4</td><td class="title">at-boundary 모드</td><td><span class="tag t-pass">통과</span></td></tr>
+        <tr><td class="id">US-3.5</td><td class="title">하트비트로 drain 통보<span class="sub">백엔드 경로, 화면 무관</span></td><td><span class="tag t-na">화면 무관</span></td></tr>
+        <tr><td class="id">US-3.6</td><td class="title">매칭 후보 제외와 복귀<span class="sub">갭 발견의 핵심 근거(§7 dhseo 검증)</span></td><td><span class="tag t-gap">갭 근거</span></td></tr>
+        <tr><td class="id">US-4.1</td><td class="title">제어판 서버 띄우기<span class="sub">멈춘 노드 상태 — S5</span></td><td><span class="tag t-pass">통과</span></td></tr>
+        <tr><td class="id">US-4.2</td><td class="title">LAN 노출은 명시적으로<span class="sub">enodectl 플래그, 화면 요소 아님</span></td><td><span class="tag t-na">화면 무관</span></td></tr>
+        <tr><td class="id">US-4.3</td><td class="title">프로세스 제어(start·stop·logs)</td><td><span class="tag t-pass">통과</span></td></tr>
+        <tr><td class="id">US-4.4</td><td class="title">신원 표시</td><td><span class="tag t-pass">통과</span></td></tr>
+        <tr><td class="id">US-4.5</td><td class="title">탐지 능력 표시</td><td><span class="tag t-pass">통과</span></td></tr>
+        <tr><td class="id">US-4.6</td><td class="title">현재 작업 표시</td><td><span class="tag t-pass">통과</span></td></tr>
+        <tr><td class="id">US-4.7</td><td class="title">drain 버튼<span class="sub">"걸린 상태엔 풀기가 보인다" — 갭의 직접 근거</span></td><td><span class="tag t-gap">갭 근거</span></td></tr>
+        <tr><td class="id">US-4.8</td><td class="title">단일 페이지 폴링 갱신</td><td><span class="tag t-pass">통과</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="inv-caption">35개 중 29개 통과 · 2개가 갭(C3 추가)의 직접 근거 · 2개가
+  기각의 근거 · 나머지는 화면과 무관(백엔드·CLI·범위 밖). v1-greenfield-01은
+  스토리가 없어 이 표에서 빠지고 05절에서 따로 다룬다.</p>
+</section>
+
+<section>
+  <h2><span class="n">01</span>이미 맞았던 것</h2>
+  <p class="text-2">두 스토리 문서의 수용 기준이 요구하는 걸 기존 화면 설계가
+  이미 받아 내고 있는지부터 확인했다. 넷 다 통과했다.</p>
+
+  <div class="pass-grid">
+    <div class="pass-item">
+      <div class="t">노드 카드 5상태</div>
+      <div class="d">run-01 <code>AC-4.6·4.7</code>, shin-son <code>US-1.5</code> —
+      라벨·생존·임대·단계·풀리는 시각. 기존 5행 표와 일치.</div>
+    </div>
+    <div class="pass-item">
+      <div class="t">Run 목록에 QUEUED</div>
+      <div class="d">run-01 <code>AC-4.N1·5.N1</code>, shin-son <code>US-1.3·2.4</code> —
+      카드 격자와 별개 패널로 이미 받아 냄.</div>
+    </div>
+    <div class="pass-item">
+      <div class="t">S2 작업 그래프</div>
+      <div class="d">run-01 <code>AC-4.5</code>, shin-son <code>US-1.6</code> —
+      steps[]·needs[]·chosen 그대로 사용.</div>
+    </div>
+    <div class="pass-item">
+      <div class="t">호스트 전용 drain</div>
+      <div class="d">shin-son <code>US-3.2</code>가 명시. 기존 결정과 그대로 맞음.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">02</span>기각 — 중앙 현황판에서 drain을 걸 수 있는가</h2>
+
+  <div class="card reject">
+    <div class="reject-head">
+      <span class="reject-tag">기각</span>
+      <h3 style="margin:0">run-01 <code class="mono">AC-4.9</code> · <code class="mono">AC-4.2</code></h3>
+    </div>
+    <blockquote>
+      "현황판에서 drain을 건다" &nbsp;·&nbsp; 중앙 목록 응답에
+      <code>principal</code> 포함
+      <div class="cite">— v1-run-01 stories.md, US-4</div>
+    </blockquote>
+
+    <div class="reason-list">
+      <div class="reason">
+        <div class="k">표본</div>
+        <div class="v">review 브랜치 실행 셋 중 <b>ADR-065를 직접 읽은 것 하나만</b>
+        principal을 뺐다. shin-son도 독립적으로 호스트 전용을 냈다 —
+        run-01이 소수다.</div>
+      </div>
+      <div class="reason">
+        <div class="k">근거의 층</div>
+        <div class="v">run-01의 근거는 스토리 서사("그렇게 하고 싶다") 수준이고,
+        기존 결정의 근거는 <b>소유 증명</b>("그 기계에 접속한 것이 증거")이라는
+        구조적 제약이다. 스토리가 요구한다고 제약이 없어지지 않는다.</div>
+      </div>
+      <div class="reason">
+        <div class="k">자기모순</div>
+        <div class="v">run-01 자신도 US-3 제약 절에 "중앙이 소유권을 판정하지
+        않는다는 원칙의 대가다"라고 <b>같은 문서 안에서</b> 이미 적어 뒀다.
+        AC-4.9는 그 제약을 스토리 작성 뒤에 놓친 것으로 읽힌다.</div>
+      </div>
+    </div>
+  </div>
+  <p class="text-2" style="font-size:13.5px">기존 설계를 바꾸지 않는다 — 이
+  절은 "왜 안 바꾸는지"를 다음 실행이 같은 질문을 할 때 가리킬 수 있게
+  남겨 두는 것이 목적이다.</p>
+</section>
+
+<section>
+  <h2><span class="n">03</span>갭 — draining을 건 뒤가 화면에 없다</h2>
+
+  <p>지금 화면 여덟 장 중 <code>S3</code>(호스트 제어판)이 그리는 건
+  <b>drain을 아직 안 걸었을 때</b>뿐이다. 두 팀원의 스토리는 독립적으로
+  같은 결론에 닿는다 — <b>건 뒤의 상태가 따로 있어야 하고, 그건 owner가
+  명시적으로 풀어야 끝난다.</b></p>
+
+  <blockquote>
+    "(보강) 걸린 상태에서는 「풀기」가 보이고 현재 모드가 보인다."
+    <div class="cite">— shin-son-development stories.md, US-4.7</div>
+  </blockquote>
+  <blockquote>
+    "풀린다 → 집는다"는 소유자가 drain을 <b>푼 뒤</b>에만 성립한다.
+    drain이 걸린 채로는 노드가 후보로 돌아오지 않는다.
+    <div class="cite">— shin-son-development stories.md, §7 dhseo 시나리오 검증</div>
+  </blockquote>
+
+  <div class="compare">
+    <div class="mock-col now">
+      <div class="label"><span class="dot"></span>지금 — S3의 유일한 상태</div>
+      <div class="mock-frame">
+        <div class="mock-panel">
+          <div class="mp-head">
+            <span class="mp-cap">자원 회수 (DRAIN)</span>
+            <span class="mp-btn">drain 걸기</span>
+          </div>
+          <div class="mp-mode">
+            <div class="mp-mode-row">graceful — 도는 Run은 끝까지</div>
+            <div class="mp-mode-row">at-boundary — 다음 경계에서</div>
+          </div>
+          <div class="mp-foot">Run을 죽이지 않는다. 중앙 현황판에는 draining
+          배지로만 나타나고 거기서는 누를 수 없다.</div>
+        </div>
+      </div>
+      <div class="mock-caption">모드를 고르고 거는 화면만 있다 — 건 다음
+      무슨 일이 일어나는지는 안 그려져 있다.</div>
+    </div>
+
+    <div class="mock-col proposed">
+      <div class="label"><span class="dot"></span>제안 — C3 자원 회수 · 활성</div>
+      <div class="mock-frame">
+        <div class="mock-panel active">
+          <div class="mp-head">
+            <span class="mp-cap">자원 회수 (DRAIN) · 활성</span>
+            <span class="mp-badge">graceful</span>
+          </div>
+          <div class="mp-status">
+            <div class="l1">지금 도는 작업 없음 — 되찾은 상태</div>
+            <div class="l2">이 기계는 온전히 당신 것이다. 풀기 전까지 새 임대가 안 온다</div>
+          </div>
+          <div class="mp-btn" style="margin-bottom:0">drain 풀기 · 함대로 돌려주기</div>
+          <div class="mp-foot">푸는 순간 매칭 후보로 돌아온다 — 대기 중인
+          Run이 있으면 곧바로 배정될 수 있다.</div>
+        </div>
+      </div>
+      <div class="mock-caption">건 모드는 고정 배지로, "풀기"는 결과를
+      예고하는 문구와 함께 — 되돌릴 수 없는 결정처럼 보이게 했다.</div>
+    </div>
+  </div>
+
+  <span class="spec-chip"><b>enode-ux.pen</b> children[10] 에 추가함 · id
+  <code>pxDrainActive</code> · JSON 파싱 검증 통과</span>
+</section>
+
+<section>
+  <h2><span class="n">04</span>확인했지만 갭이 아니었던 것</h2>
+  <div class="confirm-grid">
+    <div class="confirm-item">
+      <div class="t">P4 에이전트<br><span class="text-2" style="font-weight:400;font-size:12px">(run-01)</span></div>
+      <div class="d">"화면이 아니라 구조화된 응답을 읽는다"고 스스로 적었다.
+      MCP 축이라 이번 라운드 범위 밖 — 화면 쪽엔 반영할 게 없다.</div>
+    </div>
+    <div class="confirm-item">
+      <div class="t">AC-10.N1 대<br>AC-3.6 상충</div>
+      <div class="d">처음엔 상충으로 보였다(풀린 자원을 대기열이 채가는가,
+      소유자가 갖는가). shin-son 7절이 "owner가 명시 해제해야 후보로
+      돌아온다"로 정확히 풀어냈다 — 03의 근거가 이것이다. run-01도 같은
+      결론에 도달했지만 스스로 "해석"이라 표시해 뒀다.</div>
+    </div>
+    <div class="confirm-item">
+      <div class="t">Filter SEALED<br><span class="text-2" style="font-weight:400;font-size:12px">(프레임 이름)</span></div>
+      <div class="d">S1 필터 칩의 내부 이름표 하나가 <code>Filter SEALED</code>로
+      남아 있으나 실제 표시 텍스트는 <code>SUCCEEDED</code>다 — 화면에
+      안 보이는 이름표라 어휘 규칙을 어기지 않는다.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">05</span>네 번째 표본 — v1-greenfield-01은 셋을 통째로 미뤘다</h2>
+
+  <p>스토리 산출물은 없지만(그린필드 전면 재구현이라 <code>requirement.md</code>가
+  정본) 범위 판단만큼은 볼 값이 있어 따로 봤다. <b>화면 둘·drain·대기열을
+  한 묶음으로 "3단계"로 미뤘다</b> — 코드를 짜기 전에 스스로 내린 판단이다.</p>
+
+  <blockquote>
+    웹 화면 둘 — "볼 것이 먼저 있어야 본다" &nbsp;·&nbsp;
+    소유자 자원 회수 — "회수할 자원이 먼저 돌고 있어야 한다" &nbsp;·&nbsp;
+    대기 열 — "공정성 정책이 따라오는 새 부품이다"
+    <div class="cite">— v1-greenfield-01 requirement.md §4.3, 셋 다 동일 사유 "3단계"</div>
+  </blockquote>
+
+  <p class="text-2">이게 <b>세 번째 독립 신호</b>다. 오늘 <code>ADR-064</code> §5("drain이
+  대기열의 깨우기 조건에 직접 영향을 준다")와 <code>v1-run-02</code>의 컴포넌트
+  관측(셋이 <code>internal/api/api.go</code>를 같이 문다)에서 이미 본 결합이,
+  전혀 다른 실행에서 코드를 짜기도 전에 또 나타났다. 실제로 코드 전체를
+  grep해도 <code>drain</code>·<code>queue</code>는 0건 — 미루기로 한 결정이
+  그대로 지켜졌다.</p>
+
+  <div class="card" style="border-color:var(--border-strong)">
+    <div class="reject-head">
+      <span class="reject-tag" style="color:var(--dim);border-color:var(--border-strong);background:var(--surface-2)">참고만</span>
+      <h3 style="margin:0;font-size:16px">J2 여정 텍스트는 코드로 안 굳어 정밀도가 낮다</h3>
+    </div>
+    <blockquote>
+      "회수를 건다. 진행 중인 것은 끝까지 가고 새 배정은 막힌다. 단계
+      경계에서 임대가 풀린다. <b>대기 중이던 다음 Run이 그 기계를
+      집어간다.</b>"
+      <div class="cite">— requirement.md §3.3 J2</div>
+    </blockquote>
+    <p style="font-size:14px;color:var(--text-2);margin:0">문장 그대로면
+    drain이 걸린 채로 대기 Run이 곧바로 집어가는 것처럼 읽혀 <code>AC-3.6</code>과
+    부딪힌다. 하지만 Vision 단계 산문이지 GWT 수용 기준이 아니고, 뒤에 코드가
+    없어 이 모호함이 한 번도 시험되지 않았다. 03의 결론(owner가 명시
+    해제해야 후보로 돌아온다)을 뒤집을 근거로 보지 않는다 — run-01·shin-son
+    둘 다 GWT까지 내려가 이 지점을 직접 풀었고 수렴했다. "나중에 이 셋을
+    구현할 때 같은 함정을 다시 밟지 말라"는 경고로만 남긴다.</p>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">06</span>enode-ux.pen 실제 diff</h2>
+  <p class="text-2"><code>git diff review..review-drain-ux-enhancement --
+  design/enode-ux.pen</code> 그대로다. 순수 추가뿐이고(<code>+</code> 136줄),
+  기존 화면 열 개는 한 줄도 안 바뀌었다 — 파일 맨 끝 <code>children</code>
+  배열에 새 프레임 하나가 통째로 붙었다.</p>
+  <div class="diffbox">
+<pre><span class="hunk">@@ -7445,6 +7445,142 @@</span>
+<span class="ctx">           ]</span>
+<span class="ctx">         }</span>
+<span class="ctx">       ]</span>
+<span class="add">+    },</span>
+<span class="add">+    {</span>
+<span class="add">+      "type": "frame",</span>
+<span class="add">+      "id": "pxDrainActive",</span>
+<span class="add">+      "x": 1560,</span>
+<span class="add">+      "y": 1320,</span>
+<span class="add">+      "name": "C3 자원 회수 · 활성 (draining, 자유)",</span>
+<span class="add">+      "reusable": true,</span>
+<span class="add">+      "width": 360,</span>
+<span class="add">+      "fill": "$surface",</span>
+<span class="add">+      "cornerRadius": "$radius",</span>
+<span class="add">+      "stroke": "$state-drain",</span>
+<span class="add">+      "strokeWidth": 1,</span>
+<span class="add">+      "strokeAlignment": "inner",</span>
+<span class="add">+      "layout": "vertical",</span>
+<span class="add">+      "gap": 12,</span>
+<span class="add">+      "padding": 18,</span>
+<span class="add">+      "children": [</span>
+<span class="add">+        {</span>
+<span class="add">+          "type": "frame",</span>
+<span class="add">+          "id": "pxDrainHeader",</span>
+<span class="add">+          "name": "Drain Header",</span>
+<span class="add">+          "width": "fill_container",</span>
+<span class="add">+          "justifyContent": "space_between",</span>
+<span class="add">+          "alignItems": "center",</span>
+<span class="add">+          "children": [</span>
+<span class="add">+            {</span>
+<span class="add">+              "type": "text",</span>
+<span class="add">+              "id": "pxDrainCaption",</span>
+<span class="add">+              "name": "Caption",</span>
+<span class="add">+              "fill": "$state-drain",</span>
+<span class="add">+              "content": "자원 회수 (drain) · 활성",</span>
+<span class="add">+              "fontFamily": "$font-body",</span>
+<span class="add">+              "fontSize": 10,</span>
+<span class="add">+              "fontWeight": "600",</span>
+<span class="add">+              "letterSpacing": 1</span>
+<span class="add">+            },</span>
+<span class="add">+            {</span>
+<span class="add">+              "type": "frame",</span>
+<span class="add">+              "id": "pxModeBadge",</span>
+<span class="add">+              "name": "Mode Badge",</span>
+<span class="add">+              "fill": "#B98CFF22",</span>
+<span class="add">+              "cornerRadius": 4,</span>
+<span class="add">+              "padding": [3, 8],</span>
+<span class="add">+              "children": [</span>
+<span class="add">+                {</span>
+<span class="add">+                  "type": "text",</span>
+<span class="add">+                  "id": "pxModeBadgeLabel",</span>
+<span class="add">+                  "name": "Mode Badge Label",</span>
+<span class="add">+                  "fill": "$state-drain",</span>
+<span class="add">+                  "content": "graceful",</span>
+<span class="add">+                  "fontFamily": "$font-body",</span>
+<span class="add">+                  "fontSize": 10,</span>
+<span class="add">+                  "fontWeight": "600",</span>
+<span class="add">+                  "letterSpacing": 0.6</span>
+<span class="add">+                }</span>
+<span class="add">+              ]</span>
+<span class="add">+            }</span>
+<span class="add">+          ]</span>
+<span class="add">+        },</span>
+<span class="add">+        {</span>
+<span class="add">+          "type": "frame",</span>
+<span class="add">+          "id": "pxDrainStatus",</span>
+<span class="add">+          "name": "Status",</span>
+<span class="add">+          "width": "fill_container",</span>
+<span class="add">+          "fill": "#00000000",</span>
+<span class="add">+          "cornerRadius": 6,</span>
+<span class="add">+          "stroke": "$border",</span>
+<span class="add">+          "strokeWidth": 1,</span>
+<span class="add">+          "strokeAlignment": "inner",</span>
+<span class="add">+          "layout": "vertical",</span>
+<span class="add">+          "gap": 4,</span>
+<span class="add">+          "padding": [10, 12],</span>
+<span class="add">+          "children": [</span>
+<span class="add">+            {</span>
+<span class="add">+              "type": "text",</span>
+<span class="add">+              "id": "pxDrainStatusLine1",</span>
+<span class="add">+              "name": "Status Line 1",</span>
+<span class="add">+              "fill": "$text-primary",</span>
+<span class="add">+              "content": "지금 도는 작업 없음 — 되찾은 상태",</span>
+<span class="add">+              "fontFamily": "$font-body",</span>
+<span class="add">+              "fontSize": 12,</span>
+<span class="add">+              "fontWeight": "500"</span>
+<span class="add">+            },</span>
+<span class="add">+            {</span>
+<span class="add">+              "type": "text",</span>
+<span class="add">+              "id": "pxDrainStatusLine2",</span>
+<span class="add">+              "name": "Status Line 2",</span>
+<span class="add">+              "fill": "$text-dim",</span>
+<span class="add">+              "content": "이 기계는 온전히 당신 것이다. 풀기 전까지 새 임대가 안 온다",</span>
+<span class="add">+              "fontFamily": "$font-body",</span>
+<span class="add">+              "fontSize": 10,</span>
+<span class="add">+              "fontWeight": "normal"</span>
+<span class="add">+            }</span>
+<span class="add">+          ]</span>
+<span class="add">+        },</span>
+<span class="add">+        {</span>
+<span class="add">+          "type": "frame",</span>
+<span class="add">+          "id": "pxDrainReleaseBtn",</span>
+<span class="add">+          "name": "Btn drain 풀기",</span>
+<span class="add">+          "width": "fill_container",</span>
+<span class="add">+          "fill": "$state-drain",</span>
+<span class="add">+          "cornerRadius": 6,</span>
+<span class="add">+          "stroke": "#00000000",</span>
+<span class="add">+          "strokeWidth": 1,</span>
+<span class="add">+          "strokeAlignment": "inner",</span>
+<span class="add">+          "justifyContent": "center",</span>
+<span class="add">+          "gap": 6,</span>
+<span class="add">+          "padding": [8, 14],</span>
+<span class="add">+          "alignItems": "center",</span>
+<span class="add">+          "children": [</span>
+<span class="add">+            {</span>
+<span class="add">+              "type": "text",</span>
+<span class="add">+              "id": "pxDrainReleaseBtnLabel",</span>
+<span class="add">+              "name": "Btn Label",</span>
+<span class="add">+              "fill": "#160B22",</span>
+<span class="add">+              "content": "drain 풀기 · 함대로 돌려주기",</span>
+<span class="add">+              "fontFamily": "$font-body",</span>
+<span class="add">+              "fontSize": 12,</span>
+<span class="add">+              "fontWeight": "600"</span>
+<span class="add">+            }</span>
+<span class="add">+          ]</span>
+<span class="add">+        },</span>
+<span class="add">+        {</span>
+<span class="add">+          "type": "text",</span>
+<span class="add">+          "id": "pxDrainFooter",</span>
+<span class="add">+          "name": "Footer Note",</span>
+<span class="add">+          "fill": "$text-dim",</span>
+<span class="add">+          "textGrowth": "auto-height",</span>
+<span class="add">+          "width": "fill_container",</span>
+<span class="add">+          "content": "푸는 순간 매칭 후보로 돌아온다 — 대기 중인 Run이 있으면 곧바로 배정될 수 있다. 걸 때 고른 모드(graceful · at-boundary)는 풀기 전까지 바뀌지 않는다.",</span>
+<span class="add">+          "fontFamily": "$font-body",</span>
+<span class="add">+          "fontSize": 10,</span>
+<span class="add">+          "fontWeight": "normal"</span>
+<span class="add">+        }</span>
+<span class="add">+      ]</span>
+<span class="ctx">     }</span>
+<span class="ctx">   ],</span>
+<span class="ctx">   "variables": {</span></pre>
+  </div>
+  <p class="text-2" style="font-size:13px">이 JSON을 실제 화면 목업으로 옮긴 게 03절의
+  "제안 — C3 자원 회수 · 활성" 카드다. 렌더는 안 했고(디자인 툴 필요) JSON
+  파싱 검증만 통과시켰다.</p>
+</section>
+
+<section>
+  <h2><span class="n">07</span>Application Design 대조 — services.md·components.md</h2>
+
+  <p>스토리는 "무엇을 원하는가"를 말하고, Application Design은 "그게 실제로
+  어떤 호출 순서로 도는가"를 말한다. <code>review/run-01</code>·
+  <code>run-02</code>(이 브랜치)·<code>run-03</code>(shin-son)의
+  <code>services.md</code>·<code>components.md</code>를 화면 여덟 장 +
+  C3와 대조했다.</p>
+
+  <div class="pass-grid">
+    <div class="pass-item">
+      <div class="t">S0 트리거 조건</div>
+      <div class="d">run-03 services.md 1절 — "처음이면 prompt →
+      localStorage". 기존 S0 설계와 일치.</div>
+    </div>
+    <div class="pass-item">
+      <div class="t">같은 자료를 같은 메서드로</div>
+      <div class="d">run-01 services.md 8.1 — ListRuns·ListNodes를 현황판·
+      MCP·제어판이 같은 store 메서드로 부른다. 배관이 실제로 하나임을 확인.</div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:32px;font-size:15px">기각의 반대편 근거가 더 채워졌다</h3>
+  <p class="text-2">run-01이 중앙에서도 drain을 걸고 싶어 한 게 스토리 한 줄이
+  아니라 <b>네 문서에 걸쳐 일관됐다</b> — personas.md(P1·P3 갈림 서술),
+  stories.md(<code>AC-4.9</code>), services.md(흐름 5의 "경로 B:
+  internal/dashboard → internal/store.SetDrain"), components.md(중앙
+  컴포넌트 책임에 "카드의 drain 버튼" 명시). 그래도 결론은 안 바뀐다 — run-01
+  자신의 services.md 6.2가 "중앙이 소유권을 판정하지 않는다는 원칙을 지킨
+  대가다... 이 설계가 그 갈림을 해소하지 않는다"고 스스로 적어 뒀다. 일관되게
+  설계했다는 것과 대가를 인정했다는 것은 별개다 — 02절의 기각을 유지한다.</p>
+
+  <h3 style="margin-top:32px;font-size:15px">진짜 새 발견 둘</h3>
+  <div class="reason-list" style="margin-top:8px">
+    <div class="reason">
+      <div class="k">① 출처 미정</div>
+      <div class="v">S3 "현재 작업"의 데이터 출처가 끝까지 안 정해졌다.
+      run-03 services.md 4절 — "데몬 로그를 읽나, 데몬이 상태 파일을
+      남기나"가 결정 사항 아닌 것으로 명시. <code>component-methods.md</code>의
+      <code>NodeCard</code> 구조체까지 내려가도 필드만 있고 출처는 없다.
+      화면은 안 바꾸되 "배선 미정" 표시가 필요하다.</div>
+    </div>
+    <div class="reason">
+      <div class="k">② 표시 없음</div>
+      <div class="v">S3에 Mediator 연결 상태 표시가 없다. run-01 services.md
+      8.3 "단일 장애점" — Mediator가 죽으면 현황판·MCP는 멈추지만 <b>제어판의
+      로컬 기능(start·stop·logs)은 살아있다.</b> 다만 drain 통보는 Mediator를
+      거쳐야 해서 그때는 실패한다. 지금 <code>enode-ux.pen</code>엔 S1b(중앙
+      갱신 실패)의 짝이 호스트 쪽엔 없다 — 사용자가 drain을 눌렀는데 왜 안
+      먹히는지 모를 수 있다. 이번엔 화면을 새로 안 그렸다. 다음 반영 후보.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <h2 style="margin-top:0">바뀐 파일</h2>
+  <div class="filelist">
+    <div class="fileitem"><span class="path">design/enode-ux.pen</span>
+      <span class="what">— 새 컴포넌트 <code class="mono">C3 자원 회수 · 활성</code> 추가.
+      기존 화면 여덟 장은 안 건드림</span></div>
+    <div class="fileitem"><span class="path">design/ux-draft-source.md</span>
+      <span class="what">— §7 팀 스토리 대조 절 + §7.6 Application Design 대조 절 추가(이 페이지의 원본)</span></div>
+  </div>
+  <p class="note">S1 카드 배지를 "draining · 진행 중" / "draining · 대기 중"으로
+  가르는 건 제안만 남기고 안 그렸다 — 기존 카드 인스턴스가 여러 개 얽혀 있어
+  렌더러 없이 손으로 고치면 깨질 위험이 컸다. C3도 실제 렌더는 디자인 툴을
+  가진 사람 몫이다 — 여기서는 JSON 스펙 유효성까지만 확인했다. S3의 Mediator
+  연결 상태 표시(§07 발견 ②)도 다음 반영 후보로 남긴다.</p>
+</footer>
+
+</div>
